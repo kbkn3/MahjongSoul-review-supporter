@@ -26,7 +26,10 @@ Chrome Web Store link is [Here](https://chrome.google.com/webstore/)
 
 
 ## License
-[Apache v2.0](https://github.com/Wabu-K/MahjongSoul-review-supporter/blob/develop/LICENSE)
+[Apache-2.0](https://github.com/Wabu-K/MahjongSoul-review-supporter/blob/develop/LICENSE)
+
+* mjai-reviewer　: [Github Equim-chan/mjai-reviewer](https://github.com/Equim-chan/mjai-reviewer)
+  * Apache-2.0 Using `downloadlogs script`
 
 
 ## Link
@@ -35,8 +38,8 @@ Chrome Web Store link is [Here](https://chrome.google.com/webstore/)
 ## Thanks
 * NAGA by DWANGO : [麻雀AI NAGA](https://naga.dmv.nico/naga_report/top/)
 * mjai-reviewer　: [Github Equim-chan/mjai-reviewer](https://github.com/Equim-chan/mjai-reviewer)
-* Akochan : [Github critter-mj/akochan](https://github.com/critter-mj/akochan)
   * Using `downloadlogs script`
+* Akochan : [Github critter-mj/akochan](https://github.com/critter-mj/akochan)
 * Mortal : [Github Equim-chan/Mortal](https://github.com/Equim-chan/Mortal)
 * Amazing-searcher : [Github eetann/amazing-searcher](https://github.com/eetann/amazing-searcher)
   * I used this link Vue.js and auto-reloading development environment as a reference
