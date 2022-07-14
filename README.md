@@ -26,6 +26,7 @@ Chrome Web Store link is [Here](https://chrome.google.com/webstore/)
 
 
 ## License
+[Apache v2.0](https://github.com/Wabu-K/MahjongSoul-review-supporter/blob/develop/LICENSE)
 
 
 ## Link
