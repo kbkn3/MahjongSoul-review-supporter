@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import { reactive } from 'vue';
+import { reactive,ref } from 'vue';
 
 
 export default {
@@ -29,6 +29,14 @@ export default {
   setup() {
     let seki = reactive([""]);
     let MjaiURLstring = "";
+
+    const MSLang = ref(0);
+    chrome.storage.local.get("MSLang", (result) => {
+      // join langs
+      if (typeof result.MSLang !== "undefined") {
+        MSLang.value = result.MSLang;
+      }
+    });
     const url_head = [
       'https://game.mahjongsoul.com/?paipu=',
       'https://mahjongsoul.game.yo-star.com/?paipu=',
@@ -43,7 +51,7 @@ export default {
             return;
           }
           chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-            MjaiURLstring = url_head[0] + request.message.ref;
+            MjaiURLstring = url_head[MSLang] + request.message.ref;
             seki.push(...request.message.name);
             console.log(seki);
           });

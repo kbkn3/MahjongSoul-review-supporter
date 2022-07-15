@@ -3,7 +3,7 @@
     <div>
       <div class="text-lg font-semibold text-mjsoul-text-lightblue">Select hand</div>
       <div v-for="info_obj in Kyoku_info" :key="info_obj.id">
-        <Kyoku :Language="0" v-bind="info_obj" @click="select(info_obj.id)"></Kyoku>
+        <Kyoku :Language=Number(DisplayLang) v-bind="info_obj" @click="select(info_obj.id)"></Kyoku>
       </div>
       </div>
       <div class="w-36 my-2 mx-1">
@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import { onMounted, reactive } from "vue";
+import { onMounted, reactive,ref } from "vue";
 import Kyoku from "@/popup/Kyoku.vue";
 
 export default {
@@ -100,8 +100,15 @@ export default {
         Kyoku_info.push(kyoku);
       }
     }
-
+    const DisplayLang = ref(0)
+    chrome.storage.local.get("DisplayLang", (result) => {
+      // join langs
+      if (typeof result.DisplayLang !== "undefined") {
+         DisplayLang.value = result.DisplayLang;
+      }
+    });
     onMounted(() => {
+
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         chrome.tabs.sendMessage(tabs[0].id, { message: 'tabNaga' }, (content) => {
           if (!content) {
@@ -111,6 +118,7 @@ export default {
           console.log(content);
         });
       });
+
     })
 
     function soul2naga(results) {
@@ -278,7 +286,9 @@ export default {
       select,
       submitNaga,
       processData,
-      soul2naga
+      soul2naga,
+      DisplayLang,
+
     };
   },
 };

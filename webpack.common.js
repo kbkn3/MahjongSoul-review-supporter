@@ -84,6 +84,10 @@ module.exports = {
       },
       {
         from: "src/content-scripts/content_script_mjai.js"
+      },
+      {
+        from: "src/_locales",
+        to: "_locales"
       }
     ]),
     new HtmlWebpackPlugin({

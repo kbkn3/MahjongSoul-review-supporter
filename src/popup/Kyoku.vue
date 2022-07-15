@@ -2,13 +2,13 @@
     <div
         class="mx-1 my-2 block max-w-sm rounded-lg border-2  bg-mjsoul-grad-dark-blue p-2 shadow-md hover:bg-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700"
         :class="{ 'border-gray-200': !isSelect, 'border-red-600': isSelect }">
-        <div class="text-lg  text-mjsoul-text-lightblue hudetext" v-if="Language === 0">
+        <div class="text-lg  text-mjsoul-text-lightblue hudetext" v-if="Language !== 1">
             {{ Ba_str[Language][Ba] }}
             {{ Kyoku_num }} 局 {{ Honba }} 本場
         </div>
-        <div class="text-base hudetext" v-if="Language !== 0">
+        <div class="text-lg  text-mjsoul-text-lightblue hudetext" v-if="Language === 1">
             {{ Ba_str[Language][Ba] }}
-            {{ Kyoku_num }} {{ Honba }}Counter Repeat
+            {{ Kyoku_num }}&emsp;{{ Honba }}Counter Repeat
         </div>
 
         <!-- Ron pattern -->
@@ -67,15 +67,15 @@ export default {
         const Ba_str = [
             ["東", "南", "西", "北"],
             ["East", "South", "West", "North"],
-            ["East", "South", "West", "North"],
+            ["東", "南", "西", "北"],
         ];
-        const Honba_str = ["本場", "Repeat Counter", "Repeat Counter"];
+        const Honba_str = ["本場", "Repeat Counter", "本場"];
         const Win_str = [
             ["ロン和", "ツモ和"],
             ["Ron", "Draw"],
-            ["Ron", "Draw"],
+            ["榮和", "自摸"],
         ];
-        const Deal_str = ["放銃", "Deal-in", "Deal-in"];
+        const Deal_str = ["放銃", "Deal-in", "放銃"];
         return {
             Ba_str, Honba_str, Win_str, Deal_str
         }

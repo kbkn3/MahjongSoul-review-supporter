@@ -2,12 +2,13 @@
   "manifest_version": 3,
   "name": "MahjongSoul Review Supporter",
   "version": "1.0.0",
-  "description": "From Jantama - This extension will support review MahjongSoul",
+  "description": "__MSG_appDesc__",
   "author": "kbkn",
   "icons": {
     "48": "imgs/extension_icon48.png",
     "128": "imgs/extension_icon128.png"
   },
+  "default_locale": "en",
   "content_scripts": [
     {
       "matches": ["https://game.mahjongsoul.com/*"],
@@ -26,7 +27,7 @@
     "default_popup": "popup.html"
   },
   "background": { "service_worker": "background.js" },
-  "permissions": ["storage", "activeTab", "scripting","tabs"],
+  "permissions": ["storage", "activeTab"],
   "host_permissions": [
     "https://game.mahjongsoul.com/*",
     "https://naga.dmv.nico/naga_report/order_form/",
