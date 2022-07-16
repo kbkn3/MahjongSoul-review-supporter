@@ -6,24 +6,32 @@
         <Kyoku :Language=Number(DisplayLang) v-bind="info_obj" @click="select(info_obj.id)"></Kyoku>
       </div>
       </div>
-      <div class="w-36 my-2 mx-1">
-        <button type="button" class="my-button" @click="submitNaga">Submit</button>
+      <div class="w-full my-2 px-2 grid grid-cols-6 gap-4">
+        <p class="text-lg font-semibold text-mjsoul-text-lightblue py-2 text-right col-start-3 col-span-2">{{ btn_msg }}</p>
+        <button type="button" class="my-button col-start-5 col-span-2" @click="submitNaga">Submit</button>
       </div>
   </div>
 </template>
 
 <script>
-import { onMounted, reactive,ref } from "vue";
+import { onMounted, reactive,ref,computed } from "vue";
 import Kyoku from "@/popup/Kyoku.vue";
 
 export default {
   components: { Kyoku },
   setup() {
+    //牌譜データから表示用のデータを抽出したもの
     const Kyoku_info = reactive([]);
+    //jsonデータから天鳳形式に変換したものを受け取る
     let toNagaData = [];
+    //局選択機能
     const select = (num) => {
       Kyoku_info[num].isSelect = !Kyoku_info[num].isSelect;
     }
+
+    /**
+     * submitボタンを押したら選択状態の曲の番号をまとめて、その局のデータを
+     */
     const submitNaga = () => {
       const useKyokus = [];
       for (let i = 0; i < Kyoku_info.length; i++) {
@@ -43,6 +51,23 @@ export default {
       });
     }
 
+    /**
+     * 選択した局数に応じてNAGAで何ポイント消費するかを計算して表示する
+     */
+    const btn_msg = computed(()=>{
+      const msg = "NP";
+      const useKyokus = [];
+      for (let i = 0; i < Kyoku_info.length; i++) {
+        if (Kyoku_info[i].isSelect == true) {
+          useKyokus.push(Kyoku_info[i].id);
+        }
+      }
+      return (useKyokus.length*20)+msg
+    });
+
+    /**
+     * content-scriptから牌譜データを受け取る
+     */
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       let title = "疎通";
       console.log('4.listner');
@@ -51,6 +76,10 @@ export default {
       sendResponse(title);
     });
 
+    /**
+     * Akochan reviewerの形式になった牌譜から表示用のデータを取り出して、local storageに保存する
+     * @param {*} message 牌譜データのjson
+     */
     const processData = (message) => {
       for (let i = 0; i < message.log.length; i++) {
         let kyoku = {};
@@ -100,6 +129,8 @@ export default {
         Kyoku_info.push(kyoku);
       }
     }
+
+    //表示用言語の設定をlocal storageから呼び出す
     const DisplayLang = ref(0)
     chrome.storage.local.get("DisplayLang", (result) => {
       // join langs
@@ -107,8 +138,9 @@ export default {
          DisplayLang.value = result.DisplayLang;
       }
     });
-    onMounted(() => {
 
+    //content-scriptに通信して牌譜を送信させる
+    onMounted(() => {
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         chrome.tabs.sendMessage(tabs[0].id, { message: 'tabNaga' }, (content) => {
           if (!content) {
@@ -121,6 +153,7 @@ export default {
 
     })
 
+    //雀魂の牌譜jsonを天鳳形式に変換
     function soul2naga(results) {
       const soulJson = JSON.stringify(results, null, "    ")
         .replace(/\n       \s+/g, " ") //bring up log array items
@@ -168,28 +201,6 @@ export default {
           })
         );
       });
-    }
-
-    /**
-     * ダウンロードリンクのhref属性を組み立てる。
-     *
-     * @param {Array<String>} urls 牌譜エディタのURL群を指定する。
-     * @returns {String} ダウンロードリンクのhref属性を返す。
-     */
-    function buildDownloadHref(urls) {
-      // ダウンロードリンクのhref属性を組み立てる。
-      return DOWNLOAD_HREF_PREFIX + encodeURIComponent(urls.join("\n"));
-    }
-
-    /**
-     * 卓名を雀魂っぽく変換する。
-     *
-     * @param {String} tenhouTable 天鳳っぽい卓名を指定する。
-     * @returns {String} 雀魂っぽい卓名を返す。
-     */
-    function toSoulTable(tenhouTable) {
-      // 表記の好みの問題なので、必ずしも必要となる処理ではない。
-      return tenhouTable.replace("南喰赤", "四人南");
     }
 
     /**
@@ -288,7 +299,7 @@ export default {
       processData,
       soul2naga,
       DisplayLang,
-
+      btn_msg 
     };
   },
 };
