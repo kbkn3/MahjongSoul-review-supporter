@@ -1,7 +1,7 @@
 # Mahjong Soul Review Supporter
 This extension retrieves information and automatically transfers to the screen to review the paihu of Mahjong Soul.
 
-![content-scripts demo shot](imgs/Animation.gif)
+
 
 
 ## Features
