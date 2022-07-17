@@ -37,11 +37,7 @@ export default {
         MSLang.value = result.MSLang;
       }
     });
-    const url_head = [
-      'https://game.mahjongsoul.com/?paipu=',
-      'https://mahjongsoul.game.yo-star.com/?paipu=',
-      'https://mahjongsoul.game.yo-star.com/?paipu='
-    ];
+
 
     const getMjai = () => {
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -50,10 +46,15 @@ export default {
             alert('Cannot Get! Try Reload First!');
             return;
           }
+          const url_head = [
+            'https://game.mahjongsoul.com/?paipu=',
+            'https://mahjongsoul.game.yo-star.com/?paipu=',
+            'https://mahjongsoul.game.yo-star.com/?paipu='
+          ];
           chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-            MjaiURLstring = url_head[MSLang] + request.message.ref;
+            MjaiURLstring = url_head[MSLang.value] + request.message.ref;
+            console.log(seki.value);
             seki.push(...request.message.name);
-            console.log(seki);
           });
         });
       });
