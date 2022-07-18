@@ -23,16 +23,13 @@ Edge Web Store ... Scheduled for release soon!!
 
 ## Author
 [@kbkn_p](https://twitter.com/kbkn_p)  
-
+Collaborator [たまば](https://twitter.com/utm_tmb)
 
 ## License
 [Apache-2.0](https://github.com/Wabu-K/MahjongSoul-review-supporter/blob/develop/LICENSE)
 
 * mjai-reviewer　: [Github Equim-chan/mjai-reviewer](https://github.com/Equim-chan/mjai-reviewer)
   * Apache-2.0 Using `downloadlogs script`
-
-
-## Link
 
 
 ## Thanks
