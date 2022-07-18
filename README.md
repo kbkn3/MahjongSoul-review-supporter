@@ -11,7 +11,7 @@ This extension retrieves information and automatically transfers to the screen t
 
 
 ## Installation
-Chrome Web Store link is [Here](https://chrome.google.com/webstore/)
+Chrome Web Store link is [Here](https://chrome.google.com/webstore/detail/mahjongsoul-review-suppor/kdmfnkdgpialmejpgflfllkjakolamcc)
 
 日本語の記事は[こちら](https://zenn.dev/)
 
