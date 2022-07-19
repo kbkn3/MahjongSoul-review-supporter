@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "MahjongSoul Review Supporter",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "__MSG_appDesc__",
   "author": "kbkn",
   "icons": {
@@ -27,7 +27,7 @@
     "default_popup": "popup.html"
   },
   "background": { "service_worker": "background.js" },
-  "permissions": ["storage", "activeTab"],
+  "permissions": ["storage"],
   "host_permissions": [
     "https://game.mahjongsoul.com/*",
     "https://naga.dmv.nico/naga_report/order_form/",
