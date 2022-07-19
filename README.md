@@ -11,7 +11,11 @@ This extension retrieves information and automatically transfers to the screen t
 
 
 ## Installation
-Chrome Web Store link is [Here](https://chrome.google.com/webstore/)
+Chrome Web Store link is [Here](https://chrome.google.com/webstore/detail/mahjongsoul-review-suppor/kdmfnkdgpialmejpgflfllkjakolamcc)
+
+
+Edge Web Store ... Scheduled for release soon!!
+
 
 日本語の記事は[こちら](https://zenn.dev/)
 
@@ -23,16 +27,13 @@ Chrome Web Store link is [Here](https://chrome.google.com/webstore/)
 
 ## Author
 [@kbkn_p](https://twitter.com/kbkn_p)  
-
+Collaborator [たまば](https://twitter.com/utm_tmb)
 
 ## License
 [Apache-2.0](https://github.com/Wabu-K/MahjongSoul-review-supporter/blob/develop/LICENSE)
 
 * mjai-reviewer　: [Github Equim-chan/mjai-reviewer](https://github.com/Equim-chan/mjai-reviewer)
   * Apache-2.0 Using `downloadlogs script`
-
-
-## Link
 
 
 ## Thanks
