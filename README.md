@@ -17,7 +17,7 @@ Chrome Web Store link is [Here](https://chrome.google.com/webstore/detail/mahjon
 Edge Web Store ... Scheduled for release soon!!
 
 
-日本語の記事は[こちら](https://zenn.dev/)
+日本語の記事は[こちら](https://modern-jan.com/2022/07/19/mjrs/)
 
 
 ## Supported Languages
