@@ -109,8 +109,8 @@ export default {
                 "ロン和", //結果
                 message.name[message.log[i][16][2 * t][0]], //和了者
                 message.name[message.log[i][16][2 * t][1]], //放銃者
-                message.log[i][16][t][message.log[i][16][2 * t][0]], //和了点
-                message.log[i][16][t][message.log[i][16][2 * t][1]] //放銃点
+                message.log[i][16][2*t-1][message.log[i][16][2 * t][0]], //和了点
+                message.log[i][16][2*t-1][message.log[i][16][2 * t][1]] //放銃点
               ];
             }
             kyoku.result.push(one);
