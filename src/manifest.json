@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "MahjongSoul Review Supporter",
-  "version": "1.0.3",
+  "version": "1.0.5",
   "description": "__MSG_appDesc__",
   "author": "kbkn",
   "icons": {
@@ -12,6 +12,10 @@
   "content_scripts": [
     {
       "matches": ["https://game.mahjongsoul.com/*"],
+      "js": ["content_script.js"]
+    },
+    {
+      "matches": ["https://mahjongsoul.game.yo-star.com/*"],
       "js": ["content_script.js"]
     },
     {
@@ -30,6 +34,7 @@
   "permissions": ["storage"],
   "host_permissions": [
     "https://game.mahjongsoul.com/*",
+    "https://mahjongsoul.game.yo-star.com/*",
     "https://naga.dmv.nico/naga_report/order_form/",
     "https://mjai.ekyu.moe/"
   ],
@@ -42,7 +47,8 @@
           "event.js"
       ],
       "matches": [
-          "https://game.mahjongsoul.com/*"
+          "https://game.mahjongsoul.com/*",
+          "https://mahjongsoul.game.yo-star.com/*"
       ],
       "use_dynamic_url": true
     }
