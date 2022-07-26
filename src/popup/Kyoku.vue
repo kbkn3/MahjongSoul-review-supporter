@@ -103,7 +103,7 @@ export default {
         const Honba_str = ["本場", "Repeat Counter", "本場"];
         const Win_str = [
             ["ロン和", "ツモ和"],
-            ["Ron", "Draw"],
+            ["Ron", "Tsumo"],
             ["榮和", "自摸"],
         ];
         const Deal_str = ["放銃", "Deal-in", "放銃"];

@@ -117,11 +117,13 @@ export default {
           }
         } else {
           let ryukyoku = [message.log[i][16][0]];
-          message.log[i][16][1].forEach((score, index) => {
-            if (score > 0) {
-              ryukyoku.push(message.name[index])
-            }
-          });
+          if(message.log[i][16][1]){
+            message.log[i][16][1].forEach((score, index) => {
+              if (score > 0) {
+                ryukyoku.push(message.name[index])
+              }
+            });
+          }
           kyoku.result.push(ryukyoku);
 
         }
