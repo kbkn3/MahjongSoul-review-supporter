@@ -14,7 +14,7 @@ This extension retrieves information and automatically transfers to the screen t
 Chrome Web Store link is [Here](https://chrome.google.com/webstore/detail/mahjongsoul-review-suppor/kdmfnkdgpialmejpgflfllkjakolamcc)
 
 
-Edge Web Store ... Scheduled for release soon!!
+Edge Web Store link is [Here](https://microsoftedge.microsoft.com/addons/detail/jopdfhmfehndjpnjjidmkkmjmkaebodb)
 
 
 日本語の記事は[こちら](https://modern-jan.com/2022/07/19/mjrs/)
