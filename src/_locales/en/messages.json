@@ -1,5 +1,8 @@
 {
+  "appName": {
+    "message": "MahjongSoul Review Supporter"
+  },
   "appDesc": {
-    "message": "This is an unofficial extension to easily use NAGA and mjai-reviewer. It works only on review screen and does not affect game play."
+    "message": "This is an unofficial extension to easily use NAGA and mjai-reviewer(Mortal/Akochan). It works only on review screen and does not affect game play."
   }
 }

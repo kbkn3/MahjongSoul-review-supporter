@@ -49,7 +49,7 @@ export default {
           const url_head = [
             'https://game.mahjongsoul.com/?paipu=',
             'https://mahjongsoul.game.yo-star.com/?paipu=',
-            'https://mahjongsoul.game.yo-star.com/?paipu='
+            'https://game.maj-soul.net/1/?paipu='
           ];
           chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             MjaiURLstring = url_head[MSLang.value] + request.message.ref;

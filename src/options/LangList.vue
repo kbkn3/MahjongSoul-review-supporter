@@ -3,11 +3,17 @@
     <div class="text-xl font-semibold m-2">Language Setting / 言語設定</div>
     <form @submit.prevent="setLang" class="ml-4 items-end">
       <InputSelect
-        label="Mahjong Soul Language Setting / 雀魂の言語設定"
-        :options="options"
+        label="Mahjong Soul Sever Setting / 雀魂のサーバー設定"
+        :options="options_server"
         v-model="MSLang"
         class="m-1"
-      ></InputSelect>
+      >
+      </InputSelect>
+      <ul class="m-2 list-disc">
+        <li>雀魂 -じゃんたま-：日本語(game.mahjongsoul.com)</li>
+        <li>Mahjong Soul：English/中文(繁體)/한국어 (mahjongsoul.game.yo-star.com)</li>
+        <li>雀魂麻将：中文 (game.maj-soul.com/game.maj-soul.net)</li>
+      </ul>
       <InputSelect
         label="Languages displayed by this extension / 拡張機能で表示する言語"
         :options="options"
@@ -37,6 +43,17 @@ export default {
       key: value,
       value: key,
     }));
+
+    const ServerList = {
+      2: "雀魂麻将",
+      1: "Mahjong Soul",
+      0: "雀魂 -じゃんたま-",
+    };
+    const options_server = Object.entries(ServerList).map(([key, value]) => ({
+      key: value,
+      value: key,
+    }));
+
     const messages = ref("");
     const MSLang = ref(0);
     const DisplayLang = ref(0);
@@ -69,6 +86,7 @@ export default {
 
     return {
       options,
+      options_server,
       messages,
       MSLang,
       DisplayLang,
