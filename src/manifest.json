@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_appName__",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "__MSG_appDesc__",
   "author": "kbkn",
   "icons": {
@@ -13,7 +13,8 @@
     {
       "matches": ["https://game.mahjongsoul.com/*",
       "https://mahjongsoul.game.yo-star.com/*",
-      "https://game.maj-soul.net/*"],
+      "https://game.maj-soul.net/*",
+      "https://game.maj-soul.com/*"],
       "js": ["content_script.js"]
     },
     {
@@ -34,6 +35,7 @@
     "https://game.mahjongsoul.com/*",
     "https://mahjongsoul.game.yo-star.com/*",
     "https://game.maj-soul.net/*",
+    "https://game.maj-soul.com/*",
     "https://naga.dmv.nico/naga_report/order_form/",
     "https://mjai.ekyu.moe/"
   ],
@@ -48,7 +50,8 @@
       "matches": [
           "https://game.mahjongsoul.com/*",
           "https://mahjongsoul.game.yo-star.com/*",
-          "https://game.maj-soul.net/*"
+          "https://game.maj-soul.net/*",
+          "https://game.maj-soul.com/*"
       ],
       "use_dynamic_url": true
     }

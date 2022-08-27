@@ -1,7 +1,11 @@
 <template>
   <div>
     <div>
-      <div class="text-lg font-semibold text-mjsoul-text-lightblue">Select hand</div>
+      <div class="w-full my-2 px-2 grid grid-cols-6 gap-4">
+        <div class="text-lg font-semibold text-mjsoul-text-lightblue py-2 col-start-1 col-span-3">Select hand</div>
+        <div class="text-lg font-semibold text-mjsoul-text-lightblue py-2 text-right col-start-4 col-span-2">{{ btn_msg }}</div>
+        <button type="button" class="my-button col-start-6 col-span-2" @click="selectAll">All</button>
+      </div>
       <div v-for="info_obj in Kyoku_info" :key="info_obj.id">
         <Kyoku :Language=Number(DisplayLang) v-bind="info_obj" @click="select(info_obj.id)"></Kyoku>
       </div>
@@ -50,7 +54,23 @@ export default {
         url: 'https://naga.dmv.nico/naga_report/order_form/'
       });
     }
-
+    const selectAll = () => {
+      let count = 0;
+      for (let j = 0;j < Kyoku_info.length; j++){
+        if (Kyoku_info[j].isSelect == true) {
+          count = count +1;
+        }
+      }
+      if (count == Kyoku_info.length){
+        for (let j = 0;j < Kyoku_info.length; j++){
+          Kyoku_info[j].isSelect = false;
+        }  
+      }else{
+        for (let j = 0;j < Kyoku_info.length; j++){
+          Kyoku_info[j].isSelect = true ;
+        }  
+      }
+    }
     /**
      * 選択した局数に応じてNAGAで何ポイント消費するかを計算して表示する
      */
@@ -298,6 +318,7 @@ export default {
       Kyoku_info,
       select,
       submitNaga,
+      selectAll,
       processData,
       soul2naga,
       DisplayLang,
