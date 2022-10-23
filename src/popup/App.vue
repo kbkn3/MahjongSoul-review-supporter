@@ -11,7 +11,7 @@
     </div>
     <div class="flex flex-wrap">
       <div class="w-full">
-        <ul class="flex mx-2 list-none flex-wrap pt-3 flex-row">
+        <!-- <ul class="flex mx-2 list-none flex-wrap pt-3 flex-row">
           <li
             class="-mb-px last:mr-0 mr-2 flex-auto text-center cursor-pointer"
           >
@@ -54,24 +54,18 @@
               Score CSV
             </a>
           </li>
-        </ul>
+        </ul> -->
         <div class="mx-2" >
           <div
-            class="relative flex flex-col mb-4 px-1 min-w-0  break-words bg-mjsoul-fl-blue w-full shadow-lg rounded-b-xl"
+            class="flex mb-4 px-1 min-w-0  break-words bg-mjsoul-fl-blue shadow-lg rounded-b-xl"
           >
-            <div class="px-4 py-5 flex-auto">
-              <div class="tab-content tab-space">
-                <div :class="{ hidden: openTab !== 1, block: openTab === 1 }">
+                <div class="w-3/5">
                   <NagaList></NagaList>
                 </div>
-                <div :class="{ hidden: openTab !== 2, block: openTab === 2 }">
+                <div class="w-2/5">
                   <MjaiList></MjaiList>
-                </div>
-                <div :class="{ hidden: openTab !== 3, block: openTab === 3 }">
                   <RecipeList></RecipeList>
                 </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -110,7 +104,13 @@ export default {
 
 <style>
 .my-button {
-  @apply py-2 px-4 bg-red-600 hover:bg-red-700 focus:ring-red-500 focus:ring-offset-indigo-200 text-white w-full transition ease-in duration-200 text-center text-base font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 rounded-lg;
+  @apply py-1 px-2 bg-red-600 hover:bg-red-700 focus:ring-red-500 focus:ring-offset-indigo-200 text-white w-full transition ease-in duration-200 text-center text-base font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 rounded-lg;
+}
+.template-box {
+  @apply border border-mjsoul-text-gold rounded-lg m-1 px-2
+}
+.template-title {
+  @apply text-xl font-semibold text-mjsoul-text-lightblue pt-2
 }
 .table-head-th > tr > *,
 .table-body-td > tr > *,
@@ -118,9 +118,5 @@ export default {
   @apply px-5 py-1 text-left text-base;
 }
 
-.wide {
-  max-width: 415px;
-  min-width: 380px;
-}
 </style>
 

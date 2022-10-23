@@ -1,9 +1,10 @@
 <template>
-  <div>
+  <div class="template-box">
     <div>
-      <div class="w-full my-2 px-2 grid grid-cols-6 gap-4">
-        <div class="text-lg font-semibold text-mjsoul-text-lightblue py-2 col-start-1 col-span-3">Select hand</div>
-        <div class="text-lg font-semibold text-mjsoul-text-lightblue py-2 text-right col-start-4 col-span-2">{{ btn_msg }}</div>
+      <div class="template-title">NAGA</div>
+      <div class="w-full px-2 grid grid-cols-6 gap-4">
+        <div class="text-base font-semibold text-mjsoul-text-lightblue py-2 col-start-1 col-span-3">Select hand</div>
+        <div class="text-base font-semibold text-mjsoul-text-lightblue py-2 text-right col-start-4 col-span-2">{{ btn_msg }}</div>
         <button type="button" class="my-button col-start-6 col-span-2" @click="selectAll">All</button>
       </div>
       <div v-for="info_obj in Kyoku_info" :key="info_obj.id">
@@ -34,7 +35,7 @@ export default {
     }
 
     /**
-     * submitボタンを押したら選択状態の曲の番号をまとめて、その局のデータを
+     * submitボタンを押したら選択状態の局の番号をまとめて、その局のデータを
      */
     const submitNaga = () => {
       const useKyokus = [];
@@ -92,6 +93,9 @@ export default {
       let title = "疎通";
       console.log('4.listner');
       processData(request.message);
+      for(let s = 0; s<request.message.name.length;s++){
+        request.message.name[s] = request.message.name[s].replace(/[#<>"%]/gi, '');
+      };
       toNagaData = soul2naga(request.message);
       sendResponse(title);
     });

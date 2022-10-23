@@ -1,27 +1,20 @@
 <template>
-  <div class="min-h-full">
-    <div class="text-lg font-semibold text-mjsoul-text-lightblue mb-3">mjai-reviewer</div>
-
-    <div class="text-base font-semibold text-mjsoul-text-lightblue">
-      1.Press "Get URL" button
-    </div>
-    <div class="w-36">
-      <button type="button" class="my-button" @click="getMjai">Get URL</button>
-    </div>
+  <div class="template-box">
+    <div class="template-title">Motal/Acochan</div>
     <div v-if="seki.length>3">
-      <div class="text-base font-semibold text-mjsoul-text-lightblue">
-        2.Which is your name?
+      <div class="text-base font-semibold text-mjsoul-text-lightblue py-2">
+        Which is your name?
       </div>
 
       <div v-for="n in 4" :key="n">
-        <button type="button" class="my-button m-2" @click="submitMjai(n)">{{ seki[(n)] }}</button>
+        <button type="button" class="my-button my-1" @click="submitMjai(n)">{{ seki[(n)] }}</button>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { reactive,ref } from 'vue';
+import { reactive, ref } from 'vue';
 
 
 export default {
@@ -39,26 +32,18 @@ export default {
     });
 
 
-    const getMjai = () => {
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        chrome.tabs.sendMessage(tabs[0].id, { message: 'tabNaga' }, (content) => {
-          if (!content) {
-            alert('Cannot Get! Try Reload First!');
-            return;
-          }
-          const url_head = [
-            'https://game.mahjongsoul.com/?paipu=',
-            'https://mahjongsoul.game.yo-star.com/?paipu=',
-            'https://game.maj-soul.net/1/?paipu='
-          ];
-          chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-            MjaiURLstring = url_head[MSLang.value] + request.message.ref;
-            console.log(seki.value);
-            seki.push(...request.message.name);
-          });
-        });
-      });
-    }
+
+    const url_head = [
+      'https://game.mahjongsoul.com/?paipu=',
+      'https://mahjongsoul.game.yo-star.com/?paipu=',
+      'https://game.maj-soul.net/1/?paipu='
+    ];
+    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+      MjaiURLstring = url_head[MSLang.value] + request.message.ref;
+      console.log(seki.value);
+      seki.push(...request.message.name);
+    });
+
 
     const submitMjai = (no) => {
       chrome.storage.local.set({ "toMjaiData": MjaiURLstring });
@@ -70,7 +55,7 @@ export default {
 
     return {
       seki,
-      getMjai,
+      // getMjai,
       submitMjai
     };
   },
