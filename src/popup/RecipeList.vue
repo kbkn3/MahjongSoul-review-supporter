@@ -19,7 +19,7 @@ import { ref} from "vue";
 export default {
   setup() {
     //牌譜データから表示用のデータを抽出したもの
-    let TableText = ref("aaa");
+    let TableText = ref("牌譜を読み込めていません");
     /**
      * content-scriptから牌譜データを受け取る
      */
@@ -91,6 +91,7 @@ export default {
               TableData[message.log[i][16][2 * t][0] + 1][8]++; //ツモ回数
             } else {
               TableData[message.log[i][16][2 * t][0] + 1][4]++; //和了回数
+              TableData[message.log[i][16][2 * t][0] + 1][9]++; //ロン回数
               TableData[message.log[i][16][2 * t][1] + 1][5]++; //放銃回数
             }
           }
@@ -101,16 +102,12 @@ export default {
         }
         for (let s = 0; s < 4; s++) {
           if (
-            message.log[i][3 * s + 5].filter(
-              RegExp.prototype.test,
-              /[.*c.*]/ || /[.*p.*]/
-            ).length
+            message.log[i][3 * s + 5].filter(RegExp.prototype.test, /[.*(c|p).*]/).length
           ) {
             TableData[s + 1][7]++;
           }
           if (
-            message.log[i][3 * s + 6].filter(RegExp.prototype.test, /[.*r.*]/)
-              .length
+            message.log[i][3 * s + 6].filter(RegExp.prototype.test, /[.*r.*]/).length
           ) {
             TableData[s + 1][6]++;
           }
