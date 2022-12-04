@@ -12,8 +12,14 @@
       </div>
       </div>
       <div class="w-full my-2 px-2 grid grid-cols-6 gap-4">
-        <p class="text-lg font-semibold text-mjsoul-text-lightblue py-2 text-right col-start-3 col-span-2">{{ btn_msg }}</p>
-        <button type="button" class="my-button col-start-5 col-span-2" @click="submitNaga">Submit</button>
+        <div class="col-start-2 col-span-2 py-3">
+          <input type="checkbox" class="form-checkbox py-3" id="checkbox" v-model="isChecked">
+          <label class="text-base text-mjsoul-text-lightblue ml-1 py-2" for="checkbox">
+            匿名
+          </label>
+        </div>
+        <p class="text-lg font-semibold text-mjsoul-text-lightblue py-2 text-right col-start-4 col-span-2">{{ btn_msg }}</p>
+        <button type="button" class="my-button col-start-6 col-span-1" @click="submitNaga">Go</button>
       </div>
   </div>
 </template>
@@ -34,6 +40,7 @@ export default {
       Kyoku_info[num].isSelect = !Kyoku_info[num].isSelect;
     }
 
+    let isChecked = ref(false);
     /**
      * submitボタンを押したら選択状態の局の番号をまとめて、その局のデータを
      */
@@ -44,10 +51,14 @@ export default {
           useKyokus.push(Kyoku_info[i].id);
         }
       }
-      console.log(useKyokus);
       let URLstring = "";
       for (const useKyoku of useKyokus){
         URLstring = URLstring + (toNagaData[useKyoku]) + "\n";
+      }
+      //匿名モード
+      if (isChecked.value == true ){
+        const regexp = /"name":\[.+\],"rule"/g;
+        URLstring = URLstring.replace(regexp, '"name":["Aさん","Bさん","Cさん","Dさん"],"rule"');
       }
 
       chrome.storage.local.set({ "toNagaData": URLstring });
@@ -83,7 +94,7 @@ export default {
           useKyokus.push(Kyoku_info[i].id);
         }
       }
-      return (useKyokus.length*20)+msg
+      return (useKyokus.length*10)+msg
     });
 
     /**
@@ -95,7 +106,7 @@ export default {
       processData(request.message);
       for(let s = 0; s<request.message.name.length;s++){
         request.message.name[s] = request.message.name[s].replace(/[#<>"%]/gi, '');
-      };
+      }
       toNagaData = soul2naga(request.message);
       sendResponse(title);
     });
@@ -173,7 +184,6 @@ export default {
             alert('Cannot Get! Try Reload First!');
             return;
           }
-          console.log(content);
         });
       });
 
@@ -326,7 +336,8 @@ export default {
       processData,
       soul2naga,
       DisplayLang,
-      btn_msg 
+      btn_msg,
+      isChecked
     };
   },
 };
