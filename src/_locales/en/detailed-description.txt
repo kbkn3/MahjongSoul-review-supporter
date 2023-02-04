@@ -1,0 +1,7 @@
+The following AIs are available
+
+- NAGA by DWANGO
+- mjai-reviewer (Mortal, Akochan)
+
+This extension does not include any actions that violate the terms and conditions of Mahjong Soul, but may be considered a bot if a large number of accesses are made in a short period of time.
+We are not responsible for any harm caused by using this extension.
