@@ -1,4 +1,4 @@
-import manifest from './src/manifest';
+import manifest from './src/manifest.config';
 import { crx } from '@crxjs/vite-plugin';
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
@@ -11,5 +11,5 @@ export default defineConfig({
       '~/': `${__dirname}/public/`,
     },
   },
-  plugins: [vue()],
+  plugins: [vue(), crx({ manifest })],
 })
