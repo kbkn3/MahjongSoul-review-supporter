@@ -16,7 +16,7 @@
         "baiman": ["倍満", "Baiman ", "Baiman "],
         "sanbaiman": ["三倍満", "Sanbaiman ", "Sanbaiman "],
         "yakuman": ["役満", "Yakuman ", "Yakuman "],
-        "kazoeyakuman": ["数え役満", "Kazoe Yakuman ", "Counted Yakuman "],
+        "kazoeyakuman": ["役満", "Kazoe Yakuman ", "Counted Yakuman "],
         "kiriagemangan": ["切り上げ満貫", "Kiriage Mangan ", "Rounded Mangan "],
         /*round enders*/
         "agari": ["和了", "Agari", "Agari"],
