@@ -105,7 +105,7 @@ export default {
       console.log('4.listner');
       processData(request.message);
       for(let s = 0; s<request.message.name.length;s++){
-        request.message.name[s] = request.message.name[s].replace(/[#<>"%]/gi, '');
+        request.message.name[s] = request.message.name[s].replace(/[!#<>"%&$*]/gi, function(s){return String.fromCharCode(s.charCodeAt(0)+0xFEE0)});
       }
       toNagaData = soul2naga(request.message);
       sendResponse(title);
