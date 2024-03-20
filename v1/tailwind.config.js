@@ -1,8 +1,6 @@
-/** @type {import('tailwindcss').Config} */
 module.exports = {
-  mode: "jit",
-  darkMode: "class",
-  content: ["./**/*.tsx"],
+  purge: ['./src/**/*.vue'],
+  darkMode: false, // or 'media' or 'class'
   theme: {
     extend: {
       colors:{
@@ -22,5 +20,5 @@ module.exports = {
       borderWidth: ['hover']
     },
   },
-  plugins: []
+  plugins: [],
 }
