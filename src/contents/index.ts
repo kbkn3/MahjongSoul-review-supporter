@@ -10,6 +10,7 @@ export const config: PlasmoCSConfig = {
 };
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  console.log("1." + request.message);
   sendResponse(request.message);
   if (request.message == "tabNaga") {
     window.postMessage(

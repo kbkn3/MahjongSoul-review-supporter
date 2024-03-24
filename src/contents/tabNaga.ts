@@ -1,6 +1,6 @@
 import type { PlasmoCSConfig } from "plasmo"
 
-import parse from "./dd"
+import parse from "./dd.mjs"
 
 export const config: PlasmoCSConfig = {
   matches: [
@@ -47,7 +47,7 @@ function GetTenholog() {
   )
 }
 
-chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log("tabNaga")
   switch (message.name) {
     case "tabNaga":
