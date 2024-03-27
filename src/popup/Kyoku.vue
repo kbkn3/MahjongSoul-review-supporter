@@ -94,7 +94,8 @@ export default {
             default: false,
         }
     },
-    setup(props, context) {
+    // eslint-disable-next-line no-unused-vars
+    setup(_props, _context) {
         const Ba_str = [
             ["東", "南", "西", "北"],
             ["East", "South", "West", "North"],
