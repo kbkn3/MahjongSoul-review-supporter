@@ -14,7 +14,8 @@
     </div>
     <div class="w-full px-2 py-2">
       <div class="text-sm font-semibold text-mjsoul-text-lightblue mt-2 mb-6 mx-12">※友人戦・大会戦の場合は順位点の期待値を指定してください</div>
-      <select @change="handleRuleChange" class="w-48 bg-white border border-gray-300 rounded-md py-2 px-3 text-base" v-model="Rule">
+      <select @change="handleRuleChange" class="w-48 bg-white border border-gray-300 rounded-md py-2 px-3 text-base"
+        v-model="Rule">
         <option value="dani">段位戦</option>
         <option value="1030">10-30（M League）</option>
         <option value="1020">10-20</option>
@@ -250,12 +251,12 @@ export default {
           const pointArray = POINTS[table][rule]
           ptEV = [pointArray, pointArray, pointArray, pointArray, 1]
         } else {
-          ptEV = getRankPtEV(wind, table, soulPaifu)
+          ptEV = getRankFitPtEV(wind, soulPaifu)
         }
       } else {
         ptEV = getRankPtEV(wind, table, soulPaifu)
       }
-
+      console.log("ptEV", ptEV)
       // title内の卓名を雀魂っぽく変換する。
       //
       // 変換前のtitle:
@@ -310,10 +311,55 @@ export default {
       }
       return ptEV
     }
-
+    function getRankFitPtEV(wind, soulPaifu) {
+      let ptEV
+      // 頂上決戦判定（魂天のみの試合）
+      if (wind === "east" && soulPaifu.dan.every(dan => dan.match(/魂天Lv\d+/))) {
+        ptEV = [[0.6, 0.2, -0.2, -0.6], [0.6, 0.2, -0.2, -0.6], [0.6, 0.2, -0.2, -0.6], [0.6, 0.2, -0.2, -0.6], 1]
+      } else if (wind === "south" && soulPaifu.dan.every(dan => dan.match(/魂天Lv\d+/))) {
+        ptEV = [[1.0, 0.4, -0.4, -1.0], [1.0, 0.4, -0.4, -1.0], [1.0, 0.4, -0.4, -1.0], [1.0, 0.4, -0.4, -1.0], 1]
+      } else {
+        // 頂上決戦出ない場合は適正な卓で判定をする
+        ptEV = soulPaifu.dan.map(
+          (dan) => {
+            if (wind === "east" && dan.match(/魂天Lv\d+/)) {
+              return [0.6, 0.3, -0.3, -0.6]
+            } else if (wind === "south" && dan.match(/魂天Lv\d+/)) {
+              return [1.0, 0.4, -0.4, -1.0]
+            } else {
+              let fitTable
+              console.log(dan)
+              switch (true) {
+                case dan.startsWith("初心"):
+                  fitTable = "bronze"
+                  break
+                case dan.startsWith("雀士"):
+                  fitTable = "silver"
+                  break
+                case dan.startsWith("雀傑"):
+                  fitTable = "gold"
+                  break
+                case dan.startsWith("雀豪"):
+                  fitTable = "tama"
+                  break
+                case dan.startsWith("雀聖"):
+                  fitTable = "king"
+                  break
+              }
+              console.log(fitTable)
+              console.log(POINTS[wind][fitTable][dan])
+              return POINTS[wind][fitTable][dan]
+            }
+          }
+        )
+        console.log(ptEV)
+        ptEV.push(1)
+      }
+      return ptEV
+    }
     const handleRuleChange = (event) => {
       Rule.value = event.target.value
-      chrome.storage.local.set({rule: event.target.value})
+      chrome.storage.local.set({ rule: event.target.value })
       // Vueの再読み込み
       location.reload()
     }

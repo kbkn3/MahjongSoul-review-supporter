@@ -1,4 +1,4 @@
-window.addEventListener("load", function (event) {
+window.addEventListener("load", function () {
   chrome.storage.local.get(["toNagaData"], function (data) {
     let data1 = data.toNagaData;
     if (data1.length > 0) {
