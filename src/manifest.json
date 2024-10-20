@@ -18,6 +18,14 @@
       "js": ["content_script.js"]
     },
     {
+      "matches": ["https://game.mahjongsoul.com/*",
+      "https://mahjongsoul.game.yo-star.com/*",
+      "https://game.maj-soul.net/*",
+      "https://game.maj-soul.com/*"],
+      "js": ["dd.js", "event.js"],
+      "world": "MAIN"
+    },
+    {
       "matches": ["https://naga.dmv.nico/naga_report/order_form/"],
       "js": ["content_script_naga.js"]
     },
