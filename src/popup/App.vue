@@ -2,7 +2,7 @@
   <div class="relative wide bg-mjsoul-bg-blue">
     <div class="flex flex-row">
       <div class="pl-4 pt-1 text-3xl text-mjsoul-text-gold hudetext">Review Supporter</div>
-      <div class="text-base pl-4 pt-4 text-mjsoul-text-gold hudetext">v 1.2.1</div>
+      <div class="text-base pl-4 pt-4 text-mjsoul-text-gold hudetext">v 1.3.0</div>
       <div class="absolute top-4 right-4">
         <iconTrash class="cursor-pointer fill-gray-200" :width="20" :height="20" @click="openOption"></iconTrash>
       </div>
