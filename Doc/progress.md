@@ -361,3 +361,129 @@
    - 基本構造
    - プレイヤー選択機能
    - 転送機能
+
+### 2024-03-XX: NAGAパネルのテスト実装
+
+#### 完了した実装
+
+1. NAGAパネルのテストケース
+   ```typescript
+   // 基本的なレンダリングテスト
+   test("renders panel correctly", () => {
+     expect(getByTestId("naga-title")).toBeDefined()
+     expect(getByText("プレビュー")).toBeDefined()
+     expect(getByTestId("transfer-button")).toBeDefined()
+   })
+
+   // 転送機能のテスト
+   test("handles transfer click", () => {
+     const mockTransfer = mock(() => {})
+     fireEvent.click(transferButton)
+     expect(mockTransfer).toHaveBeenCalledTimes(1)
+   })
+   ```
+
+2. テスト環境の改善
+   - JSDOMによるDOM環境のセットアップ
+   - テストIDを使用した要素の特定
+   - クリーンアップ処理の追加
+
+3. コンポーネントの改善
+   - data-testid属性の追加
+   - アクセシビリティの向上
+   - 多言語対応のテスト
+
+#### 次のステップ
+
+1. エラー表示コンポーネントの実装
+   ```typescript
+   interface ErrorDisplayProps {
+     message: string
+     onClose?: () => void
+   }
+   ```
+
+2. mjai-reviewerパネルの実装
+   - プレイヤー選択機能
+   - URL生成機能
+   - 転送処理
+
+3. 統合テストの追加
+   - エラーハンドリングのテスト
+   - 多言語切り替えのテスト
+   - 状態管理のテスト
+
+[参考]
+- [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
+- [JSDOM Documentation](https://github.com/jsdom/jsdom)
+
+### 2024-03-XX: Plasmoライブラリへの移行 - Phase 1
+
+#### 完了した実装
+
+1. @plasmohq/storage への移行
+   - `chrome.storage.local`から`Storage`クラスへの移行
+   - 型安全な保存と取得の実装
+   ```typescript
+   const storage = new Storage()
+   const [storedLang, storedData] = await Promise.all([
+     storage.get("DisplayLang"),
+     storage.get("toNagaData")
+   ])
+   ```
+
+2. @plasmohq/messaging への移行
+   - メッセージングシステムの再構築
+   - 型安全なリクエスト/レスポンス処理
+   ```typescript
+   export type TransferResponse = {
+     success: boolean
+     error?: string
+   }
+   
+   export type TransferRequest = {
+     data: NagaData
+   }
+   ```
+
+3. エラーハンドリングの簡素化
+   - カスタムエラークラスの削除
+   - シンプルなエラーメッセージ管理への移行
+   - Content Script側のエラー処理の改善
+
+#### 変更点の詳細
+
+1. `popup.tsx`の変更
+   - Storageクラスの導入
+   - エラーハンドリングの簡素化
+   - 型キャストの適切な実装
+
+2. `transfer.ts`の変更
+   - Plasmoメッセージングの実装
+   - タブ管理とContent Script通信の統合
+   - エラー処理の統一化
+
+3. `naga.ts`の変更
+   - カスタムエラーの削除
+   - シンプルなエラー処理への移行
+   - メッセージハンドリングの改善
+
+#### 次のステップ
+
+1. 残りのContent Scriptの移行
+   - mjai-reviewer関連の実装
+   - 統計データ処理の実装
+
+2. テスト実装
+   - Storage操作のテスト
+   - メッセージング処理のテスト
+   - エラーケースのテスト
+
+3. ドキュメント更新
+   - 新しい実装の説明追加
+   - 移行手順の記録
+   - APIリファレンスの更新
+
+[参考]
+- [@plasmohq/storage Documentation](https://docs.plasmo.com/framework/storage)
+- [@plasmohq/messaging Documentation](https://docs.plasmo.com/framework/messaging)

@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
+import { Storage } from "@plasmohq/storage"
 import type { NagaData, LanguageType } from './types'
 import NAGAPanel from './components/NAGAPanel'
 import { transferToNAGA } from './utils/transfer'
 import { getMessage } from './utils/i18n'
-import { getErrorMessageKey } from './utils/transfer'
 
 const Popup = () => {
   const [displayLang, setDisplayLang] = useState<LanguageType>(0)
@@ -11,12 +11,19 @@ const Popup = () => {
   const [error, setError] = useState<string | null>(null)
   const [isTransferring, setIsTransferring] = useState(false)
 
+  const storage = new Storage()
+
   useEffect(() => {
-    chrome.storage.local.get(['DisplayLang', 'toNagaData'], (result) => {
-      setDisplayLang(result.DisplayLang ?? 0)
-      setNagaData(result.toNagaData ?? null)
-    })
-  }, [])
+    const loadData = async () => {
+      const [storedLang, storedData] = await Promise.all([
+        storage.get("DisplayLang"),
+        storage.get("toNagaData")
+      ])
+      setDisplayLang(((storedLang as unknown) as LanguageType) ?? 0)
+      setNagaData((storedData as unknown) as NagaData ?? null)
+    }
+    loadData()
+  }, [storage])
 
   const handleTransfer = async () => {
     if (!nagaData) return
@@ -26,12 +33,10 @@ const Popup = () => {
 
     try {
       await transferToNAGA(nagaData)
-      await chrome.storage.local.remove('toNagaData')
+      await storage.remove("toNagaData")
       setNagaData(null)
-    } catch (err) {
-      const messageKey = err instanceof Error ? 
-        getErrorMessageKey(err) : 
-        'errors.unknown'
+    } catch (_err) {
+      const messageKey = 'errors.transfer'
       setError(getMessage(displayLang, `naga.${messageKey}`))
     } finally {
       setIsTransferring(false)

@@ -1,5 +1,4 @@
 import type { PlasmoCSConfig } from "plasmo"
-import { TransferError } from '../utils/transfer'
 
 // NAGAのドメインでのみ実行
 export const config: PlasmoCSConfig = {
@@ -18,25 +17,18 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
 
 // 転送処理の実装
 const handleTransfer = async (logData: string): Promise<void> => {
-  try {
-    const textarea = document.querySelector('textarea[name="log"]') as HTMLTextAreaElement
-    if (!textarea) {
-      throw new TransferError('Textarea not found', 'TEXTAREA_NOT_FOUND')
-    }
-
-    textarea.value = logData
-
-    const submitButton = document.querySelector('input[type="submit"]') as HTMLInputElement
-    if (!submitButton) {
-      throw new TransferError('Submit button not found', 'SUBMIT_NOT_FOUND')
-    }
-
-    textarea.dispatchEvent(new Event('input', { bubbles: true }))
-    submitButton.click()
-
-  } catch (error) {
-    console.error('NAGA transfer error:', error)
-    throw error instanceof TransferError ? error : 
-      new TransferError('Transfer failed', 'TRANSFER_FAILED')
+  const textarea = document.querySelector('textarea[name="log"]') as HTMLTextAreaElement
+  if (!textarea) {
+    throw new Error('Textarea not found')
   }
+
+  textarea.value = logData
+
+  const submitButton = document.querySelector('input[type="submit"]') as HTMLInputElement
+  if (!submitButton) {
+    throw new Error('Submit button not found')
+  }
+
+  textarea.dispatchEvent(new Event('input', { bubbles: true }))
+  submitButton.click()
 } 

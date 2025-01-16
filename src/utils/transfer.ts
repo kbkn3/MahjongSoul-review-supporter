@@ -1,28 +1,21 @@
-import type { NagaData } from '../types'
+import type { PlasmoMessaging } from "@plasmohq/messaging"
+import type { NagaData } from "../types"
 
-const ERROR_MESSAGE_MAP = {
-  TAB_CREATE_FAILED: 'errors.tabCreate',
-  TEXTAREA_NOT_FOUND: 'errors.textarea',
-  SUBMIT_NOT_FOUND: 'errors.submit',
-  TRANSFER_FAILED: 'errors.transfer',
-  UNKNOWN_ERROR: 'errors.unknown'
-} as const
-
-export class TransferError extends Error {
-  constructor(message: string, public code: keyof typeof ERROR_MESSAGE_MAP) {
-    super(message)
-    this.name = 'TransferError'
-  }
+// メッセージハンドラーの型定義
+export type TransferResponse = {
+  success: boolean
+  error?: string
 }
 
-export const getErrorMessageKey = (error: Error): string => {
-  if (error instanceof TransferError) {
-    return ERROR_MESSAGE_MAP[error.code]
-  }
-  return ERROR_MESSAGE_MAP.UNKNOWN_ERROR
+export type TransferRequest = {
+  data: NagaData
 }
 
-export const transferToNAGA = async (data: NagaData): Promise<void> => {
+// Content Script向けのメッセージハンドラー
+export const handler: PlasmoMessaging.MessageHandler<
+  TransferRequest,
+  TransferResponse
+> = async (req, res) => {
   try {
     const tab = await chrome.tabs.create({
       url: 'https://naga.dmv.nico/naga_report/order_form/',
@@ -30,10 +23,10 @@ export const transferToNAGA = async (data: NagaData): Promise<void> => {
     })
 
     if (!tab.id) {
-      throw new TransferError('Failed to create tab', 'TAB_CREATE_FAILED')
+      throw new Error('Failed to create tab')
     }
 
-    // タブが完全に読み込まれるのを待つ
+    // タブの読み込み完了を待つ
     await new Promise<void>((resolve) => {
       chrome.tabs.onUpdated.addListener(function listener(tabId, info) {
         if (tabId === tab.id && info.status === 'complete') {
@@ -43,15 +36,29 @@ export const transferToNAGA = async (data: NagaData): Promise<void> => {
       })
     })
 
-    // Content Scriptを実行して牌譜データを転送
+    // Content Scriptを実行
     await chrome.tabs.sendMessage(tab.id, {
       type: 'TRANSFER_TO_NAGA',
-      data: data.log
+      data: req.body.data.log
     })
-  } catch (_) {
-    throw new TransferError(
-      'Failed to transfer data to NAGA',
-      'TRANSFER_FAILED'
-    )
+
+    res.send({ success: true })
+  } catch (err) {
+    res.send({
+      success: false,
+      error: err instanceof Error ? err.message : "Unknown error"
+    })
+  }
+}
+
+// Popup側で使用する転送関数
+export const transferToNAGA = async (data: NagaData): Promise<void> => {
+  const resp = await chrome.runtime.sendMessage({
+    name: "transferToNAGA",
+    body: { data }
+  })
+
+  if (!resp.success) {
+    throw new Error(resp.error)
   }
 } 
