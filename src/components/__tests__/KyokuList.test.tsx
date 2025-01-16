@@ -1,7 +1,17 @@
-import { expect, test, describe, mock } from "bun:test"
+import { expect, test, describe, mock, beforeAll } from "bun:test"
 import { render, fireEvent } from "@testing-library/react"
+import { JSDOM } from "jsdom"
 import KyokuList from "../KyokuList"
 import type { KyokuInfo, LanguageType } from "../../types"
+
+// DOMのセットアップ
+beforeAll(() => {
+  const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>')
+  // @ts-ignore
+  global.document = dom.window.document
+  // @ts-ignore
+  global.window = dom.window
+})
 
 describe("KyokuList", () => {
   const mockItems: KyokuInfo[] = [
@@ -29,8 +39,8 @@ describe("KyokuList", () => {
   })
 
   test("handles selection correctly", () => {
-    const mockOnSelect = mock()
-    const { getByRole } = render(
+    const mockOnSelect = mock(() => {})
+    const { container } = render(
       <KyokuList
         items={mockItems}
         displayLang={0 as LanguageType}
@@ -38,7 +48,10 @@ describe("KyokuList", () => {
       />
     )
 
-    const button = getByRole("button")
+    // ボタンを直接選択
+    const button = container.querySelector('button')
+    if (!button) throw new Error('Button not found')
+    
     fireEvent.click(button)
     expect(mockOnSelect).toHaveBeenCalledWith(0)
   })

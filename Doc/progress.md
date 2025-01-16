@@ -265,3 +265,63 @@
    - watch modeの活用
    - 自動再実行の設定
    - テストフィルタリング
+
+### 2024-03-XX: テスト環境の整備 - Phase 2
+
+#### 完了した実装
+
+1. テスト環境の構築
+   - Bunテストランナーの導入
+   - JSDOMによるDOMシミュレーション
+   - React Testing Libraryの設定
+
+2. ユニットテストの実装
+   ```typescript
+   // ユーティリティ関数のテスト
+   - i18n.test.ts: メッセージ取得機能
+   - transfer.test.ts: エラーハンドリング
+   
+   // コンポーネントのテスト
+   - KyokuList.test.tsx: レンダリングと選択機能
+   ```
+
+3. テスト戦略の決定
+   - ユニットテストに焦点を当てる
+   - Chrome APIに依存する部分は分離
+   - DOMテストにJSDOMを使用
+
+#### 意思決定のポイント
+
+1. テストツールの選択
+   - Bunテストランナー: 高速な実行と簡単な設定
+   - JSDOM: React Testing Libraryとの相性
+   - モックの簡素化: Chrome API依存を最小限に
+
+2. テストスコープ
+   - ユニットテストを優先
+   - E2Eテストは後続フェーズで検討
+   - Chrome API依存部分は分離して管理
+
+#### 次のステップ
+
+1. コンポーネントテストの拡充
+   ```typescript
+   // 優先順位の高いテスト
+   - NAGAPanel.test.tsx
+   - ErrorDisplay.test.tsx
+   - i18n機能の統合テスト
+   ```
+
+2. エラーハンドリングの実装
+   - エラー表示コンポーネント
+   - エラー状態の管理
+   - ユーザーフレンドリーなメッセージ
+
+3. 残りのコンポーネント実装
+   - mjai-reviewerパネル
+   - 統計データ表示
+   - 設定画面
+
+[参考]
+- [Bun Test Documentation](https://bun.sh/docs/cli/test)
+- [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)

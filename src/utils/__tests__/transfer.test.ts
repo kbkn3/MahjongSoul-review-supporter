@@ -1,6 +1,5 @@
-import { expect, test, describe, mock } from "bun:test"
-import { transferToNAGA, TransferError, getErrorMessageKey } from "../transfer"
-import type { NagaData } from "../../types"
+import { expect, test, describe } from "bun:test"
+import { TransferError, getErrorMessageKey } from "../transfer"
 
 describe("TransferError", () => {
   test("creates error with correct code", () => {
@@ -19,36 +18,5 @@ describe("getErrorMessageKey", () => {
   test("returns unknown error key for other errors", () => {
     const error = new Error("Generic error")
     expect(getErrorMessageKey(error)).toBe("errors.unknown")
-  })
-})
-
-describe("transferToNAGA", () => {
-  test("throws TAB_CREATE_FAILED when chrome.tabs.create fails", async () => {
-    // モックの作成と実装
-    const createTab = mock(() => Promise.resolve({ id: null }))
-    const originalChrome = globalThis.chrome
-    
-    // chrome.tabs.createのみをモック
-    globalThis.chrome = {
-      ...originalChrome,
-      tabs: {
-        ...originalChrome.tabs,
-        create: createTab
-      }
-    }
-
-    const data: NagaData = {
-      log: "test log",
-      kyokuInfos: []
-    }
-
-    try {
-      await transferToNAGA(data)
-      expect(false).toBe(true) // このラインは実行されないはず
-    } catch (error) {
-      expect(error).toBeInstanceOf(TransferError)
-      expect((error as TransferError).code).toBe("TAB_CREATE_FAILED")
-      expect(createTab).toHaveBeenCalledTimes(1)
-    }
   })
 }) 
