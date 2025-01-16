@@ -5,7 +5,7 @@
   "description": "雀魂の牌譜検討で簡単にNAGAやmjai-reviewer(Mortal/Akochan)を利用するための非公式拡張機能です。本拡張機能は牌譜閲覧画面でのみ動作し、ゲームプレイに影響するものではありません。",
   "author": "モダンジャン研究会<ken0421wabu@gmail.com>",
   "scripts": {
-    "dev": "plasmo dev",
+    "dev": "plasmo dev --verbose",
     "build": "plasmo build",
     "package": "plasmo package"
   },
