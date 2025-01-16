@@ -325,3 +325,39 @@
 [参考]
 - [Bun Test Documentation](https://bun.sh/docs/cli/test)
 - [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
+
+### 2024-03-XX: マニフェスト設定の最適化
+
+#### 完了した修正
+1. manifest.tsの削除
+   - package.jsonでのmanifest設定に移行
+   - 設定の一元管理
+   - Plasmoの推奨方法に準拠
+
+2. Content Script設定の整理
+   ```json
+   {
+     "content_scripts": [
+       {
+         "matches": ["https://naga.dmv.nico/naga_report/order_form/*"],
+         "js": ["src/contents/naga.ts"]
+       }
+     ]
+   }
+   ```
+
+#### 次のステップ
+1. NAGAパネルのテスト実装
+   - レンダリングテスト
+   - 転送機能のテスト
+   - エラーケースのテスト
+
+2. エラー表示コンポーネントの実装
+   - エラーメッセージの表示
+   - 多言語対応
+   - スタイリング
+
+3. mjai-reviewerパネルの実装
+   - 基本構造
+   - プレイヤー選択機能
+   - 転送機能

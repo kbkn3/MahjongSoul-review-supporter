@@ -35,8 +35,18 @@
     "typescript": "5.3.3"
   },
   "manifest": {
+    "content_scripts": [
+      {
+        "matches": ["https://naga.dmv.nico/naga_report/order_form/*"],
+        "js": ["src/contents/naga.ts"]
+      }
+    ],
+    "permissions": [
+      "storage",
+      "tabs"
+    ],
     "host_permissions": [
-      "https://*/*"
+      "https://naga.dmv.nico/*"
     ]
   }
 }
