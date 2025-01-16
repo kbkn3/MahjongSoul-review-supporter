@@ -15,26 +15,27 @@ const NAGAPanel = ({ displayLang, data, onTransfer, className, disabled }: NagaP
 
   return (
     <div className={`flex flex-col gap-4 ${className}`}>
-      {/* 局情報リスト */}
+      <h2 data-testid="naga-title">{t('title')}</h2>
       <KyokuList 
         items={data.kyokuInfos} 
         displayLang={displayLang}
       />
       
-      {/* 転送ボタン */}
       <button
         type="button"
         onClick={onTransfer}
         disabled={disabled}
+        data-testid="transfer-button"
         className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded
           ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
         {t('transfer')}
       </button>
       
-      {/* 天鳳形式プレビュー */}
       <div className="mt-2">
-        <h3 className="text-sm font-bold mb-1">{t('preview')}</h3>
+        <h3 data-testid="preview-title" className="text-sm font-bold mb-1">
+          {t('preview')}
+        </h3>
         <pre className="bg-gray-100 p-2 rounded text-xs overflow-auto">
           {data.log}
         </pre>
