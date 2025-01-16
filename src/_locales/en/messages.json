@@ -1,0 +1,38 @@
+{
+  "appName": {
+    "message": "Mahjong Soul Review Supporter",
+    "description": "Extension name"
+  },
+  "appDesc": {
+    "message": "Retrieves and transfers game records from Mahjong Soul for analysis in NAGA and mjai-reviewer.",
+    "description": "Extension description"
+  },
+  "nagaTitle": {
+    "message": "NAGA Transfer",
+    "description": "NAGA transfer section title"
+  },
+  "mjaiTitle": {
+    "message": "mjai-reviewer Transfer",
+    "description": "mjai-reviewer section title"
+  },
+  "recipeTitle": {
+    "message": "Statistics",
+    "description": "Statistics section title"
+  },
+  "copyButton": {
+    "message": "Copy",
+    "description": "Copy button text"
+  },
+  "transferButton": {
+    "message": "Transfer",
+    "description": "Transfer button text"
+  },
+  "errorMessage": {
+    "message": "An error occurred. Please reload the page.",
+    "description": "Error message"
+  },
+  "recipeDescription": {
+    "message": "The results can be copied and pasted into Excel or spreadsheets.",
+    "description": "Statistics description"
+  }
+} 

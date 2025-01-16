@@ -1,0 +1,38 @@
+{
+  "appName": {
+    "message": "雀魂牌譜検討サポーター",
+    "description": "拡張機能の名前"
+  },
+  "appDesc": {
+    "message": "雀魂の牌譜を取得し、NAGAやmjai-reviewerでの検討を支援します。",
+    "description": "拡張機能の説明"
+  },
+  "nagaTitle": {
+    "message": "NAGA転送",
+    "description": "NAGA転送セクションのタイトル"
+  },
+  "mjaiTitle": {
+    "message": "mjai-reviewer転送",
+    "description": "mjai-reviewerセクションのタイトル"
+  },
+  "recipeTitle": {
+    "message": "統計データ",
+    "description": "統計データセクションのタイトル"
+  },
+  "copyButton": {
+    "message": "コピー",
+    "description": "コピーボタンのテキスト"
+  },
+  "transferButton": {
+    "message": "転送",
+    "description": "転送ボタンのテキスト"
+  },
+  "errorMessage": {
+    "message": "エラーが発生しました。ページをリロードしてください。",
+    "description": "エラーメッセージ"
+  },
+  "recipeDescription": {
+    "message": "Excelやスプレッドシートにコピペできる戦績です。",
+    "description": "統計データの説明"
+  }
+} 
