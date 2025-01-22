@@ -210,6 +210,7 @@ export default {
       });
     })
 
+    // This implementation is based on [雀魂の牌譜をNAGAに解析させる－完全版－ - ねことくまとへび](https://lions.blue/07813)
     //雀魂の牌譜jsonを天鳳形式に変換
     function soul2naga(results) {
       const soulJson = JSON.stringify(results, null, "    ")
