@@ -37,7 +37,7 @@ This project includes code and concepts from:
   * The actual reference in this project is [NagaList.vue](src/popup/NagaList.vue)
 * mjai-reviewer : [Github Equim-chan/mjai-reviewer](https://github.com/Equim-chan/mjai-reviewer)
   * Apache-2.0 Using `downloadlogs script`
-  * * The actual reference in this project is [dd.js](src/content-scripts/dd.js)
+  * The actual reference in this project is [dd.js](src/content-scripts/dd.js)
 
 ## License
 
