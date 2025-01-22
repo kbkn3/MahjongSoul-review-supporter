@@ -26,7 +26,18 @@ export const messages = {
       }
     },
     title: "雀魂牌譜検討サポーター",
-    transferButton: "転送"
+    transferButton: "転送",
+    stats: {
+      title: "統計情報",
+      recentGames: "最近の対局",
+      totalGames: "総局数",
+      winRate: "勝率",
+      topRate: "トップ率",
+      averageScore: "平均スコア",
+      recentTrend: "最近の傾向",
+      recentWins: "直近の勝利",
+      recentLosses: "直近の敗北"
+    }
   },
   en: {
     naga: {
@@ -55,7 +66,18 @@ export const messages = {
       }
     },
     title: "Mahjong Soul Review Supporter",
-    transferButton: "Transfer"
+    transferButton: "Transfer",
+    stats: {
+      title: "Statistics",
+      recentGames: "Recent Games",
+      totalGames: "Total Games",
+      winRate: "Win Rate",
+      topRate: "Top Rate",
+      averageScore: "Average Score",
+      recentTrend: "Recent Trend",
+      recentWins: "Recent Wins",
+      recentLosses: "Recent Losses"
+    }
   },
   zh: {
     naga: {

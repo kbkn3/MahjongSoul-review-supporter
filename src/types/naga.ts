@@ -18,6 +18,12 @@ export interface NagaData {
   timestamp: string  // 対局時刻
   lobby: number     // ロビー番号 (0: 段位戦, etc)
   rule: number      // ルール番号
+  kyokuInfos: {
+    scores: number[]
+    kyoku: number
+    honba: number
+    result: string
+  }[]
 }
 
 // NAGAサイトのフォーム入力値の型
@@ -52,4 +58,24 @@ export interface NagaResponse {
     code: NagaErrorCode
     message: string
   }
+}
+
+export interface Game {
+  date: string
+  rank: number
+  score: number
+}
+
+export interface NagaStats {
+  winRate: number
+  averageScore: number
+  topRate: number
+  gameCount: number
+  recentGames: Game[]
+}
+
+export interface NagaAnalysisResult {
+  stats: NagaStats
+  recommendations: string[]
+  errors?: string[]
 } 

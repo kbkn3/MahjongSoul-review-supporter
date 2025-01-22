@@ -1,3 +1,5 @@
+import type { Language } from '../i18n/messages'
+
 // 牌譜データの基本型
 export interface PaifuData {
   title: string;
@@ -34,7 +36,7 @@ export interface RecipeData {
 }
 
 // 言語設定の型
-export type LanguageType = 0 | 1 | 2;  // 0: 日本語, 1: 英語, 2: 中国語
+export type { Language }
 
 // サーバー設定の型
 export interface ServerConfig {

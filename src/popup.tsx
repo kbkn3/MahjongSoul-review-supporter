@@ -1,29 +1,59 @@
 import { useEffect, useState } from 'react'
 import { Storage } from "@plasmohq/storage"
-import type { NagaData, LanguageType } from './types'
+import { sendToContentScript } from "@plasmohq/messaging"
+import type { NagaData } from './types'
+import type { Language } from './types'
 import NAGAPanel from './components/NAGAPanel'
 import { transferToNAGA } from './utils/transfer'
 import { getMessage } from './utils/i18n'
 
+const storage = new Storage()
+
 const Popup = () => {
-  const [displayLang, setDisplayLang] = useState<LanguageType>(0)
+  const [displayLang, setDisplayLang] = useState<Language>('ja')
   const [nagaData, setNagaData] = useState<NagaData | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isTransferring, setIsTransferring] = useState(false)
-
-  const storage = new Storage()
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const loadData = async () => {
-      const [storedLang, storedData] = await Promise.all([
-        storage.get("DisplayLang"),
-        storage.get("toNagaData")
-      ])
-      setDisplayLang(((storedLang as unknown) as LanguageType) ?? 0)
-      setNagaData((storedData as unknown) as NagaData ?? null)
+      try {
+        const [storedLang, storedData] = await Promise.all([
+          storage.get("DisplayLang"),
+          storage.get("toNagaData")
+        ])
+        setDisplayLang(((storedLang as unknown) as Language) ?? 'ja')
+        setNagaData((storedData as unknown) as NagaData ?? null)
+        console.log("aaa")
+        // content scriptにメッセージを送信
+        const response = await sendToContentScript({
+          name: "getPaifu",
+        })
+        console.log("bbb")
+        if (response.error) {
+          setError(getMessage('naga.noData', displayLang))
+          return
+        }
+        console.log("ccc")
+        // 受け取ったデータを処理
+        const { paifu } = response
+
+        // 牌譜データを保存
+        const newNagaData: NagaData = {
+          log: paifu,
+          kyokuInfos: []  // TODO: kyokuInfosの生成処理を実装
+        }
+        await storage.set("toNagaData", newNagaData)
+        setNagaData(newNagaData)
+        
+        setIsLoading(false)
+      } catch (_err) {
+        setError(getMessage('naga.transferError', displayLang))
+      }
     }
     loadData()
-  }, [storage])
+  }, [displayLang])
 
   const handleTransfer = async () => {
     if (!nagaData) return
@@ -36,8 +66,7 @@ const Popup = () => {
       await storage.remove("toNagaData")
       setNagaData(null)
     } catch (_err) {
-      const messageKey = 'errors.transfer'
-      setError(getMessage(displayLang, `naga.${messageKey}`))
+      setError(getMessage('naga.errors.transfer', displayLang))
     } finally {
       setIsTransferring(false)
     }
@@ -51,7 +80,11 @@ const Popup = () => {
         </div>
       )}
       
-      {nagaData ? (
+      {isLoading ? (
+        <div className="text-center text-gray-500">
+          読み込み中...
+        </div>
+      ) : nagaData ? (
         <NAGAPanel
           displayLang={displayLang}
           data={nagaData}
@@ -61,7 +94,7 @@ const Popup = () => {
         />
       ) : (
         <div className="text-center text-gray-500">
-          {getMessage(displayLang, 'naga.noData')}
+          {getMessage('naga.noData', displayLang)}
         </div>
       )}
     </div>

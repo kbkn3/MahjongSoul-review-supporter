@@ -10,7 +10,7 @@
     ".plasmo/index.d.ts",
     "./**/*.ts",
     "./**/*.tsx"
-  ],
+, "src/contents/dd.ts"  ],
   "compilerOptions": {
     "paths": {
       "~*": ["./src/*"]

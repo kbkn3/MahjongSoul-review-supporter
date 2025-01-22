@@ -1,14 +1,16 @@
-import type { KyokuInfo, LanguageType } from '../types'
+import type { KyokuInfo } from '../types'
 import { getMessage } from '../utils/i18n'
+import type { MessageKey, Language } from '../i18n/messages'
+import type { messages } from '../i18n/messages'
 
 interface KyokuListProps {
   items: KyokuInfo[]
-  displayLang: LanguageType
+  displayLang: Language
   onSelect?: (index: number) => void
 }
 
 const KyokuList = ({ items, displayLang, onSelect }: KyokuListProps) => {
-  const t = (key: string) => getMessage(displayLang, `naga.${key}`)
+  const t = (key: keyof typeof messages.ja.naga) => getMessage(`naga.${key}` as MessageKey, displayLang)
 
   return (
     <div className="grid gap-2">

@@ -40,7 +40,28 @@
       "tabs"
     ],
     "host_permissions": [
-      "https://naga.dmv.nico/*"
+      "https://naga.dmv.nico/*",
+      "https://game.mahjongsoul.com/*",
+      "https://mahjongsoul.game.yo-star.com/*",
+      "https://game.maj-soul.net/*",
+      "https://game.maj-soul.com/*",
+      "https://mjai.ekyu.moe/*"
+    ],
+    "web_accessible_resources": [
+      {
+        "resources": [
+          "src/contents/paifu-main.ts",
+          "src/contents/dd.ts"
+        ],
+        "matches": [
+          "https://game.mahjongsoul.com/*",
+          "https://mahjongsoul.game.yo-star.com/*",
+          "https://game.maj-soul.net/*",
+          "https://game.maj-soul.com/*"
+        ],
+        "use_dynamic_url": true
+      }
     ]
   }
 }
+
