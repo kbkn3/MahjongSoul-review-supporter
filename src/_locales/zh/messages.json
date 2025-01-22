@@ -1,0 +1,38 @@
+{
+  "appName": {
+    "message": "雀魂牌谱检讨辅助工具",
+    "description": "扩展名称"
+  },
+  "appDesc": {
+    "message": "获取雀魂牌谱并支持在NAGA和mjai-reviewer中进行分析。",
+    "description": "扩展描述"
+  },
+  "nagaTitle": {
+    "message": "NAGA传送",
+    "description": "NAGA传送部分标题"
+  },
+  "mjaiTitle": {
+    "message": "mjai-reviewer传送",
+    "description": "mjai-reviewer部分标题"
+  },
+  "recipeTitle": {
+    "message": "统计数据",
+    "description": "统计数据部分标题"
+  },
+  "copyButton": {
+    "message": "复制",
+    "description": "复制按钮文本"
+  },
+  "transferButton": {
+    "message": "传送",
+    "description": "传送按钮文本"
+  },
+  "errorMessage": {
+    "message": "发生错误。请重新加载页面。",
+    "description": "错误信息"
+  },
+  "recipeDescription": {
+    "message": "结果可以被复制并粘贴到Excel或电子表格中。",
+    "description": "统计数据说明"
+  }
+} 

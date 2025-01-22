@@ -1,64 +1,67 @@
 {
-  "name": "amazing-searcher",
-  "version": "0.1.0",
-  "private": true,
+  "name": "mahjong-soul-review-supporter",
+  "displayName": "Mahjong soul review supporter",
+  "version": "0.0.1",
+  "description": "雀魂の牌譜検討で簡単にNAGAやmjai-reviewer(Mortal/Akochan)を利用するための非公式拡張機能です。本拡張機能は牌譜閲覧画面でのみ動作し、ゲームプレイに影響するものではありません。",
+  "author": "モダンジャン研究会<ken0421wabu@gmail.com>",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development webpack --config=webpack.dev.js --mode=development",
-    "build": "webpack --config webpack.prod.js"
+    "dev": "plasmo dev --verbose",
+    "build": "plasmo build",
+    "package": "plasmo package"
   },
   "dependencies": {
-    "core-js": "^3.8.3",
-    "csv-loader": "^3.0.3",
-    "socket.io": "^3.1.2",
-    "vue": "^3.2.37"
+    "@plasmohq/messaging": "^0.6.2",
+    "@plasmohq/storage": "^1.13.0",
+    "jsdom": "^26.0.0",
+    "plasmo": "0.89.4",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.14.3",
-    "@babel/preset-env": "^7.14.4",
-    "@tailwindcss/postcss7-compat": "^2.0.3",
-    "@vue/cli-plugin-babel": "^4.5.11",
-    "@vue/cli-plugin-eslint": "^4.5.11",
-    "@vue/cli-service": "^4.5.11",
-    "@vue/compiler-sfc": "^3.0.0",
-    "autoprefixer": "^9.8.6",
-    "babel-eslint": "^10.1.0",
-    "babel-loader": "^8.2.2",
-    "clean-webpack-plugin": "^3.0.0",
-    "cross-env": "^7.0.3",
-    "eslint": "^6.7.2",
-    "eslint-plugin-vue": "^7.5.0",
-    "postcss": "^7.0.35",
-    "postcss-prefix-selector": "^1.7.2",
-    "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.0.3",
-    "vue-loader": "^16.1.2",
-    "webpack-cli": "^4.5.0",
-    "zip-webpack-plugin": "^4.0.1"
+    "@ianvs/prettier-plugin-sort-imports": "4.1.1",
+    "@testing-library/react": "^16.2.0",
+    "@types/bun": "^1.1.16",
+    "@types/chrome": "^0.0.296",
+    "@types/node": "20.11.5",
+    "@types/react": "18.2.48",
+    "@types/react-dom": "18.2.18",
+    "@types/web": "^0.0.195",
+    "autoprefixer": "^10.4.20",
+    "bun": "^1.1.43",
+    "happy-dom": "^16.6.0",
+    "postcss": "^8.5.1",
+    "prettier": "3.2.4",
+    "tailwindcss": "^3.4.17",
+    "typescript": "5.3.3"
   },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true,
-      "browser": true,
-      "webextensions": true
-    },
-    "extends": [
-      "plugin:vue/vue3-essential",
-      "eslint:recommended"
+  "manifest": {
+    "permissions": [
+      "storage",
+      "tabs"
     ],
-    "parserOptions": {
-      "parser": "babel-eslint"
-    },
-    "rules": {}
-  },
-  "browser": {
-    "fs": false
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not dead"
-  ],
-  "volta": {
-    "node": "16.20.2"
+    "host_permissions": [
+      "https://naga.dmv.nico/*",
+      "https://game.mahjongsoul.com/*",
+      "https://mahjongsoul.game.yo-star.com/*",
+      "https://game.maj-soul.net/*",
+      "https://game.maj-soul.com/*",
+      "https://mjai.ekyu.moe/*"
+    ],
+    "web_accessible_resources": [
+      {
+        "resources": [
+          "src/contents/paifu-main.ts",
+          "src/contents/dd.ts"
+        ],
+        "matches": [
+          "https://game.mahjongsoul.com/*",
+          "https://mahjongsoul.game.yo-star.com/*",
+          "https://game.maj-soul.net/*",
+          "https://game.maj-soul.com/*"
+        ],
+        "use_dynamic_url": true
+      }
+    ]
   }
 }
+

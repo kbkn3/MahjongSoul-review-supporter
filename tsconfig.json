@@ -1,0 +1,22 @@
+{
+  "extends": "plasmo/templates/tsconfig.base",
+  "exclude": [
+    "node_modules",
+    "build",
+    "dist",
+    ".plasmo"
+  ],
+  "include": [
+    ".plasmo/index.d.ts",
+    "./**/*.ts",
+    "./**/*.tsx"
+, "src/contents/dd.ts"  ],
+  "compilerOptions": {
+    "paths": {
+      "~*": ["./src/*"]
+    },
+    "baseUrl": "."
+  },
+  "lib": ["ESNext", "DOM", "DOM.Iterable"],
+  "types": ["web", "bun-types","chrome"]
+}

@@ -1,24 +1,21 @@
+/** @type {import('tailwindcss').Config} */
 module.exports = {
-  purge: ['./src/**/*.vue'],
-  darkMode: false, // or 'media' or 'class'
+  mode: "jit",
+  darkMode: "class",
+  content: ["./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
-      colors:{
-        'mjsoul-text-gold': '#bfac8c',
-        'mjsoul-text-lightblue': '#9eb9f7',
-        'mjsoul-bg-blue': '#1d213a',
-        'mjsoul-fl-blue': '#242c43',
-        'mjsoul-grad-dark-blue': '#111F40',
-        'mjsoul-grad-middle-blue': '#1E2C4E',
-        'mjsoul-grad-light-blue':'#223155',
-        'mjsoul-card-blue':'#051434',
+      keyframes: {
+        shake: {
+          '0%, 100%': { transform: 'translateX(0)' },
+          '25%': { transform: 'translateX(-5px)' },
+          '75%': { transform: 'translateX(5px)' },
+        }
       },
-    },
+      animation: {
+        shake: 'shake 0.5s ease-in-out',
+      }
+    }
   },
-  variants: {
-    extend: {
-      borderWidth: ['hover']
-    },
-  },
-  plugins: [],
-}
+  plugins: []
+} 

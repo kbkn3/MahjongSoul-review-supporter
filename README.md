@@ -1,46 +1,33 @@
-# Mahjong Soul Review Supporter
-This extension retrieves information and automatically transfers to the screen to review the paihu of Mahjong Soul.
+This is a [Plasmo extension](https://docs.plasmo.com/) project bootstrapped with [`plasmo init`](https://www.npmjs.com/package/plasmo).
 
-![content-scripts demo shot](imgs/Animation.gif)
+## Getting Started
 
+First, run the development server:
 
-## Features
-* Retrieves paihu data and displays it on the screen.
-* Converts paihu data to Tempo format and transfers it to NAGA's custom paihu review screen.
-* Transfers paihu data to [mjai-reviewer](https://mjai.ekyu.moe/) (Akochan, Mortal).
+```bash
+pnpm dev
+# or
+npm run dev
+```
 
+Open your browser and load the appropriate development build. For example, if you are developing for the chrome browser, using manifest v3, use: `build/chrome-mv3-dev`.
 
-## Installation
-Chrome Web Store link is [Here](https://chrome.google.com/webstore/detail/mahjongsoul-review-suppor/kdmfnkdgpialmejpgflfllkjakolamcc)
+You can start editing the popup by modifying `popup.tsx`. It should auto-update as you make changes. To add an options page, simply add a `options.tsx` file to the root of the project, with a react component default exported. Likewise to add a content page, add a `content.ts` file to the root of the project, importing some module and do some logic, then reload the extension on your browser.
 
+For further guidance, [visit our Documentation](https://docs.plasmo.com/)
 
-Edge Web Store link is [Here](https://microsoftedge.microsoft.com/addons/detail/jopdfhmfehndjpnjjidmkkmjmkaebodb)
+## Making production build
 
+Run the following:
 
-日本語の記事は[こちら](https://modern-jan.com/2022/07/19/mjrs/)
+```bash
+pnpm build
+# or
+npm run build
+```
 
+This should create a production bundle for your extension, ready to be zipped and published to the stores.
 
-## Supported Languages
-* `en` English
-* `zh` Chinese
-* `ja` Japanese 
+## Submit to the webstores
 
-## Author
-[@kbkn_p](https://twitter.com/kbkn_p)  
-Collaborator [たまば](https://twitter.com/utm_tmb)
-
-## License
-[Apache-2.0](https://github.com/Wabu-K/MahjongSoul-review-supporter/blob/develop/LICENSE)
-
-* mjai-reviewer　: [Github Equim-chan/mjai-reviewer](https://github.com/Equim-chan/mjai-reviewer)
-  * Apache-2.0 Using `downloadlogs script`
-
-
-## Thanks
-* NAGA by DWANGO : [麻雀AI NAGA](https://naga.dmv.nico/naga_report/top/)
-* mjai-reviewer　: [Github Equim-chan/mjai-reviewer](https://github.com/Equim-chan/mjai-reviewer)
-  * Using `downloadlogs script`
-* Akochan : [Github critter-mj/akochan](https://github.com/critter-mj/akochan)
-* Mortal : [Github Equim-chan/Mortal](https://github.com/Equim-chan/Mortal)
-* Amazing-searcher : [Github eetann/amazing-searcher](https://github.com/eetann/amazing-searcher)
-  * I used this link Vue.js and auto-reloading development environment as a reference
+The easiest way to deploy your Plasmo extension is to use the built-in [bpp](https://bpp.browser.market) GitHub action. Prior to using this action however, make sure to build your extension and upload the first version to the store to establish the basic credentials. Then, simply follow [this setup instruction](https://docs.plasmo.com/framework/workflows/submit) and you should be on your way for automated submission!
