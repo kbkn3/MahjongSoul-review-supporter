@@ -545,7 +545,7 @@ export default {
     // 卓名変換
     const extractTable = (tableName) => {
       if (tableName.includes('銅')) {
-        return 'blonze';
+        return 'bronze';
       } else if (tableName.includes('銀')) {
         return 'silver';
       } else if (tableName.includes('金')) {
