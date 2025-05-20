@@ -51,7 +51,6 @@
   "web_accessible_resources": [
     {
       "resources": [
-          "web_accessible_resources.js",
           "dd.js",
           "event.js"
       ],
