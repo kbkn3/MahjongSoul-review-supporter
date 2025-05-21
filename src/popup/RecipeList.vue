@@ -19,11 +19,11 @@ import { ref} from "vue";
 export default {
   setup() {
     //牌譜データから表示用のデータを抽出したもの
-    let TableText = ref("牌譜を読み込めていません");
+    const TableText = ref("牌譜を読み込めていません");
     /**
      * content-scriptから牌譜データを受け取る
      */
-    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    chrome.runtime.onMessage.addListener((request) => {
       for (let s = 0; s < request.message.name.length; s++) {
         request.message.name[s] = request.message.name[s].replace(
           /[#<>"%]/gi,
@@ -38,7 +38,7 @@ export default {
      * @param {*} message 牌譜データのjson
      */
     const processData = (message, ref_id) => {
-      let TableData = [
+      const TableData = [
         [
           "ゲームID",
           "名前",
@@ -60,7 +60,7 @@ export default {
       ];
 
       //固定データの記入
-      let score=[];
+      const score=[];
       for (let j = 0; j < message.name.length; j++) {
         TableData[j + 1][0] = ref_id; //ゲームID
         TableData[j + 1][1] = message.name[j]; //名前
@@ -69,12 +69,8 @@ export default {
         score.push(message.sc[2 * j+1]); //順位点込みのポイント
       }
       //順位計算
-      let sorted = score.slice().sort(function (a, b) {
-        return b - a;
-      });
-      let ranks = score.slice().map(function (x) {
-        return sorted.indexOf(x) + 1;
-      });
+      const sorted = score.slice().sort((a, b) => b - a);
+      const ranks = score.slice().map((x) => sorted.indexOf(x) + 1);
       for (let k = 0; k < 4; k++) {
         TableData[k + 1][3] = ranks[k];
       }
@@ -85,7 +81,7 @@ export default {
           //和了がいる場合
           for (let t = 1; t < ~~(message.log[i][16].length / 2) + 1; t++) {
             //ダブロン・トリロンに対応
-            if (message.log[i][16][2 * t][0] == message.log[i][16][2 * t][1]) {
+            if (message.log[i][16][2 * t][0] === message.log[i][16][2 * t][1]) {
               //ツモの場合
               TableData[message.log[i][16][2 * t][0] + 1][4]++; //和了回数
               TableData[message.log[i][16][2 * t][0] + 1][8]++; //ツモ回数
@@ -116,7 +112,7 @@ export default {
 
       let text = ""
       for (let a = 1; a < TableData.length; a++) {
-        text += TableData[a].join('\t') + "\n";
+        text += `${TableData[a].join('\t')}\n`;
       }
       TableText.value = text;
     };

@@ -20,7 +20,7 @@ import { reactive, ref } from 'vue';
 export default {
 
   setup() {
-    let seki = reactive([""]);
+    const seki = reactive([""]);
     let MjaiURLstring = "";
 
     const MSLang = ref(0);

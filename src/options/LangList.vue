@@ -11,7 +11,7 @@
       </InputSelect>
       <ul class="m-2 list-disc">
         <li>雀魂 -じゃんたま-：日本語(game.mahjongsoul.com)</li>
-        <li>Mahjong Soul：English/中文(繁體)/한국어 (mahjongsoul.game.yo-star.com)</li>
+        <li>Mahjong Soul: English/中文(繁體)/한국어 (mahjongsoul.game.yo-star.com)</li>
         <li>雀魂麻将：中文 (game.maj-soul.com/game.maj-soul.net)</li>
       </ul>
       <InputSelect
@@ -75,8 +75,8 @@ export default {
     const setLang = () => {
       // clear messages
       messages.value = "";
-      console.log("MS"+MSLang.value);
-      console.log("Dis"+DisplayLang.value);
+      console.log(`MS${MSLang.value}`);
+      console.log(`Dis${DisplayLang.value}`);
       // set new lang
       chrome.storage.local.set({
         MSLang: MSLang.value,

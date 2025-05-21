@@ -1,6 +1,6 @@
 
 chrome.runtime.onInstalled.addListener(details => {
-  if (details.reason == "install") {
+  if (details.reason === "install") {
     // register langs
     chrome.storage.local.set({
       MSLang: "0",//ja

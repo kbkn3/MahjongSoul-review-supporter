@@ -54,23 +54,23 @@ export default {
       Kyoku_info[num].isSelect = !Kyoku_info[num].isSelect;
     }
 
-    let isChecked = ref(false);
+    const isChecked = ref(false);
     /**
      * submitボタンを押したら選択状態の局の番号をまとめて、その局のデータを
      */
     const submitNaga = () => {
       const useKyokus = [];
       for (let i = 0; i < Kyoku_info.length; i++) {
-        if (Kyoku_info[i].isSelect == true) {
+        if (Kyoku_info[i].isSelect === true) {
           useKyokus.push(Kyoku_info[i].id);
         }
       }
       let URLstring = "";
       for (const useKyoku of useKyokus) {
-        URLstring = URLstring + (toNagaData[useKyoku]) + "\n";
+        URLstring = `${URLstring + (toNagaData[useKyoku])}\n`;
       }
       //匿名モード
-      if (isChecked.value == true) {
+      if (isChecked.value === true) {
         const regexp = /"name":\[.+\],"rule"/g;
         URLstring = URLstring.replace(regexp, '"name":["Aさん","Bさん","Cさん","Dさん"],"rule"');
       }
@@ -83,11 +83,11 @@ export default {
     const selectAll = () => {
       let count = 0;
       for (let j = 0; j < Kyoku_info.length; j++) {
-        if (Kyoku_info[j].isSelect == true) {
+        if (Kyoku_info[j].isSelect === true) {
           count = count + 1;
         }
       }
-      if (count == Kyoku_info.length) {
+      if (count === Kyoku_info.length) {
         for (let j = 0; j < Kyoku_info.length; j++) {
           Kyoku_info[j].isSelect = false;
         }
@@ -104,7 +104,7 @@ export default {
       const msg = "NP";
       const useKyokus = [];
       for (let i = 0; i < Kyoku_info.length; i++) {
-        if (Kyoku_info[i].isSelect == true) {
+        if (Kyoku_info[i].isSelect === true) {
           useKyokus.push(Kyoku_info[i].id);
         }
       }
@@ -115,12 +115,12 @@ export default {
      * content-scriptから牌譜データを受け取る
      */
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-      let title = "疎通";
+      const title = "疎通";
       console.log('4.listner');
       fixScoreRonTileWasReachTile(request.message)
       processData(request.message);
       for (let s = 0; s < request.message.name.length; s++) {
-        request.message.name[s] = request.message.name[s].replace(/[!#<>"%&$*]/gi, function (s) { return String.fromCharCode(s.charCodeAt(0) + 0xFEE0) });
+        request.message.name[s] = request.message.name[s].replace(/[!#<>"%&$*]/gi, (s) => String.fromCharCode(s.charCodeAt(0) + 0xFEE0));
       }
       toNagaData = soul2naga(request.message);
       console.log(toNagaData)
@@ -133,7 +133,7 @@ export default {
      */
     const processData = (message) => {
       for (let i = 0; i < message.log.length; i++) {
-        let kyoku = {};
+        const kyoku = {};
         kyoku.id = i;
         //場風
         kyoku.Ba = ~~(message.log[i][0][0] / 4);
@@ -147,7 +147,7 @@ export default {
           let t = 0;
           for (t = 1; t < ~~(message.log[i][16].length / 2) + 1; t++) {//ダブロン・トリロンに対応
             let one = [];
-            if (message.log[i][16][2 * t][0] == message.log[i][16][2 * t][1]) {//ツモの場合
+            if (message.log[i][16][2 * t][0] === message.log[i][16][2 * t][1]) {//ツモの場合
               one = [
                 "ツモ和", //結果
                 message.name[message.log[i][16][2 * t][0]], //和了者
@@ -167,7 +167,7 @@ export default {
             kyoku.result.push(one);
           }
         } else {
-          let ryukyoku = [message.log[i][16][0]];
+          const ryukyoku = [message.log[i][16][0]];
           if (message.log[i][16][1]) {
             message.log[i][16][1].forEach((score, index) => {
               if (score > 0) {
@@ -214,9 +214,9 @@ export default {
     // Licensed under Apache License 2.0
     //雀魂の牌譜jsonを天鳳形式に変換
     function soul2naga(results) {
-      const soulJson = JSON.stringify(results, null, "    ")
-        // eslint-disable-next-line no-regex-spaces
-        .replace(/\n       \s+/g, " ") //bring up log array items
+      const INDENT = " ".repeat(4);
+      const soulJson = JSON.stringify(results, null, INDENT)
+        .replace(new RegExp(`\n${INDENT}+`, 'g'), " ") //bring up log array items
         .replace(/], \[/g, "],\n        [") //bump nested lists back down
         .replace(/\n\s+]/g, " ]") //bring up isolated right brackets
         .replace(/\n\s+},\n/g, " },\n");
@@ -278,8 +278,7 @@ export default {
       rule.disp = toSoulTable(rule.disp);
 
       // logを局ごとのデータに分割し、牌譜エディタのURL群として返す。
-      return soulPaifu.log.map(function (v) {
-        return (
+      return soulPaifu.log.map((v) => (
           EDITOR_URL_PREFIX +
           JSON.stringify({
             title: [title, JSON.stringify(ptEV).slice(1, -1)],
@@ -287,8 +286,7 @@ export default {
             rule: rule,
             log: [toNagaLog(v)],
           })
-        );
-      });
+        ));
     }
     function getRankPtEV(wind, table, soulPaifu) {
       let ptEV
@@ -302,11 +300,10 @@ export default {
           (dan) => {
             if (wind === "east" && dan.match(/魂天Lv\d+/)) {
               return [0.6, 0.3, -0.3, -0.6]
-            } else if (wind === "south" && dan.match(/魂天Lv\d+/)) {
+            }if (wind === "south" && dan.match(/魂天Lv\d+/)) {
               return [1.0, 0.4, -0.4, -1.0]
-            } else {
-              return POINTS[wind][table][dan]
             }
+              return POINTS[wind][table][dan]
           }
         )
         ptEV.push(1)
@@ -326,9 +323,9 @@ export default {
           (dan) => {
             if (wind === "east" && dan.match(/魂天Lv\d+/)) {
               return [0.6, 0.3, -0.3, -0.6]
-            } else if (wind === "south" && dan.match(/魂天Lv\d+/)) {
+            }if (wind === "south" && dan.match(/魂天Lv\d+/)) {
               return [1.0, 0.4, -0.4, -1.0]
-            } else {
+            }
               let fitTable
               console.log(dan)
               switch (true) {
@@ -351,7 +348,6 @@ export default {
               console.log(fitTable)
               console.log(POINTS[wind][fitTable][dan])
               return POINTS[wind][fitTable][dan]
-            }
           }
         )
         console.log(ptEV)
@@ -422,9 +418,7 @@ export default {
 
         // 役名をNAGAが解析可能な表記に変換する。
         nagaLog[16][i + 1] = nagaLog[16][i + 1].slice(0, 4).concat(
-          nagaLog[16][i + 1].slice(4).map(function (v) {
-            return toNagaHand(v, prevalent, seat);
-          })
+          nagaLog[16][i + 1].slice(4).map((v) => toNagaHand(v, prevalent, seat))
         );
       }
 
@@ -546,22 +540,21 @@ export default {
     const extractTable = (tableName) => {
       if (tableName.includes('銅')) {
         return 'bronze';
-      } else if (tableName.includes('銀')) {
+      }if (tableName.includes('銀')) {
         return 'silver';
-      } else if (tableName.includes('金')) {
+      }if (tableName.includes('金')) {
         return 'gold';
-      } else if (tableName.includes('玉')) {
+      }if (tableName.includes('玉')) {
         return 'tama';
-      } else if (tableName.includes('王座')) {
+      }if (tableName.includes('王座')) {
         return 'king';
-      } else {
-        return 'others'
       }
+        return 'others'
     }
     // リーチ宣言牌がロンになったときの差分を修正
     function fixScoreRonTileWasReachTile(message) {
       for (let i = 0; i < message.log.length; i++) {
-        let kyoku = {};
+        const kyoku = {};
         kyoku.id = i;
         //場風
         kyoku.Ba = ~~(message.log[i][0][0] / 4);
@@ -589,7 +582,7 @@ export default {
       // 放銃者の捨牌の配列
       const targetArray = message.log[i][message.log[i][16][2 * t][1] * 3 + 6]
       // 放銃者と和了者の間の移動点数が等しいかの判定（ダブロン/トリロン判定）
-      const targetPointEven = message.log[i][16][2 * t - 1][message.log[i][16][2 * t][1]] == message.log[i][16][2 * t - 1][message.log[i][16][2 * t][0]]
+      const targetPointEven = message.log[i][16][2 * t - 1][message.log[i][16][2 * t][1]] === message.log[i][16][2 * t - 1][message.log[i][16][2 * t][0]]
       // 条件を満たすか確認
       if (targetArray && !targetPointEven) {
         const lastElement = targetArray[targetArray.length - 1];
