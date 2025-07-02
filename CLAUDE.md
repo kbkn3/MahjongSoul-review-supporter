@@ -6,6 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - やりとりは日本語で行う
 - 思考は英語で行う
+- ハードコーディング禁止
 
 ## プロジェクト概要
 

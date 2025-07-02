@@ -1,0 +1,76 @@
+{
+  "../../../../@crx/manifest": {
+    "file": "assets/crx-manifest.js-IsuX7UvE.js",
+    "name": "crx-manifest.js",
+    "src": "../../../../@crx/manifest",
+    "isEntry": true
+  },
+  "_index-!~{009}~.js": {
+    "file": "assets/index-DO-wxDov.css",
+    "src": "_index-!~{009}~.js"
+  },
+  "_index-BF65vIt0.js": {
+    "file": "assets/index-BF65vIt0.js",
+    "name": "index",
+    "css": [
+      "assets/index-DO-wxDov.css"
+    ]
+  },
+  "src/background/main.js": {
+    "file": "assets/main.js-Y1qd5e_q.js",
+    "name": "main.js",
+    "src": "src/background/main.js",
+    "isEntry": true
+  },
+  "src/content-scripts/content_script.js": {
+    "file": "assets/content_script.js-D96BFOJD.js",
+    "name": "content_script.js",
+    "src": "src/content-scripts/content_script.js",
+    "isEntry": true
+  },
+  "src/content-scripts/content_script_mjai.js": {
+    "file": "assets/content_script_mjai.js-DqNS-x1h.js",
+    "name": "content_script_mjai.js",
+    "src": "src/content-scripts/content_script_mjai.js",
+    "isEntry": true
+  },
+  "src/content-scripts/content_script_naga.js": {
+    "file": "assets/content_script_naga.js-1wWEZe5k.js",
+    "name": "content_script_naga.js",
+    "src": "src/content-scripts/content_script_naga.js",
+    "isEntry": true
+  },
+  "src/content-scripts/dd.js": {
+    "file": "assets/dd.js-BEqcNJMA.js",
+    "name": "dd.js",
+    "src": "src/content-scripts/dd.js",
+    "isEntry": true
+  },
+  "src/content-scripts/event.js": {
+    "file": "assets/event.js-t1KPX4Pf.js",
+    "name": "event.js",
+    "src": "src/content-scripts/event.js",
+    "isEntry": true
+  },
+  "src/options/index.html": {
+    "file": "assets/index.html-CfNwVfn-.js",
+    "name": "index.html",
+    "src": "src/options/index.html",
+    "isEntry": true,
+    "imports": [
+      "_index-BF65vIt0.js"
+    ],
+    "css": [
+      "assets/index-Co7vXeTc.css"
+    ]
+  },
+  "src/popup/index.html": {
+    "file": "assets/index.html-4H5hABSl.js",
+    "name": "index.html",
+    "src": "src/popup/index.html",
+    "isEntry": true,
+    "imports": [
+      "_index-BF65vIt0.js"
+    ]
+  }
+}

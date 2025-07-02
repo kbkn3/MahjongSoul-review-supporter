@@ -15,29 +15,29 @@
       "https://mahjongsoul.game.yo-star.com/*",
       "https://game.maj-soul.net/*",
       "https://game.maj-soul.com/*"],
-      "js": ["content_script.js"]
+      "js": ["src/content-scripts/content_script.js"]
     },
     {
       "matches": ["https://game.mahjongsoul.com/*",
       "https://mahjongsoul.game.yo-star.com/*",
       "https://game.maj-soul.net/*",
       "https://game.maj-soul.com/*"],
-      "js": ["dd.js", "event.js"],
+      "js": ["src/content-scripts/dd.js", "src/content-scripts/event.js"],
       "world": "MAIN"
     },
     {
       "matches": ["https://naga.dmv.nico/naga_report/order_form/"],
-      "js": ["content_script_naga.js"]
+      "js": ["src/content-scripts/content_script_naga.js"]
     },
     {
       "matches": ["https://mjai.ekyu.moe/*"],
-      "js": ["content_script_mjai.js"]
+      "js": ["src/content-scripts/content_script_mjai.js"]
     }
   ],
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "src/popup/index.html"
   },
-  "background": { "service_worker": "background.js" },
+  "background": { "service_worker": "src/background/main.js" },
   "permissions": ["storage"],
   "host_permissions": [
     "https://game.mahjongsoul.com/*",
@@ -47,12 +47,12 @@
     "https://naga.dmv.nico/naga_report/order_form/",
     "https://mjai.ekyu.moe/"
   ],
-  "options_page": "options.html",
+  "options_page": "src/options/index.html",
   "web_accessible_resources": [
     {
       "resources": [
-          "dd.js",
-          "event.js"
+          "src/content-scripts/dd.js",
+          "src/content-scripts/event.js"
       ],
       "matches": [
           "https://game.mahjongsoul.com/*",

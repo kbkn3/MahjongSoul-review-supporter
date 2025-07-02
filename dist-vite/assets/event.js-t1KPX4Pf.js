@@ -1,0 +1,2 @@
+(function(){window.addEventListener("message",function(e){e.source==window&&e.data&&e.data.direction=="from-page-script"&&(console.log('2.Content script received message: "'+e.data.message+'"'),n())});function n(){app.NetAgent.sendReq2Lobby("Lobby","fetchGameRecord",{game_uuid:GameMgr.Inst.record_uuid,client_version_string:GameMgr.Inst.getClientVersion()},function(e,s){const o=parse(s);window.postMessage({direction:"from-page",message:o},"*")})}
+})()
