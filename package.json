@@ -4,7 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "cross-env NODE_ENV=development webpack --config=webpack.dev.js --mode=development",
-    "build": "webpack --config webpack.prod.js"
+    "build": "webpack --config webpack.prod.js",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "core-js": "^3.8.3",
@@ -16,10 +19,13 @@
     "@babel/core": "^7.14.3",
     "@babel/preset-env": "^7.14.4",
     "@tailwindcss/postcss7-compat": "^2.0.3",
+    "@vitejs/plugin-vue": "^4.6.2",
+    "@vitest/coverage-v8": "^1.1.0",
     "@vue/cli-plugin-babel": "^4.5.11",
     "@vue/cli-plugin-eslint": "^4.5.11",
     "@vue/cli-service": "^4.5.11",
     "@vue/compiler-sfc": "^3.0.0",
+    "@vue/test-utils": "^2.4.0",
     "autoprefixer": "^9.8.6",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.2.2",
@@ -27,9 +33,11 @@
     "cross-env": "^7.0.3",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^7.5.0",
+    "jsdom": "^23.0.0",
     "postcss": "^7.0.35",
     "postcss-prefix-selector": "^1.7.2",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.0.3",
+    "vitest": "^1.1.0",
     "vue-loader": "^16.1.2",
     "webpack-cli": "^4.5.0",
     "zip-webpack-plugin": "^4.0.1"
@@ -59,6 +67,6 @@
     "not dead"
   ],
   "volta": {
-    "node": "16.20.2"
+    "node": "20.10.0"
   }
 }
