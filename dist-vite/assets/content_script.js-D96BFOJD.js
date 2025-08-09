@@ -1,2 +1,0 @@
-(function(){chrome.runtime.onMessage.addListener((e,s,a)=>{a(e.message),e.message=="tabNaga"&&window.postMessage({direction:"from-page-script",message:"Message from the page"},"*"),e.message=="tabMjai"&&window.postMessage({direction:"from-page-script_uuid",message:"Message from the page_uuid"},"*")});window.addEventListener("message",function(e){e.data&&e.data.direction=="from-page"&&(console.log(e.data.message),chrome.runtime.sendMessage({message:e.data.message},function(s){console.log("5."+s)}))});
-})()

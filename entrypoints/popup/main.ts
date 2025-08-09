@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
-import App from '../../src/popup/App.vue'
-import '../../src/index.css'
+import App from '../../components/popup/App.vue'
+import '../../public/index.css'
 
 // WXTでのVueアプリケーション初期化
 const app = createApp(App)

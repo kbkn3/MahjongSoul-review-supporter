@@ -18,6 +18,7 @@ declare module "wxt/browser" {
     | "/imgs/Animation.gif"
     | "/imgs/extension_icon128.png"
     | "/imgs/extension_icon48.png"
+    | "/index.css"
     | "/mahjongDataParser.js"
     | "/options.html"
     | "/popup.html"

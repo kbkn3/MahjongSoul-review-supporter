@@ -1,23 +1,44 @@
+# macOS
 .DS_Store
-node_modules
+
+# Dependencies
+node_modules/
+
+# WXT build outputs
+.wxt/
+dist-wxt/
+
+# Legacy build outputs (archived)
 /dist
+/dist-*/
 
-
-# local env files
-.env.local
-.env.*.local
+# Environment files
+.env*
+!.env.example
 
 # Log files
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
 # Editor directories and files
-.idea
-.vscode
+.idea/
+.vscode/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# Temporary files
+*.tmp
+*.temp
+
+# Coverage reports
+coverage/
+*.lcov
+
+# MCP server config (if sensitive)
+# .mcp.json

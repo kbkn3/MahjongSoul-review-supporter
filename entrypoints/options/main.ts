@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
-import App from '../../src/options/App.vue'
-import '../../src/index.css'
+import App from '../../components/options/App.vue'
+import '../../public/index.css'
 
 // WXTでのOptionsページ初期化
 const app = createApp(App)
