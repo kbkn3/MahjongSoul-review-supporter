@@ -1,0 +1,8 @@
+{
+  "appName": {
+    "message": "雀魂牌谱分析助手"
+  },
+  "appDesc": {
+    "message": "这是一个非官方的扩展，可以轻松使用NAGA和mjai-reviewer(Mortal/Akochan)。它只在审查屏幕上工作，不影响游戏的进行。"
+  }
+}

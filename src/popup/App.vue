@@ -39,10 +39,10 @@
 <script>
 
 import { ref } from "vue";
-import NagaList from "@/popup/NagaList.vue";
-import MjaiList from "@/popup/MjaiList.vue";
-import RecipeList from "@/popup/RecipeList.vue";
-import iconTrash from "@/components/iconTrash.vue";
+import NagaList from "../../components/popup/NagaList.vue";
+import MjaiList from "../../components/popup/MjaiList.vue";
+import RecipeList from "../../components/popup/RecipeList.vue";
+import iconTrash from "../../components/iconTrash.vue";
 export default {
   components: {
     NagaList,

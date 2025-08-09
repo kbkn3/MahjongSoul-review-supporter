@@ -15,7 +15,7 @@
 
 <script>
 import { ref } from "vue";
-import LangList from "@/options/LangList.vue";
+import LangList from "../../components/options/LangList.vue";
 export default {
   components: {
     LangList,

@@ -2,6 +2,6 @@ module.exports = {
   plugins: {
     tailwindcss: {},
     autoprefixer: {},
-    'postcss-prefix-selector': {prefix: '#amzSchRoot'}
+    // 'postcss-prefix-selector': {prefix: '#amzSchRoot'} // WXTでは不要
   },
 }

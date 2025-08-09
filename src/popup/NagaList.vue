@@ -114,17 +114,37 @@ export default {
     /**
      * content-scriptから牌譜データを受け取る
      */
+    console.log('Setting up runtime.onMessage listener in NagaList.vue');
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-      const title = "疎通";
-      console.log('4.listner');
-      fixScoreRonTileWasReachTile(request.message)
-      processData(request.message);
-      for (let s = 0; s < request.message.name.length; s++) {
-        request.message.name[s] = request.message.name[s].replace(/[!#<>"%&$*]/gi, (s) => String.fromCharCode(s.charCodeAt(0) + 0xFEE0));
+      console.log('NagaList runtime.onMessage received:', request);
+      console.log('Request structure:', {
+        hasMessage: !!request.message,
+        messageType: typeof request.message,
+        keys: Object.keys(request)
+      });
+      
+      if (request.message && typeof request.message === 'object') {
+        const title = "疎通";
+        console.log('4.listner - Processing game data');
+        console.log('Message data structure:', {
+          ver: request.message.ver,
+          name: request.message.name,
+          logLength: request.message.log?.length,
+          hasNagaUrls: !!request.message.nagaUrls
+        });
+        
+        fixScoreRonTileWasReachTile(request.message)
+        processData(request.message);
+        for (let s = 0; s < request.message.name.length; s++) {
+          request.message.name[s] = request.message.name[s].replace(/[!#<>"%&$*]/gi, (s) => String.fromCharCode(s.charCodeAt(0) + 0xFEE0));
+        }
+        toNagaData = soul2naga(request.message);
+        console.log('Generated NAGA data:', toNagaData)
+        sendResponse(title);
+      } else {
+        console.warn('Invalid message format received:', request);
+        sendResponse('Invalid format');
       }
-      toNagaData = soul2naga(request.message);
-      console.log(toNagaData)
-      sendResponse(title);
     });
 
     /**

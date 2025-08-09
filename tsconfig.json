@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "preserve",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "#imports": ["./.wxt/types/imports"]
+    },
+    "types": [
+      "chrome",
+      "webextension-polyfill",
+      "wxt/client-types"
+    ]
+  },
+  "include": [
+    "src/**/*",
+    "entrypoints/**/*",
+    "tests/**/*",
+    "wxt.config.ts",
+    ".wxt/types/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist*",
+    ".output"
+  ]
+}
