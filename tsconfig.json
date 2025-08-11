@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "target": "ES2023",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -18,7 +18,8 @@
     "paths": {
       "@/*": ["./*"],
       "#imports": ["./.wxt/types/imports"]
-    }
+    },
+    "types": ["wxt/client-types"]
   },
   "include": [
     "components/**/*",
