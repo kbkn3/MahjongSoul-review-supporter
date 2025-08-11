@@ -9,27 +9,24 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "module": "ESNext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "preserve",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
+      "@/*": ["./*"],
       "#imports": ["./.wxt/types/imports"]
-    },
-    "types": [
-      "chrome",
-      "webextension-polyfill",
-      "wxt/client-types"
-    ]
+    }
   },
   "include": [
-    "src/**/*",
+    "components/**/*",
     "entrypoints/**/*",
+    "utils/**/*",
     "tests/**/*",
     "wxt.config.ts",
+    ".wxt/wxt.d.ts",
     ".wxt/types/**/*"
   ],
   "exclude": [

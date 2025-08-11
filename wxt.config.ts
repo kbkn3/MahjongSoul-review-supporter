@@ -45,8 +45,7 @@ export default defineConfig({
     server: {
       port: 3000
     },
-    // ブラウザの自動起動
-    openBrowser: true,
+    // ブラウザの自動起動は開発時に手動で対応
     // リロード戦略
     reloadCommand: 'Alt+Shift+Ext+R'
   },
@@ -56,7 +55,7 @@ export default defineConfig({
     plugins: [vue()],
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, './src')
+        '@': path.resolve(__dirname, './')
       }
     }
   }),
