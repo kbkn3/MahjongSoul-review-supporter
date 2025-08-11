@@ -17,7 +17,7 @@ export default defineContentScript({
     'https://game.maj-soul.net/*',
     'https://game.maj-soul.com/*'
   ],
-  async main(ctx) {
+  async main() {
     console.log('Mahjong Soul content script loaded');
     
     // ブラウザネイティブAPIを使用してスクリプトを注入

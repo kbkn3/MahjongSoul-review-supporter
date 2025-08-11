@@ -7,7 +7,6 @@
  */
 
 // 設定値
-const KEY = 83; // キーコード 's'
 const NAMEPREF = 0; // 2 for English, 1 for romanized, 0 for Japanese
 const VERBOSELOG = false; // 詳細ログを出力するか
 const PRETTY = true; // 人間が読みやすい形式にするか

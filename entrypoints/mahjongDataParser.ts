@@ -10,20 +10,27 @@ import { generatelog, getPlayerDan, getPlayerRate, getPlayerSex, getRuleDisplay 
 export default defineUnlistedScript(() => {
   console.log('=== MahjongDataParser page script loaded ===');
   console.log('Current URL:', window.location.href);
-  console.log('GameMgr available:', typeof (globalThis as any).GameMgr !== 'undefined');
-  console.log('app available:', typeof (globalThis as any).app !== 'undefined');
-  console.log('net available:', typeof (globalThis as any).net !== 'undefined');
+  // @ts-ignore
+  console.log('GameMgr available:', typeof window.GameMgr !== 'undefined');
+  // @ts-ignore
+  console.log('app available:', typeof window.app !== 'undefined');
+  // @ts-ignore
+  console.log('net available:', typeof window.net !== 'undefined');
 
   // Function to get game data from GameMgr
   function getGameData() {
     console.log('=== getGameData called ===');
     console.log('Attempting to get game data from GameMgr');
-    console.log('GameMgr type:', typeof (globalThis as any).GameMgr);
-    console.log('GameMgr.Inst available:', !!(globalThis as any).GameMgr?.Inst);
-    console.log('record_uuid:', (globalThis as any).GameMgr?.Inst?.record_uuid);
+    // @ts-ignore
+    console.log('GameMgr type:', typeof window.GameMgr);
+    // @ts-ignore
+    console.log('GameMgr.Inst available:', !!window.GameMgr?.Inst);
+    // @ts-ignore
+    console.log('record_uuid:', window.GameMgr?.Inst?.record_uuid);
     
     // Check if GameMgr is available
-    if (typeof (globalThis as any).GameMgr === 'undefined' || !(globalThis as any).GameMgr.Inst) {
+    // @ts-ignore
+    if (typeof window.GameMgr === 'undefined' || !window.GameMgr.Inst) {
       console.log('GameMgr not available');
       window.postMessage({ 
         type: 'GAME_DATA_RESPONSE', 
@@ -34,7 +41,8 @@ export default defineUnlistedScript(() => {
     }
     
     // Check if record_uuid is available
-    if (!(globalThis as any).GameMgr.Inst.record_uuid) {
+    // @ts-ignore
+    if (!window.GameMgr.Inst.record_uuid) {
       console.log('No record_uuid available');
       window.postMessage({ 
         type: 'GAME_DATA_RESPONSE', 
@@ -45,7 +53,8 @@ export default defineUnlistedScript(() => {
     }
     
     // Check if required global objects are available
-    if (typeof (globalThis as any).app === 'undefined' || !(globalThis as any).app.NetAgent) {
+    // @ts-ignore
+    if (typeof window.app === 'undefined' || !window.app.NetAgent) {
       console.log('app.NetAgent not available');
       window.postMessage({ 
         type: 'GAME_DATA_RESPONSE', 
@@ -55,8 +64,10 @@ export default defineUnlistedScript(() => {
       return;
     }
     
-    const GameMgr = (globalThis as any).GameMgr;
-    const app = (globalThis as any).app;
+    // @ts-ignore
+    const GameMgr = window.GameMgr;
+    // @ts-ignore
+    const app = window.app;
     
     console.log('Fetching game record for UUID:', GameMgr.Inst.record_uuid);
     
@@ -68,11 +79,12 @@ export default defineUnlistedScript(() => {
         game_uuid: GameMgr.Inst.record_uuid,
         client_version_string: GameMgr.Inst.getClientVersion(),
       },
-      function (i: any, record: any) {
+      function (i, record) {
         console.log('Game record received:', record);
         try {
           // Get global net object for decoding
-          const net = (globalThis as any).net;
+          // @ts-ignore
+          const net = window.net;
           if (!net || !net.MessageWrapper) {
             throw new Error('net.MessageWrapper not available');
           }
@@ -82,7 +94,7 @@ export default defineUnlistedScript(() => {
           if (record.data) {
             try {
               const mjsact = net.MessageWrapper.decodeMessage(record.data).actions;
-              mjsact.forEach((e: any) => { 
+              mjsact.forEach((e) => { 
                 if (e.result && e.result.length !== 0) {
                   mjslog.push(net.MessageWrapper.decodeMessage(e.result));
                 }
@@ -99,7 +111,7 @@ export default defineUnlistedScript(() => {
           const nplayers = record.head.result.players.length;
           
           // Map players by seat number (same as dd.js implementation)
-          record.head.accounts.forEach((acc: any) => {
+          record.head.accounts.forEach((acc) => {
             players[acc.seat] = acc.nickname;
           });
           
@@ -110,14 +122,14 @@ export default defineUnlistedScript(() => {
           
           // Determine game mode and rules
           const config = record.head.config;
-          const mode = config.category || 1;
           const meta = config.meta || {};
           
           // Get global config for proper conversion
-          const cfg = (globalThis as any).cfg;
+          // @ts-ignore
+          const cfg = window.cfg;
           
           // Create rule object with proper display name
-          const rule: any = {
+          const rule = {
             disp: getRuleDisplay(record, cfg),
             aka53: meta.mode_id === 2 ? 0 : 1,
             aka52: meta.mode_id === 2 ? 0 : 1, 
@@ -166,18 +178,18 @@ export default defineUnlistedScript(() => {
             dan: dan,
             rate: rate,
             sx: sx,
-            sc: [] as number[],
+            sc: [],
             title: title
           };
           
           // Add final scores
-          record.head.result.players.forEach((player: any) => {
+          record.head.result.players.forEach((player) => {
             results.sc[2 * player.seat] = player.part_point_1;
             results.sc[2 * player.seat + 1] = player.total_point / 1000;
           });
           
           // Generate NAGA URLs for each kyoku
-          const nagaUrls = log.map((kyokuLog: any) => {
+          const nagaUrls = log.map((kyokuLog) => {
             const gameData = {
               title: title,
               name: players,
@@ -197,7 +209,7 @@ export default defineUnlistedScript(() => {
             success: true, 
             data: results 
           }, '*');
-        } catch (error: any) {
+        } catch (error) {
           console.error('Error processing game data:', error);
           window.postMessage({ 
             type: 'GAME_DATA_RESPONSE', 
