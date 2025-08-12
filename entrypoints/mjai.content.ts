@@ -7,6 +7,7 @@
  */
 
 import { defineContentScript } from 'wxt/sandbox';
+import { browser } from 'wxt/browser';
 
 export default defineContentScript({
   matches: ['https://mjai.ekyu.moe/*'],
@@ -15,7 +16,7 @@ export default defineContentScript({
     
     // ページ読み込み時にストレージからデータを取得してフォームに入力
     window.addEventListener("load", function () {
-      chrome.storage.local.get(["toMjaiData", "toMjaiData_no"], function (data) {
+      browser.storage.local.get(["toMjaiData", "toMjaiData_no"]).then(function (data) {
         let data1 = data.toMjaiData;
         let data2 = data.toMjaiData_no;
         
@@ -33,8 +34,8 @@ export default defineContentScript({
           }
           
           // データを使用後にクリア
-          chrome.storage.local.set({ toMjaiData: "" });
-          chrome.storage.local.set({ toMjaiData_no: "" });
+          browser.storage.local.set({ toMjaiData: "" });
+          browser.storage.local.set({ toMjaiData_no: "" });
         }
       });
     });

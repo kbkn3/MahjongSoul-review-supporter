@@ -19,7 +19,7 @@
       "@/*": ["./*"],
       "#imports": ["./.wxt/types/imports"]
     },
-    "types": ["wxt/client-types"]
+    "types": []
   },
   "include": [
     "components/**/*",
@@ -28,7 +28,8 @@
     "tests/**/*",
     "wxt.config.ts",
     ".wxt/wxt.d.ts",
-    ".wxt/types/**/*"
+    ".wxt/types/**/*",
+    "vue-shims.d.ts"
   ],
   "exclude": [
     "node_modules",

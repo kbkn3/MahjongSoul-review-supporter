@@ -1,6 +1,7 @@
 import { defineConfig } from 'wxt'
 import path from 'node:path'
 import vue from '@vitejs/plugin-vue'
+import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   // WXTのデフォルト構造を使用（entrypoints/, assets/, utils/, components/）
@@ -52,7 +53,7 @@ export default defineConfig({
   
   // Vite設定のカスタマイズ
   vite: () => ({
-    plugins: [vue()],
+    plugins: [vue(), tailwindcss()],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './')

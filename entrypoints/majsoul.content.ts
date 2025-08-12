@@ -9,6 +9,7 @@
  */
 
 import { defineContentScript } from 'wxt/sandbox';
+import { browser } from 'wxt/browser';
 
 export default defineContentScript({
   matches: [
@@ -24,7 +25,7 @@ export default defineContentScript({
     try {
       console.log('Injecting mahjong data parser script...');
       const script = document.createElement('script');
-      script.src = chrome.runtime.getURL('mahjongDataParser.js');
+      script.src = browser.runtime.getURL('/mahjongDataParser.js');
       script.onload = () => {
         console.log('Page script injected successfully');
         script.remove();
@@ -69,7 +70,7 @@ export default defineContentScript({
     };
     
     // ポップアップからのメッセージを受信
-    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
       console.log('Content script received:', request);
       console.log('Message type:', typeof request.message);
       console.log('Message value:', request.message);
@@ -92,11 +93,10 @@ export default defineContentScript({
               });
               
               // ポップアップに実際のデータを送信（NagaList.vueが期待する形式）
-              chrome.runtime.sendMessage({ message: data }, (response) => {
+              browser.runtime.sendMessage({ message: data }).then((response) => {
                 console.log('Runtime sendMessage response:', response);
-                if (chrome.runtime.lastError) {
-                  console.error('Runtime sendMessage error:', chrome.runtime.lastError);
-                }
+              }).catch((error) => {
+                console.error('Runtime sendMessage error:', error);
               });
               // tabs.sendMessageにはシンプルな成功メッセージのみ返す
               sendResponse({ status: 'success', message: 'Data sent via runtime.sendMessage' });

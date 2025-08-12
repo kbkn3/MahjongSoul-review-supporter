@@ -10,11 +10,11 @@
     <div class="flex flex-wrap">
       <div class="w-full">
         <div class="mx-2">
-          <div class="flex mb-4 px-1 min-w-0  break-words bg-mjsoul-fl-blue shadow-lg rounded-b-xl">
-            <div class="w-3/5">
+          <div class="flex mb-4 px-1 min-w-0 break-words bg-mjsoul-fl-blue shadow-lg rounded-b-xl">
+            <div class="w-1/2">
               <NagaList></NagaList>
             </div>
-            <div class="w-2/5">
+            <div class="w-1/2">
               <MjaiList></MjaiList>
               <RecipeList></RecipeList>
               <div class="template-box">

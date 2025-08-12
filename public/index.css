@@ -1,17 +1,24 @@
-/*! @import */
-/* @tailwind base;
-@tailwind components;
-@tailwind utilities; */
-@import "tailwindcss/base";
-
-@import "tailwindcss/components";
-
-@import "tailwindcss/utilities";
-
 @import url("https://fonts.googleapis.com/css2?family=Yuji+Syuku&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --color-mjsoul-text-gold: #bfac8c;
+  --color-mjsoul-text-lightblue: #9eb9f7;
+  --color-mjsoul-bg-blue: #1d213a;
+  --color-mjsoul-fl-blue: #242c43;
+  --color-mjsoul-grad-dark-blue: #111F40;
+  --color-mjsoul-grad-middle-blue: #1E2C4E;
+  --color-mjsoul-grad-light-blue: #223155;
+  --color-mjsoul-card-blue: #051434;
+}
 
 .hudetext {
   font-family: "Yuji Syuku", serif;
+}
+
+.wide {
+  min-width: 600px;
+  width: 600px;
 }
 
 .my-button {

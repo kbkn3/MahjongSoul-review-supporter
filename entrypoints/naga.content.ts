@@ -7,6 +7,7 @@
  */
 
 import { defineContentScript } from 'wxt/sandbox';
+import { browser } from 'wxt/browser';
 
 export default defineContentScript({
   matches: ['https://naga.dmv.nico/naga_report/order_form/'],
@@ -15,7 +16,7 @@ export default defineContentScript({
     
     // ページ読み込み時にストレージからデータを取得してフォームに入力
     window.addEventListener("load", function () {
-      chrome.storage.local.get(["toNagaData"], function (data) {
+      browser.storage.local.get(["toNagaData"]).then(function (data) {
         let data1 = data.toNagaData;
         if (data1 && data1.length > 0) {
           // NAGAサイトのボタンをクリック（分析フォームを開く）
@@ -34,7 +35,7 @@ export default defineContentScript({
           }, 500);
           
           // データを使用後にクリア
-          chrome.storage.local.set({ toNagaData: "" });
+          browser.storage.local.set({ toNagaData: "" });
         }
       });
     });

@@ -14,9 +14,11 @@
     "postinstall": "wxt prepare"
   },
   "dependencies": {
+    "@tailwindcss/vite": "^4.1.11",
     "core-js": "^3.8.3",
     "csv-loader": "^3.0.3",
     "socket.io": "^4.8.1",
+    "tailwindcss": "^4.1.11",
     "vue": "^3.2.37"
   },
   "devDependencies": {
@@ -33,7 +35,6 @@
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^7.5.0",
     "jsdom": "^23.0.0",
-    "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.0.3",
     "typescript": "^5.9.2",
     "vite": "^5.4.19",
     "vitest": "^1.1.0",
@@ -56,9 +57,13 @@
     },
     "overrides": [
       {
-        "files": ["*.ts"],
+        "files": [
+          "*.ts"
+        ],
         "parser": "@typescript-eslint/parser",
-        "extends": ["plugin:@typescript-eslint/recommended"]
+        "extends": [
+          "plugin:@typescript-eslint/recommended"
+        ]
       }
     ],
     "rules": {}
@@ -74,8 +79,5 @@
   "engines": {
     "node": ">=20.0.0",
     "npm": ">=9.0.0"
-  },
-  "volta": {
-    "node": "20.10.0"
   }
 }
