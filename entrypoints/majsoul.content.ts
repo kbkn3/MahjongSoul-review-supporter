@@ -70,7 +70,7 @@ export default defineContentScript({
     };
     
     // ポップアップからのメッセージを受信
-    browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    browser.runtime.onMessage.addListener(async (request) => {
       console.log('Content script received:', request);
       console.log('Message type:', typeof request.message);
       console.log('Message value:', request.message);
@@ -79,42 +79,40 @@ export default defineContentScript({
         console.log('Processing game data request for:', request.message);
         console.log('=== FIXED VERSION CODE EXECUTING ===');
         
-        // Promiseベースの実装でより安全な非同期処理
-        getGameDataFromPage()
-          .then(data => {
-            console.log('Game data processing result:', data ? 'SUCCESS' : 'NULL');
-            if (data) {
-              console.log('Sending data to popup via runtime.sendMessage');
-              console.log('Data structure:', {
-                ver: data.ver,
-                name: data.name,
-                logLength: data.log?.length,
-                hasNagaUrls: !!data.nagaUrls
-              });
-              
-              // ポップアップに実際のデータを送信（NagaList.vueが期待する形式）
-              browser.runtime.sendMessage({ message: data }).then((response) => {
-                console.log('Runtime sendMessage response:', response);
-              }).catch((error) => {
-                console.error('Runtime sendMessage error:', error);
-              });
-              // tabs.sendMessageにはシンプルな成功メッセージのみ返す
-              sendResponse({ status: 'success', message: 'Data sent via runtime.sendMessage' });
-            } else {
-              console.warn('No data to send to popup');
-              sendResponse({ status: 'error', message: 'No data available' });
+        try {
+          // Promiseベースの実装でより安全な非同期処理
+          const data = await getGameDataFromPage();
+          console.log('Game data processing result:', data ? 'SUCCESS' : 'NULL');
+          
+          if (data) {
+            console.log('Sending data to popup via runtime.sendMessage');
+            console.log('Data structure:', {
+              ver: data.ver,
+              name: data.name,
+              logLength: data.log?.length,
+              hasNagaUrls: !!data.nagaUrls
+            });
+            
+            // ポップアップに実際のデータを送信（NagaList.vueが期待する形式）
+            try {
+              const response = await browser.runtime.sendMessage({ message: data });
+              console.log('Runtime sendMessage response:', response);
+            } catch (error) {
+              console.error('Runtime sendMessage error:', error);
             }
-          })
-          .catch(error => {
-            console.error('Failed to get game data:', error);
-            sendResponse({ status: 'error', message: error.message });
-          });
-        
-        return true; // 非同期レスポンスを示す
+            
+            return { status: 'success', message: 'Data sent via runtime.sendMessage' };
+          } else {
+            console.warn('No data to send to popup');
+            return { status: 'error', message: 'No data available' };
+          }
+        } catch (error) {
+          console.error('Failed to get game data:', error);
+          return { status: 'error', message: error instanceof Error ? error.message : 'Unknown error' };
+        }
       } else {
         console.log('Unknown message received:', request.message);
-        sendResponse(request.message);
-        return false;
+        return request.message;
       }
     });
 

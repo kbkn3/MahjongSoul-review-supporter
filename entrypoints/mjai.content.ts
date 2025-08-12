@@ -17,8 +17,8 @@ export default defineContentScript({
     // ページ読み込み時にストレージからデータを取得してフォームに入力
     window.addEventListener("load", function () {
       browser.storage.local.get(["toMjaiData", "toMjaiData_no"]).then(function (data) {
-        let data1 = data.toMjaiData;
-        let data2 = data.toMjaiData_no;
+        const data1 = data.toMjaiData;
+        const data2 = data.toMjaiData_no;
         
         if (data1 && data1.length > 0) {
           // 入力フィールドにデータを設定

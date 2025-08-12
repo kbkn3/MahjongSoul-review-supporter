@@ -61,8 +61,8 @@ const DAISUUSHI = 50; // 大四喜のconfig id
 const TSUMOGIRI = 60; // 天鳳のツモ切りシンボル
 
 // グローバル変数
-let ALLOW_KIRIAGE = false;
-let TSUMOLOSSOFF = false; // 三麻のツモ損
+const ALLOW_KIRIAGE = false;
+const TSUMOLOSSOFF = false; // 三麻のツモ損
 
 /**
  * 雀魂の牌表記を天鳳形式に変換
@@ -172,7 +172,7 @@ const DRAGS = ["5z", "6z", "7z", "0z"].map(e => tm2t(e)); // 0z would be aka hak
  * RecordNewRoundごとにリセットされる局情報を管理
  */
 class Kyoku {
-  nplayers: number = 4;
+  nplayers = 4;
   round: number[] = [0, 0, 0]; // [kyoku, honba, riichi sticks]
   initscores: number[] = [25000, 25000, 25000, 25000];
   doras: number[] = [];
@@ -181,17 +181,17 @@ class Kyoku {
   haipais: number[][] = [[], [], [], []];
   
   // 内部管理変数
-  poppedtile: number = 0; // 親の14枚目の牌
-  dealerseat: number = 0; // 親の席
-  ldseat: number = -1; // 最後に牌を切った席
-  nriichi: number = 0; // 現在のリーチ数
-  nkan: number = 0; // 現在のカン数
+  poppedtile = 0; // 親の14枚目の牌
+  dealerseat = 0; // 親の席
+  ldseat = -1; // 最後に牌を切った席
+  nriichi = 0; // 現在のリーチ数
+  nkan = 0; // 現在のカン数
   
   // 責任払い管理
   nowinds: number[] = [0, 0, 0, 0]; // 各プレイヤーの風牌ポン・カン数
   nodrags: number[] = [0, 0, 0, 0]; // 各プレイヤーの三元牌ポン・カン数  
-  paowind: number = -1; // 大四喜責任払い対象席
-  paodrag: number = -1; // 大三元責任払い対象席
+  paowind = -1; // 大四喜責任払い対象席
+  paodrag = -1; // 大三元責任払い対象席
 
   /**
    * 局データを初期化
@@ -281,13 +281,13 @@ class Kyoku {
 function parsehule(h: any, kyoku: Kyoku): [number[], any[]] {
   // 天鳳ログビューアーは「点」「飜」「役満」で終わる文字列を要求
   // [和了者席, 払い手席, 責任者席]
-  let res = [h.seat, h.zimo ? h.seat : kyoku.ldseat, h.seat];
+  const res = [h.seat, h.zimo ? h.seat : kyoku.ldseat, h.seat];
   let delta: number[] = []; // 点数変動配列
   let points: number | string = 0;
   
   // リーチ棒の点数計算（-1は既に取られた場合）
-  let rp = (-1 !== kyoku.nriichi) ? 1000 * (kyoku.nriichi + kyoku.round[2]) : 0;
-  let hb = 100 * kyoku.round[1]; // 本場料
+  const rp = (-1 !== kyoku.nriichi) ? 1000 * (kyoku.nriichi + kyoku.round[2]) : 0;
+  const hb = 100 * kyoku.round[1]; // 本場料
 
   // 責任払いロジック
   let pao = false;
@@ -372,7 +372,7 @@ function parsehule(h: any, kyoku: Kyoku): [number[], any[]] {
   points += RUNES.points[JPNAME] + ((h.zimo && h.qinjia) ? RUNES.all[NAMEPREF] : "");
 
   // スコア文字列作成
-  let fuhan = h.fu + RUNES.fu[NAMEPREF] + h.count + RUNES.han[NAMEPREF];
+  const fuhan = h.fu + RUNES.fu[NAMEPREF] + h.count + RUNES.han[NAMEPREF];
   
   if (h.yiman) { // 役満
     res.push((SHOWFU ? fuhan : "") + RUNES.yakuman[NAMEPREF] + points);
@@ -520,9 +520,9 @@ function generatelog(mjslog: any[]): any[][] {
                 // 手牌と引いた牌から暗槓対象牌を取得
                 const ankantiles = kyoku.haipais[e.seat]
                   .filter(t => deaka(t) === deaka(til))
-                  .concat(kyoku.draws[e.seat].filter((t: any) => 
+                  .concat(kyoku.draws[e.seat].filter((t: unknown): t is number => 
                     typeof t === 'number' && deaka(t) === deaka(til)
-                  ));
+                  ) as number[]);
                   
                 const selectedTile = ankantiles.pop() || til;
                 kyoku.discards[e.seat].push(ankantiles.join("") + "a" + selectedTile);
@@ -541,7 +541,7 @@ function generatelog(mjslog: any[]): any[][] {
                   return false;
                 });
                 
-                if (nakis.length > 0) {
+                if (nakis.length > 0 && typeof nakis[0] === 'string') {
                   kyoku.discards[e.seat].push(nakis[0].replace(/p/, "k" + til));
                   kyoku.nkan++;
                 }

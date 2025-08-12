@@ -17,7 +17,7 @@ export default defineContentScript({
     // ページ読み込み時にストレージからデータを取得してフォームに入力
     window.addEventListener("load", function () {
       browser.storage.local.get(["toNagaData"]).then(function (data) {
-        let data1 = data.toNagaData;
+        const data1 = data.toNagaData;
         if (data1 && data1.length > 0) {
           // NAGAサイトのボタンをクリック（分析フォームを開く）
           const buttons = document.getElementsByTagName("button");

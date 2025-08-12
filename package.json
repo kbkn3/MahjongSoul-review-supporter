@@ -10,6 +10,7 @@
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint components/ entrypoints/ utils/ --ext .js,.vue,.ts",
+    "typecheck": "tsc --noEmit",
     "prepare": "wxt prepare",
     "postinstall": "wxt prepare"
   },

@@ -90,7 +90,7 @@ export default defineUnlistedScript(() => {
           }
           
           // Decode actual game data
-          let mjslog = [];
+          const mjslog = [];
           if (record.data) {
             try {
               const mjsact = net.MessageWrapper.decodeMessage(record.data).actions;
