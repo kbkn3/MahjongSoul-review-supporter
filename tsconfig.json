@@ -1,31 +1,34 @@
 {
   "compilerOptions": {
-    "target": "ES2023",
+    "target": "ESNext",
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "module": "ESNext",
-    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "preserve",
+    "downlevelIteration": true,
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"],
+      "~/*": ["./*"],
       "#imports": ["./.wxt/types/imports"]
     },
-    "types": []
+    "types": ["node", "webextension-polyfill"]
   },
   "include": [
     "components/**/*",
     "entrypoints/**/*",
     "utils/**/*",
     "tests/**/*",
+    "scripts/**/*",
     "wxt.config.ts",
     ".wxt/wxt.d.ts",
     ".wxt/types/**/*",

@@ -41,6 +41,7 @@
 <script>
 import { onMounted, reactive, ref, computed } from "vue";
 import Kyoku from "./Kyoku.vue";
+import { soul2naga } from "../../utils/dataConversion.js";
 
 export default {
   components: { Kyoku },
@@ -115,16 +116,34 @@ export default {
      * content-scriptから牌譜データを受け取る
      */
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-      const title = "疎通";
-      console.log('4.listner');
-      fixScoreRonTileWasReachTile(request.message)
-      processData(request.message);
-      for (let s = 0; s < request.message.name.length; s++) {
-        request.message.name[s] = request.message.name[s].replace(/[!#<>"%&$*]/gi, (s) => String.fromCharCode(s.charCodeAt(0) + 0xFEE0));
+      console.log('Popup received message from content script:', request);
+      
+      if (request.message && request.message.log) {
+        console.log('Processing game data in popup...');
+        
+        try {
+          fixScoreRonTileWasReachTile(request.message);
+          processData(request.message);
+          
+          // 名前の文字化け対策
+          for (let s = 0; s < request.message.name.length; s++) {
+            request.message.name[s] = request.message.name[s].replace(/[!#<>"%&$*]/gi, (s) => String.fromCharCode(s.charCodeAt(0) + 0xFEE0));
+          }
+          
+          toNagaData = soul2naga(request.message, Rule.value);
+          console.log('NAGA data generated successfully:', toNagaData);
+          
+          sendResponse({ status: 'success', message: 'Data processed successfully' });
+        } catch (error) {
+          console.error('Error processing game data:', error);
+          sendResponse({ status: 'error', message: error.message });
+        }
+      } else {
+        console.log('Invalid message received:', request);
+        sendResponse({ status: 'error', message: 'Invalid data format' });
       }
-      toNagaData = soul2naga(request.message);
-      console.log(toNagaData)
-      sendResponse(title);
+      
+      return true; // 非同期レスポンス
     });
 
     /**
@@ -195,11 +214,52 @@ export default {
     //content-scriptに通信して牌譜を送信させる
     onMounted(() => {
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        chrome.tabs.sendMessage(tabs[0].id, { message: 'tabNaga' }, (content) => {
-          if (!content) {
-            alert('Cannot Get! Try Reload First!');
+        if (!tabs[0]) {
+          console.warn('No active tab found');
+          return;
+        }
+
+        // 雀魂サイトかチェック
+        const tab = tabs[0];
+        const majsoulUrls = [
+          'game.mahjongsoul.com',
+          'mahjongsoul.game.yo-star.com', 
+          'game.maj-soul.net',
+          'game.maj-soul.com',
+        ];
+        
+        const isMajsoulSite = majsoulUrls.some(url => tab.url && tab.url.includes(url));
+        if (!isMajsoulSite) {
+          console.warn('Not on Majsoul site. Current URL:', tab.url);
+          alert('雀魂のページで拡張機能を使用してください。');
+          return;
+        }
+
+        // WXTの推奨するメッセージング実装
+        chrome.tabs.sendMessage(tab.id, { message: 'tabNaga' }, (response) => {
+          if (chrome.runtime.lastError) {
+            console.warn('Message sending failed:', chrome.runtime.lastError.message);
+            
+            // エラーの種類に応じた詳細なメッセージ
+            const errorMsg = chrome.runtime.lastError.message;
+            if (errorMsg.includes('Receiving end does not exist')) {
+              alert("Content scriptが読み込まれていません。ページをリロードしてください。");
+            } else if (errorMsg.includes('message port closed')) {
+              console.log('Message port closed - this is normal when data is sent via runtime.sendMessage');
+              // これは正常な状態 - データはruntime.onMessage.addListenerで受信される
+            } else {
+              alert("通信エラーが発生しました。雀魂のページが完全に読み込まれているか確認してください。");
+            }
             return;
           }
+          
+          if (response && response.status === 'error') {
+            console.error('Content script returned error:', response.message);
+            alert(`エラー: ${response.message}`);
+            return;
+          }
+          
+          console.log('Successfully triggered content script. Waiting for game data...');
         });
       });
       chrome.storage.local.get("rule", (result) => {
@@ -210,347 +270,17 @@ export default {
       });
     })
 
-    // Based on: 雀魂の牌譜をNAGAに解析させる－完全版－ (https://lions.blue/07813) by ちぃといつ
-    // Licensed under Apache License 2.0
-    //雀魂の牌譜jsonを天鳳形式に変換
-    function soul2naga(results) {
-      const INDENT = " ".repeat(4);
-      const soulJson = JSON.stringify(results, null, INDENT)
-        .replace(new RegExp(`\n${INDENT}+`, 'g'), " ") //bring up log array items
-        .replace(/], \[/g, "],\n        [") //bump nested lists back down
-        .replace(/\n\s+]/g, " ]") //bring up isolated right brackets
-        .replace(/\n\s+},\n/g, " },\n");
-      const urls = createViewerUrls(soulJson);
-      return urls;
-    }
 
-    // 天鳳牌譜エディタのURLにおいて、牌譜データに先行する部分の文字列。
-    const EDITOR_URL_PREFIX = "https://tenhou.net/6/#json=";
     // 段位戦以外の場合に設定するルール
     const Rule = ref('dani')
-    function createViewerUrls(soulJson) {
-      // 雀魂の牌譜JSONをオブジェクトに変換する。
-      const soulPaifu = JSON.parse(soulJson);
-
-      // 段位ポイント期待値(段位ptEV)の基準を算出する
-      let ptEV;
-      // 東風/東南判定
-      const wind = soulPaifu.rule.disp.includes('南') ? "south" : "east";
-      // 卓名
-      const table = extractTable(soulPaifu.rule.disp)
-      // ルール
-      chrome.storage.local.get("rule", (result) => {
-        // join rule
-        if (typeof result.rule !== "undefined") {
-          Rule.value = result.rule;
-        }
-      });
-      // 段位戦以外の牌譜の場合
-      if (table === 'others') {
-        // 段位戦配分を設定した場合
-        if (Rule.value !== 'dani') {
-          const rule = Rule.value
-          const pointArray = POINTS[table][rule]
-          ptEV = [pointArray, pointArray, pointArray, pointArray, 1]
-        } else {
-          ptEV = getRankFitPtEV(wind, soulPaifu)
-        }
-      } else {
-        ptEV = getRankPtEV(wind, table, soulPaifu)
-      }
-      console.log("ptEV", ptEV)
-      // title内の卓名を雀魂っぽく変換する。
-      //
-      // 変換前のtitle:
-      //     "title": [ "玉の間南喰赤", "2021/10/20 20:48:01" ]
-      // 変換後のtitle:
-      //     "title": [ "玉の間四人南", "2021/10/20 20:48:01" ]
-      const title = deepCopy(soulPaifu.title);
-      title[0] = toSoulTable(title[0]);
-
-      // rule内の卓名を雀魂っぽく変換する。
-      //
-      // 変換前のrule:
-      //     "rule": { "disp": "玉の間南喰赤", "aka53": 1, "aka52": 1, "aka51": 1 }
-      // 変換後のrule:
-      //     "rule": { "disp": "玉の間四人南", "aka53": 1, "aka52": 1, "aka51": 1 }
-      const rule = deepCopy(soulPaifu.rule);
-      rule.disp = toSoulTable(rule.disp);
-
-      // logを局ごとのデータに分割し、牌譜エディタのURL群として返す。
-      return soulPaifu.log.map((v) => (
-          EDITOR_URL_PREFIX +
-          JSON.stringify({
-            title: [title, JSON.stringify(ptEV).slice(1, -1)],
-            name: soulPaifu.name,
-            rule: rule,
-            log: [toNagaLog(v)],
-          })
-        ));
-    }
-    function getRankPtEV(wind, table, soulPaifu) {
-      let ptEV
-      // 頂上決戦判定（魂天のみの試合）
-      if (wind === "east" && soulPaifu.dan.every(dan => dan.match(/魂天Lv\d+/))) {
-        ptEV = [[0.6, 0.2, -0.2, -0.6], [0.6, 0.2, -0.2, -0.6], [0.6, 0.2, -0.2, -0.6], [0.6, 0.2, -0.2, -0.6], 1]
-      } else if (wind === "south" && soulPaifu.dan.every(dan => dan.match(/魂天Lv\d+/))) {
-        ptEV = [[1.0, 0.4, -0.4, -1.0], [1.0, 0.4, -0.4, -1.0], [1.0, 0.4, -0.4, -1.0], [1.0, 0.4, -0.4, -1.0], 1]
-      } else {
-        ptEV = soulPaifu.dan.map(
-          (dan) => {
-            if (wind === "east" && dan.match(/魂天Lv\d+/)) {
-              return [0.6, 0.3, -0.3, -0.6]
-            }if (wind === "south" && dan.match(/魂天Lv\d+/)) {
-              return [1.0, 0.4, -0.4, -1.0]
-            }
-              return POINTS[wind][table][dan]
-          }
-        )
-        ptEV.push(1)
-      }
-      return ptEV
-    }
-    function getRankFitPtEV(wind, soulPaifu) {
-      let ptEV
-      // 頂上決戦判定（魂天のみの試合）
-      if (wind === "east" && soulPaifu.dan.every(dan => dan.match(/魂天Lv\d+/))) {
-        ptEV = [[0.6, 0.2, -0.2, -0.6], [0.6, 0.2, -0.2, -0.6], [0.6, 0.2, -0.2, -0.6], [0.6, 0.2, -0.2, -0.6], 1]
-      } else if (wind === "south" && soulPaifu.dan.every(dan => dan.match(/魂天Lv\d+/))) {
-        ptEV = [[1.0, 0.4, -0.4, -1.0], [1.0, 0.4, -0.4, -1.0], [1.0, 0.4, -0.4, -1.0], [1.0, 0.4, -0.4, -1.0], 1]
-      } else {
-        // 頂上決戦出ない場合は適正な卓で判定をする
-        ptEV = soulPaifu.dan.map(
-          (dan) => {
-            if (wind === "east" && dan.match(/魂天Lv\d+/)) {
-              return [0.6, 0.3, -0.3, -0.6]
-            }if (wind === "south" && dan.match(/魂天Lv\d+/)) {
-              return [1.0, 0.4, -0.4, -1.0]
-            }
-              let fitTable
-              console.log(dan)
-              switch (true) {
-                case dan.startsWith("初心"):
-                  fitTable = "bronze"
-                  break
-                case dan.startsWith("雀士"):
-                  fitTable = "silver"
-                  break
-                case dan.startsWith("雀傑"):
-                  fitTable = "gold"
-                  break
-                case dan.startsWith("雀豪"):
-                  fitTable = "tama"
-                  break
-                case dan.startsWith("雀聖"):
-                  fitTable = "king"
-                  break
-              }
-              console.log(fitTable)
-              console.log(POINTS[wind][fitTable][dan])
-              return POINTS[wind][fitTable][dan]
-          }
-        )
-        console.log(ptEV)
-        ptEV.push(1)
-      }
-      return ptEV
-    }
     const handleRuleChange = (event) => {
       Rule.value = event.target.value
       chrome.storage.local.set({ rule: event.target.value })
       // Vueの再読み込み
       location.reload()
     }
-    /**
-     * オブジェクトをディープコピーする。
-     *
-     * @param {Object} src コピー対象のオブジェクトを指定する。
-     * @returns {Object} 複製したオブジェクトを返す。
-     */
-    function deepCopy(src) {
-      // JSON文字列化してからオブジェクトに戻すことでディープコピーを実現する。
-      return JSON.parse(JSON.stringify(src));
-    }
 
-    /**
-     * 卓名を雀魂っぽく変換する。
-     *
-     * @param {String} tenhouTable 天鳳っぽい卓名を指定する。
-     * @returns {String} 雀魂っぽい卓名を返す。
-     */
-    function toSoulTable(tenhouTable) {
-      // 表記の好みの問題なので、必ずしも必要となる処理ではない。
-      return tenhouTable.replace("南喰赤", "四人南").replace("東喰赤", "四人東");
-    }
 
-    /**
-     * logをNAGAが解析可能な形式に変換する。
-     *
-     * @param {Array<Array>} soulLog 雀魂形式のlogを指定する。
-     * @returns {Array<Array>} NAGAで解析可能な形式のlogを返す。
-     */
-    function toNagaLog(soulLog) {
-      // 流局のデータは変換の必要がない。
-      if (soulLog[16].length < 3) {
-        return soulLog;
-      }
-      const nagaLog = deepCopy(soulLog);
-
-      // 当該局の場風を算出する。
-      //
-      // 局を表す数字と意味:
-      //     0 => 東1局, 1 => 東2局, ...
-      const prevalent = ["東", "南", "西", "北"][Math.floor(nagaLog[0][0] / 4)];
-
-      // 役名をNAGAが解析可能な表記に変換する。
-      // ダブロン・トリロンに対応するため複数回繰り返す。
-      for (let i = 1; i < nagaLog[16].length; i += 2) {
-        // 当該局における和了者の自風を設定する。
-        //
-        // 算出方法:
-        //     (和了者のプレイヤー番号 - 親の位置 + 4) % 4
-        const seat = ["東", "南", "西", "北"][
-          (nagaLog[16][i].indexOf(Math.max(...nagaLog[16][i])) -
-            (nagaLog[0][0] % 4) +
-            4) %
-          4
-        ];
-
-        // 役名をNAGAが解析可能な表記に変換する。
-        nagaLog[16][i + 1] = nagaLog[16][i + 1].slice(0, 4).concat(
-          nagaLog[16][i + 1].slice(4).map((v) => toNagaHand(v, prevalent, seat))
-        );
-      }
-
-      // 変換後のlogを返す。
-      return nagaLog;
-    }
-
-    /**
-     * 役名をNAGAが解析可能な表記に変換する。
-     *
-     * @param {String} hand 和了役を指定する。
-     * @param {String} prevalent 場風を指定する。
-     * @param {String} seat 和了者の自風を指定する。
-     * @returns {String} NAGAで解析可能な表記の役名を返す。
-     */
-    function toNagaHand(hand, prevalent, seat) {
-      // 対応が必要な役が判明次第、随時追加する。
-      switch (hand) {
-        case "役牌:場風牌(1飜)":
-          return `場風 ${prevalent}(1飜)`;
-        case "役牌:自風牌(1飜)":
-          return `自風 ${seat}(1飜)`;
-        case "ダブル立直(2飜)":
-          return "両立直(2飜)";
-        default:
-          return hand;
-      }
-    }
-
-    // 段位ごとのポイント配分
-    const POINTS = {
-      east: {
-        bronze: {
-          "初心★1": [25, 10, -5, -15],
-          "初心★2": [25, 10, -5, -15],
-          "初心★3": [25, 10, -5, -15],
-          "雀士★1": [25, 10, -5, -25],
-          "雀士★2": [25, 10, -5, -35],
-          "雀士★3": [25, 10, -5, -45]
-        },
-        silver: {
-          "雀士★1": [35, 15, -5, -25],
-          "雀士★2": [35, 15, -5, -35],
-          "雀士★3": [35, 15, -5, -45],
-          "雀傑★1": [35, 15, -5, -55],
-          "雀傑★2": [35, 15, -5, -65],
-          "雀傑★3": [35, 15, -5, -75]
-        },
-        gold: {
-          "雀傑★1": [55, 25, -5, -55],
-          "雀傑★2": [55, 25, -5, -65],
-          "雀傑★3": [55, 25, -5, -75],
-          "雀豪★1": [55, 25, -5, -95],
-          "雀豪★2": [55, 25, -5, -105],
-          "雀豪★3": [55, 25, -5, -115]
-        },
-        tama: {
-          "雀豪★1": [70, 35, -5, -95],
-          "雀豪★2": [70, 35, -5, -105],
-          "雀豪★3": [70, 35, -5, -115],
-          "雀聖★1": [70, 35, -5, -125],
-          "雀聖★2": [70, 35, -5, -135],
-          "雀聖★3": [70, 35, -5, -145]
-        },
-        king: {
-          "雀聖★1": [75, 35, -5, -125],
-          "雀聖★2": [75, 35, -5, -135],
-          "雀聖★3": [75, 35, -5, -145],
-        }
-      },
-      south: {
-        bronze: {
-          "初心★1": [35, 15, -5, -15],
-          "初心★2": [35, 15, -5, -15],
-          "初心★3": [35, 15, -5, -15],
-          "雀士★1": [35, 15, -5, -35],
-          "雀士★2": [35, 15, -5, -55],
-          "雀士★3": [35, 15, -5, -75]
-        },
-        silver: {
-          "雀士★1": [55, 25, -5, -35],
-          "雀士★2": [55, 25, -5, -55],
-          "雀士★3": [55, 25, -5, -75],
-          "雀傑★1": [55, 25, -5, -95],
-          "雀傑★2": [55, 25, -5, -115],
-          "雀傑★3": [55, 25, -5, -135]
-        },
-        gold: {
-          "雀傑★1": [95, 45, -5, -95],
-          "雀傑★2": [95, 45, -5, -115],
-          "雀傑★3": [95, 45, -5, -135],
-          "雀豪★1": [95, 45, -5, -180],
-          "雀豪★2": [95, 45, -5, -195],
-          "雀豪★3": [95, 45, -5, -210]
-        },
-        tama: {
-          "雀豪★1": [125, 60, -5, -180],
-          "雀豪★2": [125, 60, -5, -195],
-          "雀豪★3": [125, 60, -5, -210],
-          "雀聖★1": [125, 60, -5, -225],
-          "雀聖★2": [125, 60, -5, -240],
-          "雀聖★3": [125, 60, -5, -255]
-        },
-        king: {
-          "雀聖★1": [135, 65, -5, -225],
-          "雀聖★2": [135, 65, -5, -240],
-          "雀聖★3": [135, 65, -5, -255],
-        }
-      },
-      others: {
-        1030: [50, 10, -10, -30],
-        1020: [40, 10, -10, -20],
-        515: [35, 5, -5, -15],
-        510: [30, 5, -5, -10],
-        tenho: [90, 45, 0, -135],
-      }
-    }
-    // 卓名変換
-    const extractTable = (tableName) => {
-      if (tableName.includes('銅')) {
-        return 'bronze';
-      }if (tableName.includes('銀')) {
-        return 'silver';
-      }if (tableName.includes('金')) {
-        return 'gold';
-      }if (tableName.includes('玉')) {
-        return 'tama';
-      }if (tableName.includes('王座')) {
-        return 'king';
-      }
-        return 'others'
-    }
     // リーチ宣言牌がロンになったときの差分を修正
     function fixScoreRonTileWasReachTile(message) {
       for (let i = 0; i < message.log.length; i++) {
@@ -598,7 +328,6 @@ export default {
       submitNaga,
       selectAll,
       processData,
-      soul2naga,
       DisplayLang,
       btn_msg,
       isChecked,

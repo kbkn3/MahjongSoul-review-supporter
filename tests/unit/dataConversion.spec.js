@@ -32,14 +32,57 @@ const mockSoulData = {
   ]
 }
 
+// 1.4.0形式のモックデータ（入れ子構造）
+const mockSoulData140 = {
+  name: ["プレイヤー1", "プレイヤー2", "プレイヤー3", "プレイヤー4"],
+  rule: {
+    disp: "玉の間南喰"
+  },
+  title: [["玉の間南喰", "2024/01/01 12:00:00"], "[125,60,-5,-180],[125,60,-5,-180],[125,60,-5,-180],[125,60,-5,-180],1"],
+  dan: ["雀豪★1", "雀豪★2", "雀豪★3", "雀豪★1"],
+  sc: [25000, 0, 24000, -10, 26000, 15, 25000, -5],
+  log: [
+    [
+      [0, 0, 0],
+      [11, 12, 13, 14],
+      [], [], [], [],
+      [], [], [], [],
+      [], [], [], [],
+      [], 
+      [],
+      ["和了", [8000, -2000, -3000, -3000], [0, 1], [0, 0, 0, 0], ["立直(1飜)", "ツモ(1飜)"]]
+    ]
+  ]
+}
+
 describe('Data Conversion Functions', () => {
   describe('soul2naga function', () => {
-    it('should convert soul data to naga format', () => {
+    it('should convert soul data to naga format (1.3.1 format)', () => {
       const result = soul2naga(mockSoulData)
       
       expect(Array.isArray(result)).toBe(true)
       expect(result.length).toBe(mockSoulData.log.length)
       expect(result[0]).toContain('https://tenhou.net/6/#json=')
+      
+      // デコードしてtitleが正しく変換されているか確認
+      const decodedUrl = decodeURIComponent(result[0])
+      expect(decodedUrl).toContain('"title":[["金の間四人南","2024/01/01 12:00:00"]')
+    })
+    
+    it('should convert soul data to naga format (1.4.0 format)', () => {
+      const result = soul2naga(mockSoulData140)
+      
+      expect(Array.isArray(result)).toBe(true)
+      expect(result.length).toBe(mockSoulData140.log.length)
+      expect(result[0]).toContain('https://tenhou.net/6/#json=')
+      
+      // デコードしてtitleが正しく変換されているか確認
+      const decodedUrl = decodeURIComponent(result[0])
+      
+      // 変換が適用されているか確認（南喰 → 四人南）
+      expect(decodedUrl).toContain('"玉の間四人南"')  // 変換された卓名が含まれているか
+      expect(decodedUrl).not.toContain('"玉の間南喰"')  // 元の形式が残っていないか
+      expect(decodedUrl).not.toContain('"title":[["","')  // 空文字列になっていないことを確認
     })
     
     it('should handle empty log data', () => {
@@ -50,7 +93,7 @@ describe('Data Conversion Functions', () => {
       expect(result.length).toBe(0)
     })
     
-    it('should convert table names correctly', () => {
+    it('should convert table names correctly (develop branch format)', () => {
       expect(toSoulTable("金の間南喰赤")).toBe("金の間四人南")
       expect(toSoulTable("玉の間東喰赤")).toBe("玉の間四人東")
       expect(toSoulTable("銅の間四人南")).toBe("銅の間四人南") // 変換不要

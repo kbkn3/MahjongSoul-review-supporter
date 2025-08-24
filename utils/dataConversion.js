@@ -18,8 +18,17 @@ export function deepCopy(src) {
  * @returns {String} 雀魂っぽい卓名を返す。
  */
 export function toSoulTable(tenhouTable) {
-  // 表記の好みの問題なので、必ずしも必要となる処理ではない。
-  return tenhouTable.replace("南喰赤", "四人南").replace("東喰赤", "四人東");
+  // develop branchの実データ形式に合わせて修正
+  // 引数が文字列でない場合は空文字列を返す
+  if (typeof tenhouTable !== 'string') {
+    console.warn('toSoulTable: invalid input type:', typeof tenhouTable, tenhouTable);
+    return '';
+  }
+  return tenhouTable
+    .replace("南喰赤", "四人南")
+    .replace("東喰赤", "四人東")
+    .replace("南喰", "四人南")
+    .replace("東喰", "四人東");
 }
 
 /**
@@ -32,6 +41,20 @@ export function toSoulTable(tenhouTable) {
  */
 export function toNagaHand(hand, prevalent, seat) {
   // 対応が必要な役が判明次第、随時追加する。
+  // 引数が文字列でない場合はそのまま返す
+  if (typeof hand !== 'string') {
+    console.warn('toNagaHand: invalid hand type:', typeof hand, hand);
+    return hand;
+  }
+  if (typeof prevalent !== 'string') {
+    console.warn('toNagaHand: invalid prevalent type:', typeof prevalent, prevalent);
+    prevalent = '';
+  }
+  if (typeof seat !== 'string') {
+    console.warn('toNagaHand: invalid seat type:', typeof seat, seat);
+    seat = '';
+  }
+  
   switch (hand) {
     case "役牌:場風牌(1飜)":
       return `場風 ${prevalent}(1飜)`;
@@ -95,49 +118,75 @@ const EDITOR_URL_PREFIX = "https://tenhou.net/6/#json=";
  * Based on: 雀魂の牌譜をNAGAに解析させる－完全版－ (https://lions.blue/07813) by ちぃといつ
  * Licensed under Apache License 2.0
  */
-export function soul2naga(results) {
+export function soul2naga(results, ruleValue = 'dani') {
   const INDENT = " ".repeat(4);
   const soulJson = JSON.stringify(results, null, INDENT)
     .replace(new RegExp(`\n${INDENT}+`, 'g'), " ") //bring up log array items
     .replace(/], \[/g, "],\n        [") //bump nested lists back down
     .replace(/\n\s+]/g, " ]") //bring up isolated right brackets
     .replace(/\n\s+},\n/g, " },\n");
-  const urls = createViewerUrls(soulJson);
+  const urls = createViewerUrls(soulJson, ruleValue);
   return urls;
 }
 
-function createViewerUrls(soulJson) {
+function createViewerUrls(soulJson, ruleValue = 'dani') {
   // 雀魂の牌譜JSONをオブジェクトに変換する。
   const soulPaifu = JSON.parse(soulJson);
+  
+  // データの検証
+  if (!soulPaifu || !soulPaifu.rule || !soulPaifu.rule.disp) {
+    console.error('createViewerUrls: invalid soulPaifu structure:', soulPaifu);
+    return [];
+  }
   
   // 東風/東南判定
   const wind = soulPaifu.rule.disp.includes('南') ? "south" : "east";
   // 卓名
   const table = extractTable(soulPaifu.rule.disp);
   
-  // 段位戦以外の牌譜の場合のデフォルト処理
-  // 実際の実装では Rule.value を外部から受け取る必要がある
+  // 段位ポイント期待値(段位ptEV)の基準を算出する
   let ptEV;
+  // 段位戦以外の牌譜の場合
   if (table === 'others') {
-    ptEV = getRankFitPtEV(wind, soulPaifu);
+    // 段位戦配分を設定した場合
+    if (ruleValue !== 'dani') {
+      const rule = ruleValue;
+      const pointArray = POINTS[table][rule];
+      ptEV = [pointArray, pointArray, pointArray, pointArray, 1];
+    } else {
+      ptEV = getRankFitPtEV(wind, soulPaifu);
+    }
   } else {
     ptEV = getRankPtEV(wind, table, soulPaifu);
   }
   
   // title内の卓名を雀魂っぽく変換する。
-  const title = deepCopy(soulPaifu.title);
-  title[0] = toSoulTable(title[0]);
+  const title = deepCopy(soulPaifu.title || ['', '']);
+  if (Array.isArray(title[0])) {
+    // 入れ子構造の場合（1.4.0形式）
+    if (title[0][0]) {
+      title[0][0] = toSoulTable(title[0][0]);
+    }
+  } else if (title[0]) {
+    // フラット構造の場合（1.3.1形式）
+    title[0] = toSoulTable(title[0]);
+  }
 
   // rule内の卓名を雀魂っぽく変換する。
   const rule = deepCopy(soulPaifu.rule);
   rule.disp = toSoulTable(rule.disp);
 
   // logを局ごとのデータに分割し、牌譜エディタのURL群として返す。
+  if (!soulPaifu.log || !Array.isArray(soulPaifu.log)) {
+    console.error('createViewerUrls: invalid log data:', soulPaifu.log);
+    return [];
+  }
+  
   return soulPaifu.log.map((v) => (
     EDITOR_URL_PREFIX +
     JSON.stringify({
-      title: [title, JSON.stringify(ptEV).slice(1, -1)],
-      name: soulPaifu.name,
+      title: [Array.isArray(title[0]) ? title[0] : title, JSON.stringify(ptEV).slice(1, -1)],
+      name: soulPaifu.name || [],
       rule: rule,
       log: [toNagaLog(v)],
     })

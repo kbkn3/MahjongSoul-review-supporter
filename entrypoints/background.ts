@@ -7,7 +7,7 @@
  * - オプションページの自動表示
  */
 
-import { defineBackground } from 'wxt/sandbox';
+import { defineBackground } from 'wxt/utils/define-background';
 import { browser } from 'wxt/browser';
 
 export default defineBackground(() => {

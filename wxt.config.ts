@@ -14,7 +14,9 @@ export default defineConfig({
     name: "__MSG_appName__",
     version: "1.3.1",
     description: "__MSG_appDesc__",
-    author: "kbkn",
+    author: {
+      email: "kne0421wabu@gmail.com"
+    },
     default_locale: "en",
     permissions: ["storage"],
     host_permissions: [
@@ -53,7 +55,10 @@ export default defineConfig({
   
   // Vite設定のカスタマイズ
   vite: () => ({
-    plugins: [vue(), tailwindcss()],
+    plugins: [
+      vue(), 
+      tailwindcss()
+    ],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './')

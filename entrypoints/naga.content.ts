@@ -6,7 +6,7 @@
  * - 自動的にテキストエリアにデータを設定
  */
 
-import { defineContentScript } from 'wxt/sandbox';
+import { defineContentScript } from 'wxt/utils/define-content-script';
 import { browser } from 'wxt/browser';
 
 export default defineContentScript({

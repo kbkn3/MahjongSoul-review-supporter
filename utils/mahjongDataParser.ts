@@ -6,6 +6,8 @@
  * Based on: 雀魂の牌譜をNAGAに解析させる－完全版－ (https://lions.blue/07813) by ちぃといつ
  */
 
+import { toNagaHand } from './dataConversion.js';
+
 // 設定値
 const NAMEPREF = 0; // 2 for English, 1 for romanized, 0 for Japanese
 const VERBOSELOG = false; // 詳細ログを出力するか
@@ -63,6 +65,93 @@ const TSUMOGIRI = 60; // 天鳳のツモ切りシンボル
 // グローバル変数
 const ALLOW_KIRIAGE = false;
 const TSUMOLOSSOFF = false; // 三麻のツモ損
+
+// 雀魂の役IDと日本語役名のマッピングテーブル
+const FAN_NAME_MAP: { [key: number]: string } = {
+  1: "門前清自摸和",
+  2: "立直",
+  3: "一発",
+  4: "海底撈月",
+  5: "河底撈魚",
+  6: "嶺上開花",
+  7: "槍槓",
+  8: "役牌 白",
+  9: "役牌 中",
+  10: "役牌 發", 
+  11: "役牌 東",
+  12: "役牌 南",
+  13: "役牌 西",
+  14: "平和",
+  15: "断么九",
+  16: "一盃口",
+  17: "自風 東",
+  18: "自風 南", 
+  19: "自風 西",
+  20: "自風 北",
+  21: "場風 東",
+  22: "場風 南",
+  23: "場風 西", 
+  24: "場風 北",
+  25: "三色同順",
+  26: "一気通貫",
+  27: "混全帯么九",
+  28: "七対子",
+  29: "対々和",
+  30: "一発",
+  31: "ドラ",
+  32: "赤ドラ",
+  33: "裏ドラ",
+  34: "三暗刻",
+  35: "小三元",
+  36: "混老頭",
+  37: "大三元",
+  38: "三色同刻",
+  39: "混一色",
+  40: "純全帯么九",
+  41: "二盃口",
+  42: "清一色",
+  43: "大四喜",
+  44: "小四喜", 
+  45: "字一色",
+  46: "緑一色",
+  47: "清老頭",
+  48: "国士無双",
+  49: "四暗刻",
+  50: "九蓮宝燈",
+  51: "天和",
+  52: "地和"
+};
+
+/**
+ * 役IDから役名を取得する
+ * @param fanId 役ID
+ * @param lang 言語（0: 日本語, 1: ローマ字, 2: 英語）  
+ * @param cfg 雀魂のconfigオブジェクト（動的取得用、オプション）
+ * @returns 役名
+ */
+function getFanName(fanId: number, lang: number = JPNAME, cfg?: any): string {
+  // 動的にcfgから役名を取得することを優先
+  if (cfg && cfg.fan && cfg.fan.fan && cfg.fan.fan.map_) {
+    const fanData = cfg.fan.fan.map_[fanId];
+    if (fanData) {
+      const dynamicName = lang === JPNAME ? fanData.name_jp : fanData.name_en;
+      if (dynamicName) {
+        console.log(`Dynamic fan name for ID ${fanId}: ${dynamicName}`);
+        return dynamicName;
+      }
+    }
+  }
+  
+  // フォールバック: ハードコードされたマップを使用
+  const japaneseName = FAN_NAME_MAP[fanId];
+  if (!japaneseName) {
+    console.warn(`Unknown fan ID: ${fanId} (tried dynamic: ${!!cfg}, fallback: ${!!FAN_NAME_MAP[fanId]})`);
+    return `Unknown fan ${fanId}`;
+  }
+  
+  console.log(`Fallback fan name for ID ${fanId}: ${japaneseName}`);
+  return japaneseName;
+}
 
 /**
  * 雀魂の牌表記を天鳳形式に変換
@@ -276,9 +365,10 @@ class Kyoku {
  * 和了データを天鳳形式に変換
  * @param h 和了データ（mjslog）
  * @param kyoku 局状態
+ * @param cfg 雀魂のconfigオブジェクト（動的役名取得用、オプション）
  * @returns [デルタ配列, 結果配列]
  */
-function parsehule(h: any, kyoku: Kyoku): [number[], any[]] {
+function parsehule(h: any, kyoku: Kyoku, cfg?: any): [number[], any[]] {
   // 天鳳ログビューアーは「点」「飜」「役満」で終わる文字列を要求
   // [和了者席, 払い手席, 責任者席]
   const res = [h.seat, h.zimo ? h.seat : kyoku.ldseat, h.seat];
@@ -392,11 +482,20 @@ function parsehule(h: any, kyoku: Kyoku): [number[], any[]] {
     res.push(fuhan + points);
   }
 
-  // 役リストを追加
-  h.fans.forEach((e: any) => res.push(
-    (JPNAME === NAMEPREF ? `cfg.fan.fan.map_[${e.id}].name_jp` : `cfg.fan.fan.map_[${e.id}].name_en`) +
-    "(" + (h.yiman ? RUNES.yakuman[JPNAME] : (e.val + RUNES.han[JPNAME])) + ")"
-  ));
+  // 役リストを追加（develop branch形式に合わせて場風・自風変換を適用）
+  // 場風と自風の計算
+  const prevalent = ["東", "南", "西", "北"][Math.floor(kyoku.round[0] / 4)];
+  const seat = ["東", "南", "西", "北"][(h.seat - (kyoku.round[0] % 4) + 4) % 4];
+  
+  h.fans.forEach((e: any) => {
+    let fanName = getFanName(e.id, NAMEPREF, cfg) +
+      "(" + (h.yiman ? RUNES.yakuman[JPNAME] : (e.val + RUNES.han[JPNAME])) + ")";
+    
+    // develop branchとの互換性のためNAGA形式変換を適用
+    fanName = toNagaHand(fanName, prevalent, seat);
+    
+    res.push(fanName);
+  });
 
   return [pad_right(delta, 4, 0), res];
 }
@@ -404,9 +503,10 @@ function parsehule(h: any, kyoku: Kyoku): [number[], any[]] {
 /**
  * mjslogレコードを天鳳形式のlogに変換
  * @param mjslog 雀魂のmjslogレコード配列
+ * @param cfg 雀魂のconfigオブジェクト（動的役名取得用、オプション）
  * @returns 天鳳形式のlog配列
  */
-function generatelog(mjslog: any[]): any[][] {
+function generatelog(mjslog: any[], cfg?: any): any[][] {
   const log: any[][] = [];
   const kyoku = new Kyoku();
   
@@ -618,7 +718,7 @@ function generatelog(mjslog: any[]): any[][] {
             if (ura.length < (f.li_doras ? f.li_doras.length : 0)) {
               ura = f.li_doras.map((g: string) => tm2t(g));
             }
-            agari.push(parsehule(f, kyoku));
+            agari.push(parsehule(f, kyoku, cfg));
           });
           
           const entry = kyoku.dump(ura);

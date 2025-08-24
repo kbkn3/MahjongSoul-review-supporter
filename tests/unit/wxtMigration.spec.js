@@ -84,7 +84,8 @@ describe('WXT Framework Migration (CRXJS → WXT)', () => {
       expect(fs.existsSync(tsConfigPath)).toBe(true)
       
       const tsConfig = JSON.parse(fs.readFileSync(tsConfigPath, 'utf-8'))
-      expect(tsConfig.compilerOptions.types).toContain('wxt/client-types')
+      // WXT uses .wxt/wxt.d.ts for type definitions instead of wxt/client-types
+      expect(tsConfig.include).toContain('.wxt/wxt.d.ts')
     })
   })
   

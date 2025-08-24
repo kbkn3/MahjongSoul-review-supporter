@@ -1,6 +1,10 @@
 <template>
-    <div class="mx-1 my-2 block max-w-sm rounded-lg border-2  bg-mjsoul-grad-dark-blue p-2 shadow-md hover:bg-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700"
-        :class="{ 'border-gray-200': !isSelect, 'border-red-600': isSelect }">
+    <div class="mx-1 my-2 block max-w-sm rounded-lg border-2 bg-mjsoul-grad-dark-blue p-2 shadow-md hover:bg-gray-800 dark:bg-gray-800 dark:hover:bg-gray-700"
+        :class="{ 
+          'border-gray-200': !isSelect, 
+          'border-red-600': isSelect,
+          'dark:border-gray-700': !isSelect
+        }">
         <div class="text-lg  text-mjsoul-text-lightblue hudetext" v-if="Language !== 1">
             {{ Ba_str[Language][Ba] }}
             {{ Kyoku_num }} 局 {{ Honba }} 本場
@@ -67,15 +71,33 @@
 
         <!-- Ryukyoku pattern -->
         <div v-if="result[0][0] === '流局'">
-            <div v-for="n in ((result[0].length) - 1)" :key="n" class="flex flex-row items-end">
-                <div class="text-left text-base w-1/4 hudetext text-gray-300"> {{ result[0][0] }}</div>
-                <div class="text-center text-base text-gray-300 w-1/2">{{ result[0][n] }}</div>
-                <div class="text-right text-base text-gray-300 w-1/4">+{{ 3000 / ((result[0].length) - 1) }}</div>
+            <!-- Special abortions (九種九牌, 四風連打, etc.) -->
+            <div v-if="isSpecialAbortion()" class="flex flex-row items-end">
+                <div class="text-left text-base w-1/4 hudetext text-gray-300">{{ result[0][0] }}</div>
+                <div class="text-center text-base text-gray-300 w-1/2">{{ result[0][1] }}</div>
+                <div class="text-right text-base text-gray-300 w-1/4"></div>
+            </div>
+            <!-- Normal exhaustive draw -->
+            <div v-else>
+                <div v-for="n in ((result[0].length) - 1)" :key="n" class="flex flex-row items-end">
+                    <div class="text-left text-base w-1/4 hudetext text-gray-300"> {{ result[0][0] }}</div>
+                    <div class="text-center text-base text-gray-300 w-1/2">{{ result[0][n] }}</div>
+                    <div class="text-right text-base text-gray-300 w-1/4">+{{ 3000 / ((result[0].length) - 1) }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Special abortions as main result pattern -->
+        <div v-if="isDirectSpecialAbortion()">
+            <div class="flex flex-row items-end">
+                <div class="text-left text-base w-1/4 hudetext text-gray-300">流局</div>
+                <div class="text-center text-base text-gray-300 w-1/2">{{ result[0][0] }}</div>
+                <div class="text-right text-base text-gray-300 w-1/4"></div>
             </div>
         </div>
 
         <!-- Others pattern -->
-        <div v-if="result[0][0] !== 'ツモ和' && result[0][0] !== 'ロン和' && result[0][0] !== '流局'">
+        <div v-if="result[0][0] !== 'ツモ和' && result[0][0] !== 'ロン和' && result[0][0] !== '流局' && !isDirectSpecialAbortion()">
             <div class="text-left text-base w-1/4 hudetext text-gray-300"> {{ result[0][0] }}</div>
         </div>
     </div>
@@ -108,8 +130,40 @@ export default {
             ["榮和", "自摸"],
         ];
         const Deal_str = ["放銃", "Deal-in", "放銃"];
+
+        // 特殊流局を判定する関数
+        const isSpecialAbortion = () => {
+            if (_props.result[0][0] !== '流局') return false;
+            
+            // 特殊流局の種類リスト
+            const specialAbortions = [
+                "九種九牌", "Kyuushu Kyuuhai", "Nine Terminal Abortion",
+                "四風連打", "Suufon Renda", "Four Wind Abortion", 
+                "四家立直", "Suucha Riichi", "Four Riichi Abortion",
+                "四開槓", "Suukaikan", "Four Kan Abortion",
+                "三家和", "Sanchahou", "Three Ron Abortion"
+            ];
+            
+            // result[0][1]が特殊流局の文字列かチェック
+            return _props.result[0].length >= 2 && 
+                   specialAbortions.includes(_props.result[0][1]);
+        };
+
+        // 直接特殊流局（result[0][0]が特殊流局の名前）を判定する関数
+        const isDirectSpecialAbortion = () => {
+            const specialAbortions = [
+                "九種九牌", "Kyuushu Kyuuhai", "Nine Terminal Abortion",
+                "四風連打", "Suufon Renda", "Four Wind Abortion", 
+                "四家立直", "Suucha Riichi", "Four Riichi Abortion",
+                "四開槓", "Suukaikan", "Four Kan Abortion",
+                "三家和", "Sanchahou", "Three Ron Abortion"
+            ];
+            
+            return specialAbortions.includes(_props.result[0][0]);
+        };
+
         return {
-            Ba_str, Honba_str, Win_str, Deal_str
+            Ba_str, Honba_str, Win_str, Deal_str, isSpecialAbortion, isDirectSpecialAbortion
         }
     },
 };
