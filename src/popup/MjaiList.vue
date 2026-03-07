@@ -15,6 +15,7 @@
 
 <script>
 import { reactive, ref } from 'vue';
+import { useDisplayLang } from "@/composables/useDisplayLang";
 
 
 export default {
@@ -30,14 +31,7 @@ export default {
         MSLang.value = result.MSLang;
       }
     });
-    //表示用言語の設定をlocal storageから呼び出す
-    const DisplayLang = ref(0)
-    chrome.storage.local.get("DisplayLang", (result) => {
-      // join langs
-      if (typeof result.DisplayLang !== "undefined") {
-        DisplayLang.value = Number(result.DisplayLang);
-      }
-    });
+    const DisplayLang = useDisplayLang();
 
     const url_head = [
       'https://game.mahjongsoul.com/?paipu=',

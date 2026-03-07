@@ -43,6 +43,7 @@ import NagaList from "@/popup/NagaList.vue";
 import MjaiList from "@/popup/MjaiList.vue";
 import RecipeList from "@/popup/RecipeList.vue";
 import iconTrash from "@/components/iconTrash.vue";
+import { useDisplayLang } from "@/composables/useDisplayLang";
 export default {
   components: {
     NagaList,
@@ -51,14 +52,7 @@ export default {
     iconTrash
   },
   setup() {
-    //表示用言語の設定をlocal storageから呼び出す
-    const DisplayLang = ref(0)
-    chrome.storage.local.get("DisplayLang", (result) => {
-      // join langs
-      if (typeof result.DisplayLang !== "undefined") {
-        DisplayLang.value = result.DisplayLang;
-      }
-    });
+    const DisplayLang = useDisplayLang();
     // 日、英、中の順
     const supportDevelopText = ["開発を支援する", "Sponsor development", "支持开发"]
 

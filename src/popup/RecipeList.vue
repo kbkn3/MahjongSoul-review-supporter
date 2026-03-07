@@ -15,7 +15,8 @@
 </template>
 
 <script>
-import { ref} from "vue";
+import { ref } from "vue";
+import { useDisplayLang } from "@/composables/useDisplayLang";
 export default {
   setup() {
     //牌譜データから表示用のデータを抽出したもの
@@ -117,14 +118,7 @@ export default {
       TableText.value = text;
     };
 
-    //表示用言語の設定をlocal storageから呼び出す
-    const DisplayLang = ref(0)
-    chrome.storage.local.get("DisplayLang", (result) => {
-      // join langs
-      if (typeof result.DisplayLang !== "undefined") {
-        DisplayLang.value = result.DisplayLang;
-      }
-    });
+    const DisplayLang = useDisplayLang();
     const description = ["Excelやスプレッドシートにコピペできる戦績です。", "The results can be copied and pasted into Excel or spreadsheets.", "结果可以被复制并粘贴到Excel或电子表格中。"]
     const descriptionColumn = ["ゲームID,名前,素点,順位,和了,放銃,立直,副露,ツモ,ロン,局数,流局数",
       "gameID,name,Table Points,rank,num of Win,num of Deal-in,num of riichi,num of meld,num of Tsumo,num of Ron,num of game,num of exhaustive", 
