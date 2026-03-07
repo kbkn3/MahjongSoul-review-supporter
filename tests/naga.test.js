@@ -139,6 +139,41 @@ describe("fixScoreRonTileWasReachTile", () => {
     });
 });
 
+describe("fixScoreRonTileWasReachTile - edge cases", () => {
+    test("does not modify non-agari rounds", () => {
+        const message = { log: [buildMinimalLog()] };
+        message.log[0][16] = ["流局", [0, 0, 0, 0]];
+        const before = JSON.parse(JSON.stringify(message));
+        fixScoreRonTileWasReachTile(message);
+        expect(message).toEqual(before);
+    });
+
+    test("handles multiple rounds with mixed results", () => {
+        const ronLog = buildRonLog({ lastDiscard: "r15", winnerDelta: 9000, loserDelta: -9000 });
+        const ryukyokuLog = buildMinimalLog();
+        ryukyokuLog[16] = ["流局", [0, 0, 0, 0]];
+        const message = { log: [ronLog, ryukyokuLog] };
+        fixScoreRonTileWasReachTile(message);
+        expect(message.log[0][16][1][0]).toBe(8000);
+        expect(message.log[1][16]).toEqual(["流局", [0, 0, 0, 0]]);
+    });
+});
+
+describe("toNagaLog - immutability", () => {
+    test("does not mutate the input log", () => {
+        const log = buildMinimalLog();
+        log[0] = [0, 0, 0];
+        log[16] = [
+            "和了",
+            [8000, -8000, 0, 0],
+            [0, 1, 0, "30符4飜満貫8000点", "役牌:場風牌(1飜)"]
+        ];
+        const before = JSON.parse(JSON.stringify(log));
+        toNagaLog(log);
+        expect(log).toEqual(before);
+    });
+});
+
 // --- helpers ---
 
 function buildMinimalLog() {

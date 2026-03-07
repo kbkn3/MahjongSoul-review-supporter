@@ -1,5 +1,3 @@
-const { TSUMOGIRI } = require("./constants");
-
 /**
  * '2m' -> 12, '5z' -> 45, '0m' -> 51 (aka)
  * tenhou tile encoding:
