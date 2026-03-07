@@ -3,40 +3,11 @@
 
     const NAMEPREF = 0;     //2 for english, 1 for sane amount of weeb, 0 for japanese
     const VERBOSELOG = false; //dump mjs records to output - will make the file too large for tenhou.net/5 viewer
-    const PRETTY = true;  //make the written log somewhat human readable
     const SHOWFU = false; //always show fu/han for scoring - even for limit hands
 
     //global variables - don't touch
     let ALLOW_KIRIAGE = false; //potentially allow this to be true
     let TSUMOLOSSOFF = false; //sanma tsumo loss, is set true for sanma when tsumo loss off
-
-    //listen for key press, modified from anonymizer mod
-    function checkscene(scene) {
-        return scene && ((scene.Inst && scene.Inst._enable) || (scene._Inst && scene._Inst._enable));
-    }
-
-    // document.addEventListener("keydown", function (e) {   // GameMgr.Inst.record_uuid becomes populated when we have looked at a log
-    //     e = e || window.event;
-    //     if ((KEY == e.keyCode || KEY == e.key) && GameMgr.Inst.record_uuid) //「s」を押下&&
-    //         if (checkscene(uiscript.UI_Replay) || checkscene(uiscript.UI_Loading))
-    //             downloadlog();
-    // });
-
-    //pop-up window for downloading
-    function download(filename, text) {
-        let element = document.createElement("a");
-        element.setAttribute(
-            "href",
-            "data:text/plain;charset=utf-8," + encodeURIComponent(text)
-        );
-        element.setAttribute("download", filename);
-        element.style.display = "none";
-        document.body.appendChild(element);
-        element.click();
-        document.body.removeChild(element);
-
-        return;
-    }
 
     const tlround = (x) => tlroundPure(TSUMOLOSSOFF, x);
 
@@ -568,28 +539,6 @@
         }
 
         return res;
-    }
-
-    function downloadlog() {
-        app.NetAgent.sendReq2Lobby(
-            "Lobby",
-            "fetchGameRecord",
-            { game_uuid: GameMgr.Inst.record_uuid, client_version_string: GameMgr.Inst.getClientVersion() }, // anon edit 2
-            function (i, record) {
-                let results = parse(record);
-                download(
-                    //default filename
-                    ((new Date(record.head.end_time * 1000)).toLocaleDateString() + "_" + results["rule"]["disp"] + ".json").replace(/[ \/]/g, "_"),
-                    PRETTY ?
-                        JSON.stringify(results, null, "    ")
-                            .replace(/\n       \s+/g, " ")       //bring up log array items
-                            .replace(/], \[/g, "],\n        [")   //bump nested lists back down
-                            .replace(/\n\s+]/g, " ]")             //bring up isolated right brackets
-                            .replace(/\n\s+},\n/g, " },\n")       //ditto for non-final curly brackets
-                        : JSON.stringify(results)
-                );
-            }
-        );
     }
 
     module.exports = { parse };

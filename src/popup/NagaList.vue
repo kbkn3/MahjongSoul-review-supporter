@@ -42,7 +42,7 @@
 import { onMounted, reactive, ref, computed } from "vue";
 import Kyoku from "@/popup/Kyoku.vue";
 import { extractTable, toSoulTable, toNagaLog, fixScoreRonTileWasReachTile } from "@/lib/naga";
-import { POINTS } from "@/lib/points";
+import { POINTS, getPtEV } from "@/lib/points";
 import { useDisplayLang } from "@/composables/useDisplayLang";
 
 export default {
@@ -245,14 +245,13 @@ export default {
       if (table === 'others') {
         // 段位戦配分を設定した場合
         if (Rule.value !== 'dani') {
-          const rule = Rule.value
-          const pointArray = POINTS[table][rule]
+          const pointArray = POINTS.others[Rule.value]
           ptEV = [pointArray, pointArray, pointArray, pointArray, 1]
         } else {
-          ptEV = getRankFitPtEV(wind, soulPaifu)
+          ptEV = getPtEV(wind, soulPaifu.dan)
         }
       } else {
-        ptEV = getRankPtEV(wind, table, soulPaifu)
+        ptEV = getPtEV(wind, soulPaifu.dan, table)
       }
       console.log("ptEV", ptEV)
       // title内の卓名を雀魂っぽく変換する。
@@ -261,7 +260,7 @@ export default {
       //     "title": [ "玉の間南喰赤", "2021/10/20 20:48:01" ]
       // 変換後のtitle:
       //     "title": [ "玉の間四人南", "2021/10/20 20:48:01" ]
-      const title = deepCopy(soulPaifu.title);
+      const title = JSON.parse(JSON.stringify(soulPaifu.title));
       title[0] = toSoulTable(title[0]);
 
       // rule内の卓名を雀魂っぽく変換する。
@@ -270,7 +269,7 @@ export default {
       //     "rule": { "disp": "玉の間南喰赤", "aka53": 1, "aka52": 1, "aka51": 1 }
       // 変換後のrule:
       //     "rule": { "disp": "玉の間四人南", "aka53": 1, "aka52": 1, "aka51": 1 }
-      const rule = deepCopy(soulPaifu.rule);
+      const rule = JSON.parse(JSON.stringify(soulPaifu.rule));
       rule.disp = toSoulTable(rule.disp);
 
       // logを局ごとのデータに分割し、牌譜エディタのURL群として返す。
@@ -284,90 +283,12 @@ export default {
           })
         ));
     }
-    function getRankPtEV(wind, table, soulPaifu) {
-      let ptEV
-      // 頂上決戦判定（魂天のみの試合）
-      if (wind === "east" && soulPaifu.dan.every(dan => dan.match(/魂天Lv\d+/))) {
-        ptEV = [[0.6, 0.2, -0.2, -0.6], [0.6, 0.2, -0.2, -0.6], [0.6, 0.2, -0.2, -0.6], [0.6, 0.2, -0.2, -0.6], 1]
-      } else if (wind === "south" && soulPaifu.dan.every(dan => dan.match(/魂天Lv\d+/))) {
-        ptEV = [[1.0, 0.4, -0.4, -1.0], [1.0, 0.4, -0.4, -1.0], [1.0, 0.4, -0.4, -1.0], [1.0, 0.4, -0.4, -1.0], 1]
-      } else {
-        ptEV = soulPaifu.dan.map(
-          (dan) => {
-            if (wind === "east" && dan.match(/魂天Lv\d+/)) {
-              return [0.6, 0.3, -0.3, -0.6]
-            }if (wind === "south" && dan.match(/魂天Lv\d+/)) {
-              return [1.0, 0.4, -0.4, -1.0]
-            }
-              return POINTS[wind][table][dan]
-          }
-        )
-        ptEV.push(1)
-      }
-      return ptEV
-    }
-    function getRankFitPtEV(wind, soulPaifu) {
-      let ptEV
-      // 頂上決戦判定（魂天のみの試合）
-      if (wind === "east" && soulPaifu.dan.every(dan => dan.match(/魂天Lv\d+/))) {
-        ptEV = [[0.6, 0.2, -0.2, -0.6], [0.6, 0.2, -0.2, -0.6], [0.6, 0.2, -0.2, -0.6], [0.6, 0.2, -0.2, -0.6], 1]
-      } else if (wind === "south" && soulPaifu.dan.every(dan => dan.match(/魂天Lv\d+/))) {
-        ptEV = [[1.0, 0.4, -0.4, -1.0], [1.0, 0.4, -0.4, -1.0], [1.0, 0.4, -0.4, -1.0], [1.0, 0.4, -0.4, -1.0], 1]
-      } else {
-        // 頂上決戦出ない場合は適正な卓で判定をする
-        ptEV = soulPaifu.dan.map(
-          (dan) => {
-            if (wind === "east" && dan.match(/魂天Lv\d+/)) {
-              return [0.6, 0.3, -0.3, -0.6]
-            }if (wind === "south" && dan.match(/魂天Lv\d+/)) {
-              return [1.0, 0.4, -0.4, -1.0]
-            }
-              let fitTable
-              console.log(dan)
-              switch (true) {
-                case dan.startsWith("初心"):
-                  fitTable = "bronze"
-                  break
-                case dan.startsWith("雀士"):
-                  fitTable = "silver"
-                  break
-                case dan.startsWith("雀傑"):
-                  fitTable = "gold"
-                  break
-                case dan.startsWith("雀豪"):
-                  fitTable = "tama"
-                  break
-                case dan.startsWith("雀聖"):
-                  fitTable = "king"
-                  break
-              }
-              console.log(fitTable)
-              console.log(POINTS[wind][fitTable][dan])
-              return POINTS[wind][fitTable][dan]
-          }
-        )
-        console.log(ptEV)
-        ptEV.push(1)
-      }
-      return ptEV
-    }
     const handleRuleChange = (event) => {
       Rule.value = event.target.value
       chrome.storage.local.set({ rule: event.target.value })
       // Vueの再読み込み
       location.reload()
     }
-    /**
-     * オブジェクトをディープコピーする。
-     *
-     * @param {Object} src コピー対象のオブジェクトを指定する。
-     * @returns {Object} 複製したオブジェクトを返す。
-     */
-    function deepCopy(src) {
-      // JSON文字列化してからオブジェクトに戻すことでディープコピーを実現する。
-      return JSON.parse(JSON.stringify(src));
-    }
-
     return {
       Kyoku_info,
       select,

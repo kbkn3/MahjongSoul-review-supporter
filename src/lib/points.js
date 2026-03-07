@@ -86,4 +86,43 @@ const POINTS = {
     }
 };
 
-module.exports = { POINTS };
+const DAN_TO_TABLE = {
+    "初心": "bronze",
+    "雀士": "silver",
+    "雀傑": "gold",
+    "雀豪": "tama",
+    "雀聖": "king",
+};
+
+const KONTEN = /魂天Lv\d+/;
+const KONTEN_PTEV = {
+    east: { all: [0.6, 0.2, -0.2, -0.6], individual: [0.6, 0.3, -0.3, -0.6] },
+    south: { all: [1.0, 0.4, -0.4, -1.0], individual: [1.0, 0.4, -0.4, -1.0] },
+};
+
+function resolveTable(dan) {
+    for (const [prefix, table] of Object.entries(DAN_TO_TABLE)) {
+        if (dan.startsWith(prefix)) return table;
+    }
+    return null;
+}
+
+/** 段位ポイント期待値を算出する。tableが未指定の場合は段位名から適正卓を推定する */
+function getPtEV(wind, dans, table) {
+    if (dans.every(dan => KONTEN.test(dan))) {
+        const points = KONTEN_PTEV[wind].all;
+        return [points, points, points, points, 1];
+    }
+
+    const ptEV = dans.map(dan => {
+        if (KONTEN.test(dan)) {
+            return KONTEN_PTEV[wind].individual;
+        }
+        const resolvedTable = table || resolveTable(dan);
+        return POINTS[wind][resolvedTable][dan];
+    });
+    ptEV.push(1);
+    return ptEV;
+}
+
+module.exports = { POINTS, DAN_TO_TABLE, getPtEV };
