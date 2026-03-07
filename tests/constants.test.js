@@ -25,7 +25,7 @@ describe("constants", () => {
         expect(RUNES.ryuukyoku[JPNAME]).toBe("流局");
         expect(RUNES.yakuman[JPNAME]).toBe("役満");
         expect(RUNES.mangan[ENNAME]).toBe("Mangan ");
-        expect(RUNES.tournament[RONAME]).toBe("Tounament");
+        expect(RUNES.tournament[RONAME]).toBe("Tournament");
         expect(RUNES.nored[JPNAME]).toBe("");
         expect(RUNES.tonpuu[JPNAME]).toBe("東喰");
         expect(RUNES.hanchan[JPNAME]).toBe("南喰");

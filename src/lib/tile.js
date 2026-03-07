@@ -25,6 +25,7 @@ function tlround(tsumolossoff, x) {
     return tsumolossoff ? 100 * Math.ceil(x / 100) : 0;
 }
 
+/** @mutates a - pushes f until a.length reaches l */
 function padRight(a, l, f) {
     while (a.length < l) a.push(f);
     return a;

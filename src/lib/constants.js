@@ -25,7 +25,7 @@ const RUNES = {
     "tonpuu": ["東喰", " East", " East"],
     "hanchan": ["南喰", " South", " South"],
     "friendly": ["友人戦", "Friendly", "Friendly"],
-    "tournament": ["大会戦", "Tounament", "Tournament"],
+    "tournament": ["大会戦", "Tournament", "Tournament"],
     "sanma": ["三", "3-Player ", "3-Player "],
     "red": ["赤", " Red", " Red Fives"],
     "nored": ["", " Aka Nashi", " No Red Fives"]

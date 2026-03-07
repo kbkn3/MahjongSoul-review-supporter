@@ -41,7 +41,7 @@
 <script>
 import { onMounted, reactive, ref, computed } from "vue";
 import Kyoku from "@/popup/Kyoku.vue";
-import { extractTable, toSoulTable, toNagaLog, toNagaHand, fixScoreRonTileWasReachTile } from "@/lib/naga";
+import { extractTable, toSoulTable, toNagaLog, fixScoreRonTileWasReachTile } from "@/lib/naga";
 
 export default {
   components: { Kyoku },

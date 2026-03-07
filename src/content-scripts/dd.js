@@ -1,5 +1,4 @@
-    const { tm2t, deaka, makeaka, padRight: pad_right, relativeseating } = require("../lib/tile");
-    const { tlround: tlroundPure } = require("../lib/tile");
+    const { tm2t, deaka, makeaka, padRight: pad_right, relativeseating, tlround: tlroundPure } = require("../lib/tile");
     const { JPNAME, RONAME, ENNAME, RUNES, DAISANGEN, DAISUUSHI, TSUMOGIRI } = require("../lib/constants");
 
     const NAMEPREF = 0;     //2 for english, 1 for sane amount of weeb, 0 for japanese
