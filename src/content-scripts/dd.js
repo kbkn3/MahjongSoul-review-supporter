@@ -1,53 +1,11 @@
-  //variables you might actually want to change
-    const KEY = 83;    //key we listen for; "s" is 83 - https://keycode.info/
+    const { tm2t, deaka, makeaka, padRight: pad_right, relativeseating } = require("../lib/tile");
+    const { tlround: tlroundPure } = require("../lib/tile");
+    const { JPNAME, RONAME, ENNAME, RUNES, DAISANGEN, DAISUUSHI, TSUMOGIRI } = require("../lib/constants");
+
     const NAMEPREF = 0;     //2 for english, 1 for sane amount of weeb, 0 for japanese
     const VERBOSELOG = false; //dump mjs records to output - will make the file too large for tenhou.net/5 viewer
     const PRETTY = true;  //make the written log somewhat human readable
     const SHOWFU = false; //always show fu/han for scoring - even for limit hands
-
-    //words that can end up in log, some are mandatory kanji in places
-    const JPNAME = 0;
-    const RONAME = 1;
-    const ENNAME = 2;
-    const RUNES = {
-        /*hand limits*/
-        "mangan": ["満貫", "Mangan ", "Mangan "],
-        "haneman": ["跳満", "Haneman ", "Haneman "],
-        "baiman": ["倍満", "Baiman ", "Baiman "],
-        "sanbaiman": ["三倍満", "Sanbaiman ", "Sanbaiman "],
-        "yakuman": ["役満", "Yakuman ", "Yakuman "],
-        "kazoeyakuman": ["役満", "Kazoe Yakuman ", "Counted Yakuman "],
-        "kiriagemangan": ["切り上げ満貫", "Kiriage Mangan ", "Rounded Mangan "],
-        /*round enders*/
-        "agari": ["和了", "Agari", "Agari"],
-        "ryuukyoku": ["流局", "Ryuukyoku", "Exhaustive Draw"],
-        "nagashimangan": ["流し満貫", "Nagashi Mangan", "Mangan at Draw"],
-        "suukaikan": ["四開槓", "Suukaikan", "Four Kan Abortion"],
-        "sanchahou": ["三家和", "Sanchahou", "Three Ron Abortion"],
-        "kyuushukyuuhai": ["九種九牌", "Kyuushu Kyuuhai", "Nine Terminal Abortion"],
-        "suufonrenda": ["四風連打", "Suufon Renda", "Four Wind Abortion"],
-        "suuchariichi": ["四家立直", "Suucha Riichi", "Four Riichi Abortion"],
-        /*scoring*/
-        "fu": ["符",           /*"Fu",*/"符", "Fu"],
-        "han": ["飜",           /*"Han",*/"飜", "Han"],
-        "points": ["点",           /*"Points",*/"点", "Points"],
-        "all": ["∀", "∀", "∀"],
-        "pao": ["包", "pao", "Responsibility"],
-        /*rooms*/
-        "tonpuu": ["東喰", " East", " East"],
-        "hanchan": ["南喰", " South", " South"],
-        "friendly": ["友人戦", "Friendly", "Friendly"],
-        "tournament": ["大会戦", "Tounament", "Tournament"],
-        "sanma": ["三", "3-Player ", "3-Player "],
-        "red": ["赤", " Red", " Red Fives"],
-        "nored": ["", " Aka Nashi", " No Red Fives"]
-    };
-
-    //senkinin barai yaku - please don't change, yostar..
-    const DAISANGEN = 37; //daisangen cfg.fan.fan.map_ index
-    const DAISUUSHI = 50;
-
-    const TSUMOGIRI = 60; //tenhou tsumogiri symbol
 
     //global variables - don't touch
     let ALLOW_KIRIAGE = false; //potentially allow this to be true
@@ -81,43 +39,7 @@
         return;
     }
 
-    //pad a to length l with f, needed to pad log for >sanma
-    const pad_right = (a, l, f) =>
-        !Array.from({ length: l - a.length })
-            .map(_ => a.push(f)) || a;
-
-    //take '2m' and return 2 + 10 etc.
-    function tm2t(str) {   //tenhou's tile encoding:
-        //   11-19    - 1-9 man
-        //   21-29    - 1-9 pin
-        //   31-39    - 1-9 sou
-        //   41-47    - ESWN WGR
-        //   51,52,53 - aka 5 man, pin, sou
-        let num = parseInt(str[0]);
-        const tcon = { m: 1, p: 2, s: 3, z: 4 };
-
-        return num ? 10 * tcon[str[1]] + num : 50 + tcon[str[1]];
-    }
-
-    //return normal tile from aka, tenhou rep
-    function deaka(til) {   //alternativly - use strings
-        if (5 == ~~(til / 10))
-            return 10 * (til % 10) + (~~(til / 10));
-
-        return til;
-    }
-
-    //return aka version of tile
-    function makeaka(til) {
-        if (5 == (til % 10)) //is a five (or haku)
-            return 10 * (til % 10) + (~~(til / 10));
-        return til; //can't be/already is aka
-    }
-
-    //round up to nearest hundred iff TSUMOLOSSOFF == true otherwise return 0
-    function tlround(x) {
-        return TSUMOLOSSOFF ? 100 * Math.ceil(x / 100) : 0;
-    }
+    const tlround = (x) => tlroundPure(TSUMOLOSSOFF, x);
 
     //parse mjs hule into tenhou agari list
     function parsehule(h, kyoku) {   //tenhou log viewer requires 点, 飜) or 役満) to end strings, rest of scoring string is entirely optional
@@ -307,11 +229,6 @@
         }
 
         return;
-    }
-
-    //seat1 is seat0's x
-    function relativeseating(seat0, seat1) {   //0: kamicha, 1: toimen, 2: if shimocha
-        return (seat0 - seat1 + 4 - 1) % 4;
     }
 
     //convert mjs records to tenhou log
@@ -675,3 +592,5 @@
             }
         );
     }
+
+    module.exports = { parse };

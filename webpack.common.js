@@ -12,6 +12,7 @@ module.exports = {
     options: "./src/options/main.js",
     background: "./src/background/main.js",
     popup: "./src/popup/main.js",
+    "main-world": "./src/content-scripts/main-world.js",
   },
   output: {
     path: path.resolve(__dirname, "dist/"),
@@ -20,7 +21,7 @@ module.exports = {
     splitChunks: {
       name: "chunk",
       chunks(chunk) {
-        return chunk.name !== "background";
+        return chunk.name !== "background" && chunk.name !== "main-world";
       },
     },
   },
@@ -72,12 +73,6 @@ module.exports = {
       },
       {
         from: "src/content-scripts/content_script.js"
-      },
-      {
-        from: "src/content-scripts/event.js"
-      },
-      {
-        from: "src/content-scripts/dd.js"
       },
       {
         from: "src/content-scripts/content_script_naga.js"

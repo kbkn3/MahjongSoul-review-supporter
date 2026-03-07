@@ -41,6 +41,7 @@
 <script>
 import { onMounted, reactive, ref, computed } from "vue";
 import Kyoku from "@/popup/Kyoku.vue";
+import { extractTable, toSoulTable, toNagaLog, toNagaHand, fixScoreRonTileWasReachTile } from "@/lib/naga";
 
 export default {
   components: { Kyoku },
@@ -372,82 +373,6 @@ export default {
       return JSON.parse(JSON.stringify(src));
     }
 
-    /**
-     * 卓名を雀魂っぽく変換する。
-     *
-     * @param {String} tenhouTable 天鳳っぽい卓名を指定する。
-     * @returns {String} 雀魂っぽい卓名を返す。
-     */
-    function toSoulTable(tenhouTable) {
-      // 表記の好みの問題なので、必ずしも必要となる処理ではない。
-      return tenhouTable.replace("南喰赤", "四人南").replace("東喰赤", "四人東");
-    }
-
-    /**
-     * logをNAGAが解析可能な形式に変換する。
-     *
-     * @param {Array<Array>} soulLog 雀魂形式のlogを指定する。
-     * @returns {Array<Array>} NAGAで解析可能な形式のlogを返す。
-     */
-    function toNagaLog(soulLog) {
-      // 流局のデータは変換の必要がない。
-      if (soulLog[16].length < 3) {
-        return soulLog;
-      }
-      const nagaLog = deepCopy(soulLog);
-
-      // 当該局の場風を算出する。
-      //
-      // 局を表す数字と意味:
-      //     0 => 東1局, 1 => 東2局, ...
-      const prevalent = ["東", "南", "西", "北"][Math.floor(nagaLog[0][0] / 4)];
-
-      // 役名をNAGAが解析可能な表記に変換する。
-      // ダブロン・トリロンに対応するため複数回繰り返す。
-      for (let i = 1; i < nagaLog[16].length; i += 2) {
-        // 当該局における和了者の自風を設定する。
-        //
-        // 算出方法:
-        //     (和了者のプレイヤー番号 - 親の位置 + 4) % 4
-        const seat = ["東", "南", "西", "北"][
-          (nagaLog[16][i].indexOf(Math.max(...nagaLog[16][i])) -
-            (nagaLog[0][0] % 4) +
-            4) %
-          4
-        ];
-
-        // 役名をNAGAが解析可能な表記に変換する。
-        nagaLog[16][i + 1] = nagaLog[16][i + 1].slice(0, 4).concat(
-          nagaLog[16][i + 1].slice(4).map((v) => toNagaHand(v, prevalent, seat))
-        );
-      }
-
-      // 変換後のlogを返す。
-      return nagaLog;
-    }
-
-    /**
-     * 役名をNAGAが解析可能な表記に変換する。
-     *
-     * @param {String} hand 和了役を指定する。
-     * @param {String} prevalent 場風を指定する。
-     * @param {String} seat 和了者の自風を指定する。
-     * @returns {String} NAGAで解析可能な表記の役名を返す。
-     */
-    function toNagaHand(hand, prevalent, seat) {
-      // 対応が必要な役が判明次第、随時追加する。
-      switch (hand) {
-        case "役牌:場風牌(1飜)":
-          return `場風 ${prevalent}(1飜)`;
-        case "役牌:自風牌(1飜)":
-          return `自風 ${seat}(1飜)`;
-        case "ダブル立直(2飜)":
-          return "両立直(2飜)";
-        default:
-          return hand;
-      }
-    }
-
     // 段位ごとのポイント配分
     const POINTS = {
       east: {
@@ -536,62 +461,6 @@ export default {
         tenho: [90, 45, 0, -135],
       }
     }
-    // 卓名変換
-    const extractTable = (tableName) => {
-      if (tableName.includes('銅')) {
-        return 'bronze';
-      }if (tableName.includes('銀')) {
-        return 'silver';
-      }if (tableName.includes('金')) {
-        return 'gold';
-      }if (tableName.includes('玉')) {
-        return 'tama';
-      }if (tableName.includes('王座')) {
-        return 'king';
-      }
-        return 'others'
-    }
-    // リーチ宣言牌がロンになったときの差分を修正
-    function fixScoreRonTileWasReachTile(message) {
-      for (let i = 0; i < message.log.length; i++) {
-        const kyoku = {};
-        kyoku.id = i;
-        //場風
-        kyoku.Ba = ~~(message.log[i][0][0] / 4);
-        //局数
-        kyoku.Kyoku_num = (message.log[i][0][0] % 4) + 1;
-        //本場
-        kyoku.Honba = message.log[i][0][1];
-        //局の結果
-        kyoku.result = [];
-        if (message.log[i][16][0] === "和了") {//和了がいる場合
-          let t = 0;
-          for (t = 1; t < ~~(message.log[i][16].length / 2) + 1; t++) {//ダブロン・トリロンに対応
-            if (message.log[i][16][2 * t][0] !== message.log[i][16][2 * t][1]) {//ロンの場合
-              if (checkRonTileIsReachTile(message, i, t)) {
-                message.log[i][16][2 * t - 1][message.log[i][16][2 * t][0]] -= 1000
-              }
-            }
-          }
-        }
-      }
-    }
-    // リーチ宣言牌がロンの場合を判定
-    function checkRonTileIsReachTile(message, i, t) {
-
-      // 放銃者の捨牌の配列
-      const targetArray = message.log[i][message.log[i][16][2 * t][1] * 3 + 6]
-      // 放銃者と和了者の間の移動点数が等しいかの判定（ダブロン/トリロン判定）
-      const targetPointEven = message.log[i][16][2 * t - 1][message.log[i][16][2 * t][1]] === message.log[i][16][2 * t - 1][message.log[i][16][2 * t][0]]
-      // 条件を満たすか確認
-      if (targetArray && !targetPointEven) {
-        const lastElement = targetArray[targetArray.length - 1];
-        return typeof lastElement === 'string' && lastElement.startsWith('r');
-      }
-
-      return false;
-    }
-
     return {
       Kyoku_info,
       select,

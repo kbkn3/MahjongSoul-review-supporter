@@ -22,7 +22,7 @@
       "https://mahjongsoul.game.yo-star.com/*",
       "https://game.maj-soul.net/*",
       "https://game.maj-soul.com/*"],
-      "js": ["dd.js", "event.js"],
+      "js": ["main-world.js"],
       "world": "MAIN"
     },
     {
@@ -51,8 +51,7 @@
   "web_accessible_resources": [
     {
       "resources": [
-          "dd.js",
-          "event.js"
+          "main-world.js"
       ],
       "matches": [
           "https://game.mahjongsoul.com/*",
