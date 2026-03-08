@@ -6,8 +6,8 @@
         Which is your name?
       </div>
 
-      <div v-for="n in 4" :key="n">
-        <button type="button" class="my-button my-1" @click="submitMjai(n)">{{ seki[(n)] }}</button>
+      <div v-for="n in (seki.length - 1)" :key="n">
+        <button type="button" class="my-button my-1" @click="submitMjai(n)">{{ seki[n] }}</button>
       </div>
     </div>
   </div>
@@ -21,6 +21,7 @@ import { useDisplayLang } from "@/composables/useDisplayLang";
 export default {
 
   setup() {
+    // 先頭のダミー要素でインデックスを1-basedにする（mjai側のselect optionインデックスと合わせるため）
     const seki = reactive([""]);
     let MjaiURLstring = "";
 

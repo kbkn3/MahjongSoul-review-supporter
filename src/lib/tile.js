@@ -16,8 +16,9 @@ function deaka(til) {
 }
 
 function makeaka(til) {
-    if (5 === (til % 10))
-        return 10 * (til % 10) + (~~(til / 10));
+    const suit = ~~(til / 10);
+    if (5 === (til % 10) && suit >= 1 && suit <= 3)
+        return 50 + suit;
     return til;
 }
 

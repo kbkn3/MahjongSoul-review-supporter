@@ -119,7 +119,11 @@ function getPtEV(wind, dans, table) {
             return KONTEN_PTEV[wind].individual;
         }
         const resolvedTable = table || resolveTable(dan);
-        return POINTS[wind][resolvedTable][dan];
+        const room = POINTS[wind]?.[resolvedTable];
+        if (!room || !(dan in room)) {
+            return POINTS.others.tenho;
+        }
+        return room[dan];
     });
     ptEV.push(1);
     return ptEV;

@@ -441,6 +441,7 @@
 
     //this is the json struct that we write to file
     function parse(record) {
+        TSUMOLOSSOFF = false;
         let res = {};
         let ruledisp = "";
         let lobby = ""; //usually 0, is the custom lobby number

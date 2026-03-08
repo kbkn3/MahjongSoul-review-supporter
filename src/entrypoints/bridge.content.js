@@ -23,6 +23,7 @@ export default defineContentScript({
         });
 
         window.addEventListener("message", function (event) {
+            if (event.source !== window || event.origin !== location.origin) return;
             if (event.data && event.data.direction === "from-page") {
                 console.log(event.data.message);
                 chrome.runtime.sendMessage(

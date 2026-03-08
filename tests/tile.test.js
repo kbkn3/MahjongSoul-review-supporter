@@ -64,8 +64,8 @@ describe("makeaka", () => {
         expect(makeaka(41)).toBe(41);
     });
 
-    test("haku (45) is also x5 but converts", () => {
-        expect(makeaka(45)).toBe(54);
+    test("haku (45) is not converted because it is an honor tile", () => {
+        expect(makeaka(45)).toBe(45);
     });
 });
 

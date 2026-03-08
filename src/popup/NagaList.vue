@@ -234,13 +234,6 @@ export default {
       const wind = soulPaifu.rule.disp.includes('南') ? "south" : "east";
       // 卓名
       const table = extractTable(soulPaifu.rule.disp)
-      // ルール
-      chrome.storage.local.get("rule", (result) => {
-        // join rule
-        if (typeof result.rule !== "undefined") {
-          Rule.value = result.rule;
-        }
-      });
       // 段位戦以外の牌譜の場合
       if (table === 'others') {
         // 段位戦配分を設定した場合
