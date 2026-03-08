@@ -35,7 +35,7 @@ const DAISANGEN = 37;
 const DAISUUSHI = 50;
 const TSUMOGIRI = 60;
 
-module.exports = {
+export {
     JPNAME,
     RONAME,
     ENNAME,

@@ -1,4 +1,4 @@
-const { tm2t, deaka, makeaka, tlround, padRight, relativeseating } = require("../src/lib/tile");
+import { tm2t, deaka, makeaka, tlround, padRight, relativeseating } from "../src/lib/tile";
 
 describe("tm2t", () => {
     test("man tiles", () => {

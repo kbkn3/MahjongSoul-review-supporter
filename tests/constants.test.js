@@ -1,4 +1,4 @@
-const { RUNES, JPNAME, RONAME, ENNAME, TSUMOGIRI, DAISANGEN, DAISUUSHI } = require("../src/lib/constants");
+import { RUNES, JPNAME, RONAME, ENNAME, TSUMOGIRI, DAISANGEN, DAISUUSHI } from "../src/lib/constants";
 
 describe("constants", () => {
     test("RUNES entries all have 3 language variants", () => {

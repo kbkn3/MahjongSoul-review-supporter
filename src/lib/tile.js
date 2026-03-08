@@ -35,7 +35,7 @@ function relativeseating(seat0, seat1) {
     return (seat0 - seat1 + 4 - 1) % 4;
 }
 
-module.exports = {
+export {
     tm2t,
     deaka,
     makeaka,

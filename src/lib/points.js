@@ -125,4 +125,4 @@ function getPtEV(wind, dans, table) {
     return ptEV;
 }
 
-module.exports = { POINTS, DAN_TO_TABLE, getPtEV };
+export { POINTS, DAN_TO_TABLE, getPtEV };

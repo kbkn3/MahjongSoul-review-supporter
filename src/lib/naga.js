@@ -89,7 +89,7 @@ function fixScoreRonTileWasReachTile(message) {
     }
 }
 
-module.exports = {
+export {
     extractTable,
     toSoulTable,
     toNagaHand,

@@ -1,4 +1,4 @@
-const { extractTable, toSoulTable, toNagaHand, toNagaLog, checkRonTileIsReachTile, fixScoreRonTileWasReachTile } = require("../src/lib/naga");
+import { extractTable, toSoulTable, toNagaHand, toNagaLog, checkRonTileIsReachTile, fixScoreRonTileWasReachTile } from "../src/lib/naga";
 
 describe("extractTable", () => {
     test("bronze room", () => {

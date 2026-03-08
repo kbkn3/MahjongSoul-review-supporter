@@ -1,4 +1,4 @@
-const { POINTS, DAN_TO_TABLE, getPtEV } = require("../src/lib/points");
+import { POINTS, DAN_TO_TABLE, getPtEV } from "../src/lib/points";
 
 describe("POINTS", () => {
     test("east/south each have 5 rooms", () => {

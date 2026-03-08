@@ -1,6 +1,5 @@
 module.exports = {
-  purge: ['./src/**/*.vue'],
-  darkMode: false, // or 'media' or 'class'
+  content: ['./src/**/*.vue'],
   theme: {
     extend: {
       colors:{
@@ -13,11 +12,6 @@ module.exports = {
         'mjsoul-grad-light-blue':'#223155',
         'mjsoul-card-blue':'#051434',
       },
-    },
-  },
-  variants: {
-    extend: {
-      borderWidth: ['hover']
     },
   },
   plugins: [],

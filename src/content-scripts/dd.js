@@ -1,5 +1,5 @@
-    const { tm2t, deaka, makeaka, padRight: pad_right, relativeseating, tlround: tlroundPure } = require("../lib/tile");
-    const { JPNAME, RONAME, ENNAME, RUNES, DAISANGEN, DAISUUSHI, TSUMOGIRI } = require("../lib/constants");
+    import { tm2t, deaka, makeaka, padRight as pad_right, relativeseating, tlround as tlroundPure } from "../lib/tile";
+    import { JPNAME, RONAME, ENNAME, RUNES, DAISANGEN, DAISUUSHI, TSUMOGIRI } from "../lib/constants";
 
     const NAMEPREF = 0;     //2 for english, 1 for sane amount of weeb, 0 for japanese
     const VERBOSELOG = false; //dump mjs records to output - will make the file too large for tenhou.net/5 viewer
@@ -541,4 +541,4 @@
         return res;
     }
 
-    module.exports = { parse };
+    export { parse };
