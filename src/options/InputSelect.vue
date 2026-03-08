@@ -4,7 +4,7 @@
       {{ label }}
       <select
         @change="inputHandler"
-        class="block w-52 py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+        class="block w-52 py-2 px-3 border border-gray-300 bg-white rounded-md shadow-xs focus:outline-hidden focus:ring-primary-500 focus:border-primary-500"
         :name="label"
       >
         <option
