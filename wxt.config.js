@@ -14,6 +14,9 @@ export default defineConfig({
             128: "imgs/extension_icon128.png",
         },
         permissions: ["storage"],
+        content_security_policy: {
+            extension_pages: "script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com",
+        },
         host_permissions: [
             "https://game.mahjongsoul.com/*",
             "https://mahjongsoul.game.yo-star.com/*",

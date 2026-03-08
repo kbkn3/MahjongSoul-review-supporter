@@ -21,7 +21,7 @@
         class="m-1"
       ></InputSelect>
       <div class="w-24 m-2">
-        <button type="submit" class="my-button">Set</button>
+        <button type="submit" class="my-button py-2 px-4">Set</button>
       </div>
     </form>
     <div class="pt-2 text-base whitespace-pre-wrap">{{ messages }}</div>
