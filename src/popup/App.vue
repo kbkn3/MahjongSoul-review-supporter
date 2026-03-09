@@ -1,5 +1,5 @@
 <template>
-  <div class="relative wide bg-mjsoul-bg-blue">
+  <div class="relative w-full bg-mjsoul-bg-blue">
     <div class="flex flex-row">
       <div class="pl-4 pt-1 text-3xl text-mjsoul-text-gold hudetext">Review Supporter</div>
       <div class="text-base pl-4 pt-4 text-mjsoul-text-gold hudetext">v 1.3.0</div>

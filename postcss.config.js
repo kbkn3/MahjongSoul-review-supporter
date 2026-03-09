@@ -5,6 +5,7 @@ module.exports = {
       prefix: '#amzSchRoot',
       transform(prefix, selector, prefixedSelector) {
         if (selector === ':root' || selector === ':host') return prefix;
+        if (selector === 'body') return selector;
         return prefixedSelector;
       },
     },
