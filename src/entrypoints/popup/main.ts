@@ -3,4 +3,4 @@ import App from "@/popup/App.vue";
 import "./popup.css";
 import "@/index.css";
 
-createApp(App).mount("#amzSchRoot");
+createApp(App).mount("#mjrsRoot");
