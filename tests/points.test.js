@@ -84,4 +84,14 @@ describe("getPtEV", () => {
         const result = getPtEV("south", dans, "king");
         expect(result[0]).toEqual([1.0, 0.4, -0.4, -1.0]);
     });
+
+    test("unknown dan falls back to tenho", () => {
+        const dans = ["不明★1", "不明★2", "不明★3", "不明★4"];
+        const result = getPtEV("east", dans);
+        expect(result[0]).toEqual(POINTS.others.tenho);
+        expect(result[1]).toEqual(POINTS.others.tenho);
+        expect(result[2]).toEqual(POINTS.others.tenho);
+        expect(result[3]).toEqual(POINTS.others.tenho);
+        expect(result[4]).toBe(1);
+    });
 });

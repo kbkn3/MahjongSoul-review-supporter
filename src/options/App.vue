@@ -4,7 +4,7 @@
     <div class="flex flex-wrap">
       <div class="w-full">
         <div
-          class="relative flex flex-col min-w-0 wrap-break-word bg-white w-full m-2 shadow-lg rounded-sm"
+          class="relative flex flex-col min-w-0 break-words bg-white w-full m-2 shadow-lg rounded-sm"
         >
           <LangList></LangList>
         </div>

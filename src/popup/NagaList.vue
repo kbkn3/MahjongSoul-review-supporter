@@ -188,6 +188,13 @@ export default {
 
     const DisplayLang = useDisplayLang();
 
+    // onMessageリスナーより先にRule値を確定させるため、setup()直下で取得を開始する
+    chrome.storage.local.get("rule", (result) => {
+      if (typeof result.rule !== "undefined") {
+        Rule.value = result.rule;
+      }
+    });
+
     //content-scriptに通信して牌譜を送信させる
     onMounted(() => {
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -197,12 +204,6 @@ export default {
             return;
           }
         });
-      });
-      chrome.storage.local.get("rule", (result) => {
-        // join rule
-        if (typeof result.rule !== "undefined") {
-          Rule.value = result.rule;
-        }
       });
     })
 

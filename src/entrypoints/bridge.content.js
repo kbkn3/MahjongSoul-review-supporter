@@ -16,7 +16,7 @@ export default defineContentScript({
             }
             if (request.message === "tabMjai") {
                 window.postMessage(
-                    { direction: "from-page-script_uuid", message: "Message from the page_uuid" },
+                    { direction: "from-page-script", message: "Message from the page_uuid" },
                     "*"
                 );
             }
@@ -25,9 +25,17 @@ export default defineContentScript({
         window.addEventListener("message", function (event) {
             if (event.source !== window || event.origin !== location.origin) return;
             if (event.data && event.data.direction === "from-page") {
-                console.log(event.data.message);
+                const msg = event.data.message;
+                if (
+                    !msg ||
+                    typeof msg !== "object" ||
+                    !Array.isArray(msg.log) ||
+                    !Array.isArray(msg.name) ||
+                    typeof msg.ref !== "string"
+                ) return;
+                console.log(msg);
                 chrome.runtime.sendMessage(
-                    { message: event.data.message },
+                    { message: msg },
                     function (response) {
                         console.log("5." + response);
                     }

@@ -11,8 +11,7 @@ export default defineContentScript({
                     const select = document.getElementsByTagName("select")[1];
                     if (Number.isInteger(idx) && select?.options?.[idx])
                         select.options[idx].selected = true;
-                    chrome.storage.local.set({ toMjaiData: "" });
-                    chrome.storage.local.set({ toMjaiData_no: "" });
+                    chrome.storage.local.set({ toMjaiData: "", toMjaiData_no: "" });
                 }
             });
         });
