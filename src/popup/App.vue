@@ -36,37 +36,19 @@
     </div>
   </div>
 </template>
-<script>
-
-import { ref } from "vue";
+<script setup lang="ts">
 import NagaList from "@/popup/NagaList.vue";
 import MjaiList from "@/popup/MjaiList.vue";
 import RecipeList from "@/popup/RecipeList.vue";
 import iconTrash from "@/components/iconTrash.vue";
 import { useDisplayLang } from "@/composables/useDisplayLang";
-export default {
-  components: {
-    NagaList,
-    MjaiList,
-    RecipeList,
-    iconTrash
-  },
-  setup() {
-    const DisplayLang = useDisplayLang();
-    // 日、英、中の順
-    const supportDevelopText = ["開発を支援する", "Sponsor development", "支持开发"]
 
-    const openTab = ref(1);
-    const toggleTabs = (tabNumber) => {
-      openTab.value = tabNumber;
-    };
+const DisplayLang = useDisplayLang();
+const supportDevelopText = ["開発を支援する", "Sponsor development", "支持开发"];
 
-    const openOption = () => {
-      chrome.tabs.create({
-        url: 'options.html'
-      });
-    }
-    return { openTab, toggleTabs, openOption, supportDevelopText, DisplayLang };
-  },
+const openOption = () => {
+  chrome.tabs.create({
+    url: 'options.html'
+  });
 };
 </script>

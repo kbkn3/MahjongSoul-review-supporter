@@ -80,37 +80,28 @@
         </div>
     </div>
 </template>
-<script>
+<script setup lang="ts">
+withDefaults(defineProps<{
+    Language: number;
+    Ba: number;
+    Kyoku_num: number;
+    Honba: number;
+    result: any[][]; // eslint-disable-line @typescript-eslint/no-explicit-any
+    isSelect?: boolean;
+}>(), {
+    isSelect: false,
+});
 
-export default {
-    props: {
-        Language: { type: Number, },
-        Ba: { type: Number, },//場風
-        Kyoku_num: { type: Number },//局数
-        Honba: { type: Number, },//本場
-        result: { type: Array, },
-        isSelect: {
-            type: Boolean,
-            default: false,
-        }
-    },
-    // eslint-disable-next-line no-unused-vars
-    setup(_props, _context) {
-        const Ba_str = [
-            ["東", "南", "西", "北"],
-            ["East", "South", "West", "North"],
-            ["東", "南", "西", "北"],
-        ];
-        const Honba_str = ["本場", "Repeat Counter", "本場"];
-        const Win_str = [
-            ["ロン和", "ツモ和"],
-            ["Ron", "Tsumo"],
-            ["榮和", "自摸"],
-        ];
-        const Deal_str = ["放銃", "Deal-in", "放銃"];
-        return {
-            Ba_str, Honba_str, Win_str, Deal_str
-        }
-    },
-};
+const Ba_str = [
+    ["東", "南", "西", "北"],
+    ["East", "South", "West", "North"],
+    ["東", "南", "西", "北"],
+];
+const Honba_str = ["本場", "Repeat Counter", "本場"];
+const Win_str = [
+    ["ロン和", "ツモ和"],
+    ["Ron", "Tsumo"],
+    ["榮和", "自摸"],
+];
+const Deal_str = ["放銃", "Deal-in", "放銃"];
 </script>

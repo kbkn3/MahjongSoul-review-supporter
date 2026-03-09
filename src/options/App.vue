@@ -13,21 +13,8 @@
   </div>
 </template>
 
-<script>
-import { ref } from "vue";
+<script setup lang="ts">
 import LangList from "@/options/LangList.vue";
-export default {
-  components: {
-    LangList,
-  },
-  setup() {
-    const openTab = ref(1);
-    const toggleTabs = (tabNumber) => {
-      openTab.value = tabNumber;
-    };
-    return { openTab, toggleTabs };
-  },
-};
 </script>
 
 
