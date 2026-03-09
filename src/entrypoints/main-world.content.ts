@@ -30,7 +30,7 @@ export default defineContentScript({
                     game_uuid: GameMgr.Inst.record_uuid,
                     client_version_string: GameMgr.Inst.getClientVersion(),
                 },
-                function (i, record) {
+                function (i: any, record: any) {
                     const results = parse(record);
                     window.postMessage({ direction: "from-page", message: results }, "*");
                 }

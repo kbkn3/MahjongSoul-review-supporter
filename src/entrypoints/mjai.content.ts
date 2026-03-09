@@ -3,8 +3,8 @@ export default defineContentScript({
     main() {
         window.addEventListener("load", function () {
             chrome.storage.local.get(["toMjaiData", "toMjaiData_no"], function (data) {
-                const data1 = data.toMjaiData;
-                const data2 = data.toMjaiData_no;
+                const data1 = data.toMjaiData as string | undefined;
+                const data2 = data.toMjaiData_no as string | undefined;
                 if (data1 && data1.length > 0) {
                     document.getElementsByTagName("input")[1].value = data1;
                     const idx = Number(data2);

@@ -1,7 +1,7 @@
 const JPNAME = 0;
 const RONAME = 1;
 const ENNAME = 2;
-const RUNES = {
+const RUNES: Record<string, [string, string, string]> = {
     "mangan": ["満貫", "Mangan ", "Mangan "],
     "haneman": ["跳満", "Haneman ", "Haneman "],
     "baiman": ["倍満", "Baiman ", "Baiman "],

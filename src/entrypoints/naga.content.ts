@@ -3,7 +3,7 @@ export default defineContentScript({
     main() {
         window.addEventListener("load", function () {
             chrome.storage.local.get(["toNagaData"], function (data) {
-                const data1 = data.toNagaData;
+                const data1 = data.toNagaData as string | undefined;
                 if (data1 && data1.length > 0) {
                     document.getElementsByTagName("button")[2].click();
                     setTimeout(function () {

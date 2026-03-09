@@ -189,7 +189,7 @@ function buildMinimalLog() {
     return log;
 }
 
-function buildRonLog({ lastDiscard, winnerDelta, loserDelta }) {
+function buildRonLog({ lastDiscard, winnerDelta, loserDelta }: { lastDiscard: string | number; winnerDelta: number; loserDelta: number }) {
     // winner=seat0, loser=seat1, ron
     const log = new Array(17).fill(null);
     log[0] = [0, 0, 0];

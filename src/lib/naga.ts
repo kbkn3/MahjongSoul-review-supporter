@@ -1,7 +1,7 @@
 /**
  * 卓名から卓種別を抽出する
  */
-function extractTable(tableName) {
+function extractTable(tableName: string): string {
     if (tableName.includes('銅')) return 'bronze';
     if (tableName.includes('銀')) return 'silver';
     if (tableName.includes('金')) return 'gold';
@@ -13,14 +13,14 @@ function extractTable(tableName) {
 /**
  * 天鳳っぽい卓名を雀魂っぽく変換する
  */
-function toSoulTable(tenhouTable) {
+function toSoulTable(tenhouTable: string): string {
     return tenhouTable.replace("南喰赤", "四人南").replace("東喰赤", "四人東");
 }
 
 /**
  * 役名をNAGAが解析可能な表記に変換する
  */
-function toNagaHand(hand, prevalent, seat) {
+function toNagaHand(hand: string, prevalent: string, seat: string): string {
     switch (hand) {
         case "役牌:場風牌(1飜)":
             return `場風 ${prevalent}(1飜)`;
@@ -33,10 +33,13 @@ function toNagaHand(hand, prevalent, seat) {
     }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type TenhouLog = any[];
+
 /**
  * logをNAGAが解析可能な形式に変換する
  */
-function toNagaLog(soulLog) {
+function toNagaLog(soulLog: TenhouLog): TenhouLog {
     if (soulLog[16].length < 3) {
         return soulLog;
     }
@@ -52,17 +55,21 @@ function toNagaLog(soulLog) {
             4
         ];
         nagaLog[16][i + 1] = nagaLog[16][i + 1].slice(0, 4).concat(
-            nagaLog[16][i + 1].slice(4).map((v) => toNagaHand(v, prevalent, seat))
+            nagaLog[16][i + 1].slice(4).map((v: string) => toNagaHand(v, prevalent, seat))
         );
     }
 
     return nagaLog;
 }
 
+interface GameMessage {
+    log: TenhouLog[];
+}
+
 /**
  * リーチ宣言牌がロンの場合を判定
  */
-function checkRonTileIsReachTile(message, i, t) {
+function checkRonTileIsReachTile(message: GameMessage, i: number, t: number): boolean {
     const targetArray = message.log[i][message.log[i][16][2 * t][1] * 3 + 6];
     const targetPointEven = message.log[i][16][2 * t - 1][message.log[i][16][2 * t][1]] === message.log[i][16][2 * t - 1][message.log[i][16][2 * t][0]];
     if (targetArray && !targetPointEven) {
@@ -75,7 +82,7 @@ function checkRonTileIsReachTile(message, i, t) {
 /**
  * リーチ宣言牌がロンになったときの差分を修正
  */
-function fixScoreRonTileWasReachTile(message) {
+function fixScoreRonTileWasReachTile(message: GameMessage): void {
     for (let i = 0; i < message.log.length; i++) {
         if (message.log[i][16][0] === "和了") {
             for (let t = 1; t < ~~(message.log[i][16].length / 2) + 1; t++) {
@@ -97,3 +104,4 @@ export {
     checkRonTileIsReachTile,
     fixScoreRonTileWasReachTile,
 };
+export type { TenhouLog, GameMessage };

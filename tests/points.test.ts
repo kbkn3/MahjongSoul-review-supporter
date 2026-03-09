@@ -11,7 +11,7 @@ describe("POINTS", () => {
     });
 
     test("point arrays have 4 elements", () => {
-        for (const wind of ["east", "south"]) {
+        for (const wind of ["east", "south"] as const) {
             for (const room of Object.values(POINTS[wind])) {
                 for (const [dan, pts] of Object.entries(room)) {
                     expect(pts).toHaveLength(4);

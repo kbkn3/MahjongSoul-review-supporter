@@ -1,4 +1,12 @@
-const POINTS = {
+type PointTuple = [number, number, number, number];
+type Wind = 'east' | 'south';
+type RankedRoom = 'bronze' | 'silver' | 'gold' | 'tama' | 'king';
+
+const POINTS: {
+    east: Record<RankedRoom, Record<string, PointTuple>>;
+    south: Record<RankedRoom, Record<string, PointTuple>>;
+    others: Record<string, PointTuple>;
+} = {
     east: {
         bronze: {
             "初心★1": [25, 10, -5, -15],
@@ -86,7 +94,7 @@ const POINTS = {
     }
 };
 
-const DAN_TO_TABLE = {
+const DAN_TO_TABLE: Record<string, RankedRoom> = {
     "初心": "bronze",
     "雀士": "silver",
     "雀傑": "gold",
@@ -95,12 +103,12 @@ const DAN_TO_TABLE = {
 };
 
 const KONTEN = /魂天Lv\d+/;
-const KONTEN_PTEV = {
+const KONTEN_PTEV: Record<Wind, { all: PointTuple; individual: PointTuple }> = {
     east: { all: [0.6, 0.2, -0.2, -0.6], individual: [0.6, 0.3, -0.3, -0.6] },
     south: { all: [1.0, 0.4, -0.4, -1.0], individual: [1.0, 0.4, -0.4, -1.0] },
 };
 
-function resolveTable(dan) {
+function resolveTable(dan: string): RankedRoom | null {
     for (const [prefix, table] of Object.entries(DAN_TO_TABLE)) {
         if (dan.startsWith(prefix)) return table;
     }
@@ -108,18 +116,18 @@ function resolveTable(dan) {
 }
 
 /** 段位ポイント期待値を算出する。tableが未指定の場合は段位名から適正卓を推定する */
-function getPtEV(wind, dans, table) {
+function getPtEV(wind: Wind, dans: string[], table?: RankedRoom | null): (PointTuple | number)[] {
     if (dans.every(dan => KONTEN.test(dan))) {
         const points = KONTEN_PTEV[wind].all;
         return [points, points, points, points, 1];
     }
 
-    const ptEV = dans.map(dan => {
+    const ptEV: (PointTuple | number)[] = dans.map(dan => {
         if (KONTEN.test(dan)) {
             return KONTEN_PTEV[wind].individual;
         }
         const resolvedTable = table || resolveTable(dan);
-        const room = POINTS[wind]?.[resolvedTable];
+        const room = resolvedTable ? POINTS[wind]?.[resolvedTable] : undefined;
         if (!room || !(dan in room)) {
             return POINTS.others.tenho;
         }
@@ -130,3 +138,4 @@ function getPtEV(wind, dans, table) {
 }
 
 export { POINTS, DAN_TO_TABLE, getPtEV };
+export type { PointTuple, Wind, RankedRoom };

@@ -13,10 +13,12 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.1",
+    "@types/chrome": "^0.1.37",
     "@wxt-dev/module-vue": "^1.0.3",
     "postcss": "^8.5.8",
     "postcss-prefix-selector": "^1.7.2",
     "tailwindcss": "^4.2.1",
+    "typescript": "^5.9.3",
     "vitest": "^4.0.18",
     "wxt": "^0.20.18"
   },
