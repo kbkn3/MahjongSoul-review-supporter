@@ -41,10 +41,9 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref, computed } from "vue";
 import Kyoku from "@/popup/Kyoku.vue";
-import { extractTable, toSoulTable, toNagaLog, fixScoreRonTileWasReachTile } from "@/lib/naga";
-import { POINTS, getPtEV } from "@/lib/points";
+import { fixScoreRonTileWasReachTile } from "@/lib/naga";
+import { sanitizePlayerNames, soul2naga } from "@/lib/viewer";
 import { useDisplayLang } from "@/composables/useDisplayLang";
-import type { Wind, RankedRoom } from "@/lib/points";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 interface KyokuInfo {
@@ -121,10 +120,8 @@ chrome.runtime.onMessage.addListener((request: any, _sender: any, sendResponse: 
   console.log('4.listner');
   fixScoreRonTileWasReachTile(request.message)
   processData(request.message);
-  for (let s = 0; s < request.message.name.length; s++) {
-    request.message.name[s] = request.message.name[s].replace(/[!#<>"%&$*]/gi, (s: string) => String.fromCharCode(s.charCodeAt(0) + 0xFEE0));
-  }
-  toNagaData = soul2naga(request.message);
+  request.message.name = sanitizePlayerNames(request.message.name);
+  toNagaData = soul2naga(request.message, Rule.value);
   console.log(toNagaData)
   sendResponse(title);
 });
@@ -199,53 +196,7 @@ onMounted(() => {
 
 // Based on: 雀魂の牌譜をNAGAに解析させる－完全版－ (https://lions.blue/07813) by ちぃといつ
 // Licensed under Apache License 2.0
-function soul2naga(results: any): string[] {
-  const INDENT = " ".repeat(4);
-  const soulJson = JSON.stringify(results, null, INDENT)
-    .replace(new RegExp(`\n${INDENT}+`, 'g'), " ")
-    .replace(/], \[/g, "],\n        [")
-    .replace(/\n\s+]/g, " ]")
-    .replace(/\n\s+},\n/g, " },\n");
-  const urls = createViewerUrls(soulJson);
-  return urls;
-}
-
-const EDITOR_URL_PREFIX = "https://tenhou.net/6/#json=";
 const Rule = ref('dani')
-function createViewerUrls(soulJson: string): string[] {
-  const soulPaifu = JSON.parse(soulJson);
-
-  let ptEV: any;
-  const wind: Wind = soulPaifu.rule.disp.includes('南') ? "south" : "east";
-  const table = extractTable(soulPaifu.rule.disp)
-  if (table === 'others') {
-    if (Rule.value !== 'dani') {
-      const pointArray = POINTS.others[Rule.value]
-      ptEV = [pointArray, pointArray, pointArray, pointArray, 1]
-    } else {
-      ptEV = getPtEV(wind, soulPaifu.dan)
-    }
-  } else {
-    ptEV = getPtEV(wind, soulPaifu.dan, table as RankedRoom)
-  }
-  console.log("ptEV", ptEV)
-
-  const title = JSON.parse(JSON.stringify(soulPaifu.title));
-  title[0] = toSoulTable(title[0]);
-
-  const rule = JSON.parse(JSON.stringify(soulPaifu.rule));
-  rule.disp = toSoulTable(rule.disp);
-
-  return soulPaifu.log.map((v: any) => (
-      EDITOR_URL_PREFIX +
-      JSON.stringify({
-        title: [title, JSON.stringify(ptEV).slice(1, -1)],
-        name: soulPaifu.name,
-        rule: rule,
-        log: [toNagaLog(v)],
-      })
-    ));
-}
 
 const handleRuleChange = (event: Event) => {
   const value = (event.target as HTMLSelectElement).value;
