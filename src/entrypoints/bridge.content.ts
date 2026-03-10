@@ -1,0 +1,46 @@
+export default defineContentScript({
+    matches: [
+        "https://game.mahjongsoul.com/*",
+        "https://mahjongsoul.game.yo-star.com/*",
+        "https://game.maj-soul.net/*",
+        "https://game.maj-soul.com/*",
+    ],
+    main() {
+        chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+            sendResponse(request.message);
+            if (request.message === "tabNaga") {
+                window.postMessage(
+                    { direction: "from-page-script", message: "Message from the page" },
+                    "*"
+                );
+            }
+            if (request.message === "tabMjai") {
+                window.postMessage(
+                    { direction: "from-page-script", message: "Message from the page_uuid" },
+                    "*"
+                );
+            }
+        });
+
+        window.addEventListener("message", function (event) {
+            if (event.source !== window || event.origin !== location.origin) return;
+            if (event.data && event.data.direction === "from-page") {
+                const msg = event.data.message;
+                if (
+                    !msg ||
+                    typeof msg !== "object" ||
+                    !Array.isArray(msg.log) ||
+                    !Array.isArray(msg.name) ||
+                    typeof msg.ref !== "string"
+                ) return;
+                console.log(msg);
+                chrome.runtime.sendMessage(
+                    { message: msg },
+                    function (response) {
+                        console.log("5." + response);
+                    }
+                );
+            }
+        });
+    }
+});

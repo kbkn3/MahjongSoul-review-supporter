@@ -14,132 +14,101 @@
   </div>
 </template>
 
-<script>
-import { ref} from "vue";
-export default {
-  setup() {
-    //牌譜データから表示用のデータを抽出したもの
-    const TableText = ref("牌譜を読み込めていません");
-    /**
-     * content-scriptから牌譜データを受け取る
-     */
-    chrome.runtime.onMessage.addListener((request) => {
-      for (let s = 0; s < request.message.name.length; s++) {
-        request.message.name[s] = request.message.name[s].replace(
-          /[#<>"%]/gi,
-          ""
-        );
-      }
-      processData(request.message, request.message.ref);
-    });
+<script setup lang="ts">
+import { ref } from "vue";
+import { useDisplayLang } from "@/composables/useDisplayLang";
 
-    /**
-     * Akochan reviewerの形式になった牌譜から表示用のデータを取り出して、local storageに保存する
-     * @param {*} message 牌譜データのjson
-     */
-    const processData = (message, ref_id) => {
-      const TableData = [
-        [
-          "ゲームID",
-          "名前",
-          "素点",
-          "順位",
-          "和了",
-          "放銃",
-          "立直",
-          "副露",
-          "ツモ",
-          "ロン",
-          "局数",
-          "流局",
-        ],
-        ["ID", "name", 25000, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        ["ID", "name", 25000, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        ["ID", "name", 25000, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        ["ID", "name", 25000, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      ];
+const TableText = ref("牌譜を読み込めていません");
 
-      //固定データの記入
-      const score=[];
-      for (let j = 0; j < message.name.length; j++) {
-        TableData[j + 1][0] = ref_id; //ゲームID
-        TableData[j + 1][1] = message.name[j]; //名前
-        TableData[j + 1][2] = message.sc[2 * j]; //素点
-        TableData[j + 1][10] = message.log.length; //局数
-        score.push(message.sc[2 * j+1]); //順位点込みのポイント
-      }
-      //順位計算
-      const sorted = score.slice().sort((a, b) => b - a);
-      const ranks = score.slice().map((x) => sorted.indexOf(x) + 1);
-      for (let k = 0; k < 4; k++) {
-        TableData[k + 1][3] = ranks[k];
-      }
+/* eslint-disable @typescript-eslint/no-explicit-any */
+chrome.runtime.onMessage.addListener((request: any) => {
+  for (let s = 0; s < request.message.name.length; s++) {
+    request.message.name[s] = request.message.name[s].replace(
+      /[#<>"%]/gi,
+      ""
+    );
+  }
+  processData(request.message, request.message.ref);
+});
 
-      //局ごとの値確認
-      for (let i = 0; i < message.log.length; i++) {
-        if (message.log[i][16][0] === "和了") {
-          //和了がいる場合
-          for (let t = 1; t < ~~(message.log[i][16].length / 2) + 1; t++) {
-            //ダブロン・トリロンに対応
-            if (message.log[i][16][2 * t][0] === message.log[i][16][2 * t][1]) {
-              //ツモの場合
-              TableData[message.log[i][16][2 * t][0] + 1][4]++; //和了回数
-              TableData[message.log[i][16][2 * t][0] + 1][8]++; //ツモ回数
-            } else {
-              TableData[message.log[i][16][2 * t][0] + 1][4]++; //和了回数
-              TableData[message.log[i][16][2 * t][0] + 1][9]++; //ロン回数
-              TableData[message.log[i][16][2 * t][1] + 1][5]++; //放銃回数
-            }
-          }
+const processData = (message: any, ref_id: string) => {
+  const TableData: any[][] = [
+    [
+      "ゲームID",
+      "名前",
+      "素点",
+      "順位",
+      "和了",
+      "放銃",
+      "立直",
+      "副露",
+      "ツモ",
+      "ロン",
+      "局数",
+      "流局",
+    ],
+    ["ID", "name", 25000, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    ["ID", "name", 25000, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    ["ID", "name", 25000, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    ["ID", "name", 25000, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ];
+
+  const score: number[] = [];
+  for (let j = 0; j < message.name.length; j++) {
+    TableData[j + 1][0] = ref_id;
+    TableData[j + 1][1] = message.name[j];
+    TableData[j + 1][2] = message.sc[2 * j];
+    TableData[j + 1][10] = message.log.length;
+    score.push(message.sc[2 * j+1]);
+  }
+  const sorted = score.slice().sort((a, b) => b - a);
+  const ranks = score.slice().map((x) => sorted.indexOf(x) + 1);
+  for (let k = 0; k < 4; k++) {
+    TableData[k + 1][3] = ranks[k];
+  }
+
+  for (let i = 0; i < message.log.length; i++) {
+    if (message.log[i][16][0] === "和了") {
+      for (let t = 1; t < ~~(message.log[i][16].length / 2) + 1; t++) {
+        if (message.log[i][16][2 * t][0] === message.log[i][16][2 * t][1]) {
+          TableData[message.log[i][16][2 * t][0] + 1][4]++;
+          TableData[message.log[i][16][2 * t][0] + 1][8]++;
         } else {
-          for (let s = 0; s < 4; s++) {
-            TableData[s + 1][11]++; //流局回数
-          }
-        }
-        for (let s = 0; s < 4; s++) {
-          if (
-            message.log[i][3 * s + 5].filter(RegExp.prototype.test, /[.*(c|p).*]/).length
-          ) {
-            TableData[s + 1][7]++;
-          }
-          if (
-            message.log[i][3 * s + 6].filter(RegExp.prototype.test, /[.*r.*]/).length
-          ) {
-            TableData[s + 1][6]++;
-          }
+          TableData[message.log[i][16][2 * t][0] + 1][4]++;
+          TableData[message.log[i][16][2 * t][0] + 1][9]++;
+          TableData[message.log[i][16][2 * t][1] + 1][5]++;
         }
       }
-
-      let text = ""
-      for (let a = 1; a < TableData.length; a++) {
-        text += `${TableData[a].join('\t')}\n`;
+    } else {
+      for (let s = 0; s < 4; s++) {
+        TableData[s + 1][11]++;
       }
-      TableText.value = text;
-    };
-
-    //表示用言語の設定をlocal storageから呼び出す
-    const DisplayLang = ref(0)
-    chrome.storage.local.get("DisplayLang", (result) => {
-      // join langs
-      if (typeof result.DisplayLang !== "undefined") {
-        DisplayLang.value = result.DisplayLang;
+    }
+    for (let s = 0; s < 4; s++) {
+      if (
+        message.log[i][3 * s + 5].filter(RegExp.prototype.test, /[.*(c|p).*]/).length
+      ) {
+        TableData[s + 1][7]++;
       }
-    });
-    const description = ["Excelやスプレッドシートにコピペできる戦績です。", "The results can be copied and pasted into Excel or spreadsheets.", "结果可以被复制并粘贴到Excel或电子表格中。"]
-    const descriptionColumn = ["ゲームID,名前,素点,順位,和了,放銃,立直,副露,ツモ,ロン,局数,流局数",
-      "gameID,name,Table Points,rank,num of Win,num of Deal-in,num of riichi,num of meld,num of Tsumo,num of Ron,num of game,num of exhaustive", 
-      "gameID,帐户名,标准分之和,名次,和了数,放銃数,立直数,副露数,自摸数,榮和数,局数,荒牌数"]
-    return {
-      processData,
-      TableText,
-      DisplayLang,
-      description,
-      descriptionColumn
-    };
-  },
+      if (
+        message.log[i][3 * s + 6].filter(RegExp.prototype.test, /[.*r.*]/).length
+      ) {
+        TableData[s + 1][6]++;
+      }
+    }
+  }
+
+  let text = ""
+  for (let a = 1; a < TableData.length; a++) {
+    text += `${TableData[a].join('\t')}\n`;
+  }
+  TableText.value = text;
 };
+/* eslint-enable @typescript-eslint/no-explicit-any */
+
+const DisplayLang = useDisplayLang();
+const description = ["Excelやスプレッドシートにコピペできる戦績です。", "The results can be copied and pasted into Excel or spreadsheets.", "结果可以被复制并粘贴到Excel或电子表格中。"];
+const descriptionColumn = ["ゲームID,名前,素点,順位,和了,放銃,立直,副露,ツモ,ロン,局数,流局数",
+  "gameID,name,Table Points,rank,num of Win,num of Deal-in,num of riichi,num of meld,num of Tsumo,num of Ron,num of game,num of exhaustive",
+  "gameID,帐户名,标准分之和,名次,和了数,放銃数,立直数,副露数,自摸数,榮和数,局数,荒牌数"];
 </script>
-
-<style>
-
-</style>

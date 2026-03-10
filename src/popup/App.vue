@@ -1,5 +1,5 @@
 <template>
-  <div class="relative wide bg-mjsoul-bg-blue">
+  <div class="relative w-full bg-mjsoul-bg-blue">
     <div class="flex flex-row">
       <div class="pl-4 pt-1 text-3xl text-mjsoul-text-gold hudetext">Review Supporter</div>
       <div class="text-base pl-4 pt-4 text-mjsoul-text-gold hudetext">v 1.3.0</div>
@@ -36,43 +36,19 @@
     </div>
   </div>
 </template>
-<script>
-
-import { ref } from "vue";
+<script setup lang="ts">
 import NagaList from "@/popup/NagaList.vue";
 import MjaiList from "@/popup/MjaiList.vue";
 import RecipeList from "@/popup/RecipeList.vue";
 import iconTrash from "@/components/iconTrash.vue";
-export default {
-  components: {
-    NagaList,
-    MjaiList,
-    RecipeList,
-    iconTrash
-  },
-  setup() {
-    //表示用言語の設定をlocal storageから呼び出す
-    const DisplayLang = ref(0)
-    chrome.storage.local.get("DisplayLang", (result) => {
-      // join langs
-      if (typeof result.DisplayLang !== "undefined") {
-        DisplayLang.value = result.DisplayLang;
-      }
-    });
-    // 日、英、中の順
-    const supportDevelopText = ["開発を支援する", "Sponsor development", "支持开发"]
+import { useDisplayLang } from "@/composables/useDisplayLang";
 
-    const openTab = ref(1);
-    const toggleTabs = (tabNumber) => {
-      openTab.value = tabNumber;
-    };
+const DisplayLang = useDisplayLang();
+const supportDevelopText = ["開発を支援する", "Sponsor development", "支持开发"];
 
-    const openOption = () => {
-      chrome.tabs.create({
-        url: 'options.html'
-      });
-    }
-    return { openTab, toggleTabs, openOption, supportDevelopText, DisplayLang };
-  },
+const openOption = () => {
+  chrome.tabs.create({
+    url: 'options.html'
+  });
 };
 </script>

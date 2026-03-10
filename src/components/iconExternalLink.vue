@@ -16,21 +16,14 @@
   </svg>
 </template>
 
-<script>
-export default {
-  props: {
-    width: {
-      type: [Number, String],
-      default: 24,
-    },
-    height: {
-      type: [Number, String],
-      default: 24,
-    },
-    iconColor: {
-      type: String,
-      default: "currentColor",
-    },
-  },
-};
+<script setup lang="ts">
+withDefaults(defineProps<{
+  width?: number | string;
+  height?: number | string;
+  iconColor?: string;
+}>(), {
+  width: 24,
+  height: 24,
+  iconColor: "currentColor",
+});
 </script>
