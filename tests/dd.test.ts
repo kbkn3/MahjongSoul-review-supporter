@@ -2,6 +2,7 @@ import { describe, test, expect } from "vitest";
 import {
     KyokuState,
     createKyokuState,
+    initKyoku,
     handleBaBei,
     handleDealTile,
     handleDiscardTile,
@@ -287,5 +288,98 @@ describe("countpao", () => {
         countpao(15, 0, 1, kyoku);
         expect(kyoku.nowinds[0]).toBe(0);
         expect(kyoku.nodrags[0]).toBe(0);
+    });
+});
+
+describe("initKyoku", () => {
+    function createLeaf(overrides?: Record<string, unknown>) {
+        return {
+            chang: 0,
+            ju: 0,
+            ben: 0,
+            liqibang: 0,
+            scores: [25000, 25000, 25000, 25000],
+            doras: ["5m"],
+            tiles0: ["1m", "2m", "3m", "4m", "5m", "6m", "7m", "8m", "9m", "1p", "2p", "3p", "4p"],
+            tiles1: ["1s", "2s", "3s", "4s", "5s", "6s", "7s", "8s", "9s", "1z", "2z", "3z", "4z"],
+            tiles2: ["5p", "6p", "7p", "8p", "9p", "1m", "2m", "3m", "4m", "5m", "6m", "7m", "8m"],
+            tiles3: ["1p", "2p", "3p", "4p", "5p", "6p", "7p", "8p", "9p", "1s", "2s", "3s", "4s"],
+            ...overrides,
+        };
+    }
+
+    test("returns a new KyokuState", () => {
+        const leaf = createLeaf();
+        const kyoku = initKyoku(leaf);
+        expect(kyoku.nplayers).toBe(4);
+    });
+
+    test("sets round from chang, ju, ben, liqibang", () => {
+        const leaf = createLeaf({ chang: 1, ju: 2, ben: 3, liqibang: 1 });
+        // round = [4*1+2, 3, 1] = [6, 3, 1]
+        const kyoku = initKyoku(leaf);
+        expect(kyoku.round).toEqual([6, 3, 1]);
+    });
+
+    test("pads initscores to length 4 for sanma", () => {
+        const leaf = createLeaf({ scores: [35000, 35000, 35000] });
+        const kyoku = initKyoku(leaf);
+        expect(kyoku.initscores).toHaveLength(4);
+        expect(kyoku.initscores[3]).toBe(0);
+    });
+
+    test("converts doras from mjs tile strings", () => {
+        const leaf = createLeaf({ doras: ["5m", "3p"] });
+        const kyoku = initKyoku(leaf);
+        // tm2t("5m")=15, tm2t("3p")=23
+        expect(kyoku.doras).toEqual([15, 23]);
+    });
+
+    test("handles single dora field", () => {
+        const leaf = createLeaf();
+        // @ts-expect-error testing legacy single dora field
+        leaf.dora = "7z";
+        const kyoku = initKyoku(leaf);
+        // tm2t("7z")=47
+        expect(kyoku.doras).toEqual([47]);
+    });
+
+    test("pops last tile from dealer haipai into draws", () => {
+        const leaf = createLeaf({ ju: 0 });
+        const kyoku = initKyoku(leaf);
+        // dealer seat=0, tiles0 has 13 tiles, last is "4p"=24
+        // haipais[0] should have 12 tiles, draws[0] should have [24]
+        expect(kyoku.haipais[0]).toHaveLength(12);
+        expect(kyoku.draws[0]).toEqual([24]);
+        expect(kyoku.poppedtile).toBe(24);
+    });
+
+    test("sets dealerseat from ju", () => {
+        const leaf = createLeaf({ ju: 2 });
+        const kyoku = initKyoku(leaf);
+        expect(kyoku.dealerseat).toBe(2);
+        expect(kyoku.draws[2]).toHaveLength(1);
+    });
+
+    test("initializes pao tracking fields", () => {
+        const leaf = createLeaf();
+        const kyoku = initKyoku(leaf);
+        expect(kyoku.ldseat).toBe(-1);
+        expect(kyoku.nriichi).toBe(0);
+        expect(kyoku.nkan).toBe(0);
+        expect(kyoku.nowinds).toEqual([0, 0, 0, 0]);
+        expect(kyoku.nodrags).toEqual([0, 0, 0, 0]);
+        expect(kyoku.paowind).toBe(-1);
+        expect(kyoku.paodrag).toBe(-1);
+    });
+
+    test("initializes empty draws and discards for all seats", () => {
+        const leaf = createLeaf({ ju: 0 });
+        const kyoku = initKyoku(leaf);
+        // seat 0 has the popped tile draw, others empty
+        expect(kyoku.draws[1]).toEqual([]);
+        expect(kyoku.draws[2]).toEqual([]);
+        expect(kyoku.draws[3]).toEqual([]);
+        expect(kyoku.discards).toEqual([[], [], [], []]);
     });
 });

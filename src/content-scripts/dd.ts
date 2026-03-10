@@ -2,6 +2,7 @@
     import { JPNAME, RUNES, DAISANGEN, DAISUUSHI } from "../lib/constants";
     import {
         KyokuState,
+        initKyoku as initKyokuPure,
         dumpKyoku,
         handleBaBei,
         handleDealTile,
@@ -27,30 +28,6 @@
 
     /* eslint-disable @typescript-eslint/no-explicit-any */
     let kyoku: KyokuState = {} as KyokuState;
-
-    function initKyoku(leaf: any): void {
-        kyoku.nplayers = leaf.scores.length;
-        kyoku.round = [4 * leaf.chang + leaf.ju, leaf.ben, leaf.liqibang];
-        kyoku.initscores = leaf.scores; pad_right(kyoku.initscores, 4, 0);
-        kyoku.doras = leaf.dora ? [tm2t(leaf.dora)] : leaf.doras.map((e: string) => tm2t(e));
-        kyoku.draws = [[], [], [], []];
-        kyoku.discards = [[], [], [], []];
-        kyoku.haipais = kyoku.draws.map((_: any, i: number) => leaf["tiles" + i].map((f: string) => tm2t(f)));
-
-        //treat the last tile in the dealer's hand as a drawn tile
-        kyoku.poppedtile = kyoku.haipais[leaf.ju].pop()!;
-        kyoku.draws[leaf.ju].push(kyoku.poppedtile);
-        //information we need, but can't expect in every record
-        kyoku.dealerseat = leaf.ju;
-        kyoku.ldseat = -1; //who dealt the last tile
-        kyoku.nriichi = 0; //number of current riichis - needed for scores, abort workaround
-        kyoku.nkan = 0; //number of current kans - only for abort workaround
-        //pao rule
-        kyoku.nowinds = new Array(4).fill(0);//counter for each players open wind pons/kans
-        kyoku.nodrags = new Array(4).fill(0);
-        kyoku.paowind = -1; //seat of who dealt the final wind, -1 if no one is responsible
-        kyoku.paodrag = -1;
-    }
 
     //parse mjs hule into tenhou agari list
     function parsehule(h: any, k: KyokuState) {   //tenhou log viewer requires 点, 飜) or 役満) to end strings, rest of scoring string is entirely optional
@@ -186,7 +163,7 @@
         mjslog.forEach((e, leafidx) => {
             switch (e.constructor.name) {
                 case "RecordNewRound":
-                    initKyoku(e);
+                    kyoku = initKyokuPure(e);
                     return;
                 case "RecordDiscardTile":
                     handleDiscardTile(e, kyoku);

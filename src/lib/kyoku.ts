@@ -25,6 +25,38 @@ export function createKyokuState(init: KyokuState): KyokuState {
     return { ...init };
 }
 
+export function initKyoku(leaf: any): KyokuState {
+    const nplayers = leaf.scores.length;
+    const initscores = leaf.scores;
+    padRight(initscores, 4, 0);
+    const doras = leaf.dora ? [tm2t(leaf.dora)] : leaf.doras.map((e: string) => tm2t(e));
+    const draws: any[][] = [[], [], [], []];
+    const discards: any[][] = [[], [], [], []];
+    const haipais: number[][] = draws.map((_: any, i: number) => leaf["tiles" + i].map((f: string) => tm2t(f)));
+
+    const poppedtile = haipais[leaf.ju].pop()!;
+    draws[leaf.ju].push(poppedtile);
+
+    return {
+        nplayers,
+        round: [4 * leaf.chang + leaf.ju, leaf.ben, leaf.liqibang],
+        initscores,
+        doras,
+        draws,
+        discards,
+        haipais,
+        poppedtile,
+        dealerseat: leaf.ju,
+        ldseat: -1,
+        nriichi: 0,
+        nkan: 0,
+        nowinds: new Array(4).fill(0),
+        nodrags: new Array(4).fill(0),
+        paowind: -1,
+        paodrag: -1,
+    };
+}
+
 const WINDS = ["1z", "2z", "3z", "4z"].map(e => tm2t(e));
 const DRAGS = ["5z", "6z", "7z", "0z"].map(e => tm2t(e));
 
