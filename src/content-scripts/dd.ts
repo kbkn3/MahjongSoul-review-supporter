@@ -1,5 +1,19 @@
-    import { tm2t, deaka, makeaka, padRight as pad_right, relativeseating, tlround as tlroundPure } from "../lib/tile";
-    import { JPNAME, RONAME, ENNAME, RUNES, DAISANGEN, DAISUUSHI, TSUMOGIRI } from "../lib/constants";
+    import { tm2t, padRight as pad_right, tlround as tlroundPure } from "../lib/tile";
+    import { JPNAME, RUNES, DAISANGEN, DAISUUSHI } from "../lib/constants";
+    import {
+        KyokuState,
+        dumpKyoku,
+        handleBaBei,
+        handleDealTile,
+        handleDiscardTile,
+        handleChii,
+        handlePon,
+        handleDaiminkan,
+        handleAnkan,
+        handleShouminkan,
+        handleLiuJu,
+        handleNoTile,
+    } from "../lib/kyoku";
 
     const NAMEPREF = 0;     //2 for english, 1 for sane amount of weeb, 0 for japanese
     const VERBOSELOG = false; //dump mjs records to output - will make the file too large for tenhou.net/5 viewer
@@ -12,25 +26,6 @@
     const tlround = (x: number) => tlroundPure(TSUMOLOSSOFF, x);
 
     /* eslint-disable @typescript-eslint/no-explicit-any */
-    interface KyokuState {
-        nplayers: number;
-        round: number[];
-        initscores: number[];
-        doras: number[];
-        draws: any[][];
-        discards: any[][];
-        haipais: number[][];
-        poppedtile: number;
-        dealerseat: number;
-        ldseat: number;
-        nriichi: number;
-        nkan: number;
-        nowinds: number[];
-        nodrags: number[];
-        paowind: number;
-        paodrag: number;
-    }
-
     let kyoku: KyokuState = {} as KyokuState;
 
     function initKyoku(leaf: any): void {
@@ -55,38 +50,6 @@
         kyoku.nodrags = new Array(4).fill(0);
         kyoku.paowind = -1; //seat of who dealt the final wind, -1 if no one is responsible
         kyoku.paodrag = -1;
-    }
-
-    //dump round informaion
-    function dumpKyoku(uras: number[]): any[] {
-        const entry: any[] = [];
-        entry.push(kyoku.round);
-        entry.push(kyoku.initscores);
-        entry.push(kyoku.doras);
-        entry.push(uras);
-        kyoku.haipais.forEach((f, i) => {
-            entry.push(f);
-            entry.push(kyoku.draws[i]);
-            entry.push(kyoku.discards[i]);
-        });
-
-        return entry;
-    }
-
-    //sekinin barai tiles
-    const WINDS = ["1z", "2z", "3z", "4z"].map(e => tm2t(e));
-    const DRAGS = ["5z", "6z", "7z", "0z"].map(e => tm2t(e)); //0z would be aka haku
-
-    //senkinin barai incrementer - to be called every pon, daiminkan, ankan
-    function countpao(tile: number, owner: number, feeder: number): void {
-        if (WINDS.includes(tile)) {
-            if (4 == ++kyoku.nowinds[owner])
-                kyoku.paowind = feeder;
-        }
-        else if (DRAGS.includes(tile)) {
-            if (3 == ++kyoku.nodrags[owner])
-                kyoku.paodrag = feeder;
-        }
     }
 
     //parse mjs hule into tenhou agari list
@@ -223,229 +186,56 @@
         mjslog.forEach((e, leafidx) => {
             switch (e.constructor.name) {
                 case "RecordNewRound":
-                    {   //new round
-                        initKyoku(e);
-                        return;
-                    }
+                    initKyoku(e);
+                    return;
                 case "RecordDiscardTile":
-                    {   //discard - marking tsumogiri and riichi
-                        let symbol: string | number = e.moqie ? TSUMOGIRI : tm2t(e.tile);
-
-                        //we pretend that the dealer's initial 14th tile is drawn - so we need to manually check the first discard
-                        if (e.seat == kyoku.dealerseat
-                            && !kyoku.discards[e.seat].length && symbol == kyoku.poppedtile)
-                            symbol = TSUMOGIRI;
-
-                        if (e.is_liqi) //riichi delcaration
-                        {
-                            kyoku.nriichi++;
-                            symbol = "r" + symbol;
-                        }
-                        kyoku.discards[e.seat].push(symbol);
-                        kyoku.ldseat = e.seat; //for ron, pon etc.
-
-                        //sometimes we get dora passed here
-                        if (e.doras && e.doras.length > kyoku.doras.length)
-                            kyoku.doras = e.doras.map((f: string) => tm2t(f));
-
-                        return;
-                    }
+                    handleDiscardTile(e, kyoku);
+                    return;
                 case "RecordDealTile":
-                    {   //draw - after kan this gets passed the new dora
-                        if (e.doras && e.doras.length > kyoku.doras.length)
-                            kyoku.doras = e.doras.map((f: string) => tm2t(f));
-
-                        kyoku.draws[e.seat].push(tm2t(e.tile));
-
-                        return;
-                    }
+                    handleDealTile(e, kyoku);
+                    return;
                 case "RecordChiPengGang":
-                    {   //call - chi, pon, daiminkan
-                        switch (e.type) {
-                            case 0:
-                                {   //chii
-                                    kyoku.draws[e.seat].push(
-                                        "c" +
-                                        tm2t(e.tiles[2]) +
-                                        tm2t(e.tiles[0]) +
-                                        tm2t(e.tiles[1])
-                                    );
-
-                                    return;
-                                }
-                            case 1:
-                                {   //pon
-                                    const worktiles = e.tiles.map((f: string) => tm2t(f));
-                                    const idx = relativeseating(e.seat, kyoku.ldseat);
-                                    countpao(worktiles[0], e.seat, kyoku.ldseat);
-                                    //pop the called tile a preprend 'p'
-                                    worktiles.splice(idx, 0, "p" + worktiles.pop());
-                                    kyoku.draws[e.seat].push(worktiles.join(""));
-
-                                    return;
-                                }
-                            case 2:
-                                {   ///////////////////////////////////////////////////
-                                    // kan naki:
-                                    //   daiminkan:
-                                    //     kamicha   "m39393939" (0)
-                                    //     toimen    "39m393939" (1)
-                                    //     shimocha  "222222m22" (3)
-                                    //     (writes to draws; 0 to discards)
-                                    //   shouminkan: (same order as pon; immediate tile after k is the added tile)
-                                    //     kamicha   "k37373737" (0)
-                                    //     toimen    "31k313131" (1)
-                                    //     shimocha  "3737k3737" (2)
-                                    //     (writes to discards)
-                                    //   ankan:
-                                    //     "121212a12" (3)
-                                    //     (writes to discards)
-                                    ///////////////////////////////////////////////////
-                                    //daiminkan
-                                    const calltiles = e.tiles.map((f: string) => tm2t(f));
-                                    // < kamicha 0 | toimen 1 | shimocha 3 >
-                                    const idx = relativeseating(e.seat, kyoku.ldseat);
-
-                                    countpao(calltiles[0], e.seat, kyoku.ldseat);
-                                    calltiles.splice(2 == idx ? 3 : idx, 0, "m" + calltiles.pop());
-                                    kyoku.draws[e.seat].push(calltiles.join(""));
-                                    //tenhou drops a 0 in discards for this
-                                    kyoku.discards[e.seat].push(0);
-                                    //register kan
-                                    kyoku.nkan++;
-
-                                    return;
-                                }
-                            default:
-                                console.log(
-                                    "didn't know what to do with " +
-                                    e.constructor.name + "(" + leafidx + ")"
-                                );
-
-                                return;
-                        }
+                    switch (e.type) {
+                        case 0: handleChii(e, kyoku); return;
+                        case 1: handlePon(e, kyoku); return;
+                        case 2: handleDaiminkan(e, kyoku); return;
+                        default:
+                            console.log("didn't know what to do with " + e.constructor.name + "(" + leafidx + ")");
+                            return;
                     }
                 case "RecordAnGangAddGang":
-                    {   //kan - shouminkan 'k', ankan 'a'
-                        //NOTE: e.tiles here is a single tile; naki is placed in discards
-                        let til: number = tm2t(e.tiles);
-                        kyoku.ldseat = e.seat; // for chankan, no conflict as last discard has passed
-                        switch (e.type) {
-                            case 3:
-                                {   //ankan
-                                    ////////////////////
-                                    // mjs chun ankan example record:
-                                    //{"seat":0,"type":3,"tiles":"7z"}
-                                    ////////////////////
-                                    countpao(til, e.seat, -1); //count the group as visible, but don't set pao
-                                    //get the tiles from haipai and draws that
-                                    //are involved in ankan, dumb
-                                    //because n aka might be involved
-                                    const ankantiles = kyoku.haipais[e.seat].filter((t: number) => (deaka(t) == deaka(til) ? true : false))
-                                        .concat(kyoku.draws[e.seat].filter((t: number) => (deaka(t) == deaka(til) ? true : false)));
-                                    til = ankantiles.pop()!; //doesn't really matter which tile we mark ankan with - chosing last drawn
-                                    kyoku.discards[e.seat].push(ankantiles.join("") + "a" + til); //push naki
-                                    kyoku.nkan++;
-
-                                    return;
-                                }
-                            case 2:
-                                {   //shouminkan
-                                    //get pon naki from .draws and swap in new symbol
-                                    const nakis = kyoku.draws[e.seat].filter((w: any) => {
-                                        if ('string' === typeof w) //naki
-                                            return w.includes("p" + deaka(til)) || w.includes("p" + makeaka(til)); //pon involves same tile type
-                                        else
-                                            return false;
-                                    });
-
-                                    kyoku.discards[e.seat].push(nakis[0].replace(/p/, "k" + til)); //push naki
-                                    kyoku.nkan++;
-
-                                    return;
-                                }
-                            default:
-                                {
-                                    console.log("didn't know what to do with "
-                                        + e.constructor.name + " type: " + e.type);
-
-                                    return;
-                                }
-                        }
+                    switch (e.type) {
+                        case 3: handleAnkan(e, kyoku); return;
+                        case 2: handleShouminkan(e, kyoku); return;
+                        default:
+                            console.log("didn't know what to do with " + e.constructor.name + " type: " + e.type);
+                            return;
                     }
                 case "RecordBaBei":
-                    {   //kita - this record (only) gives {seat, moqie}
-                        //NOTE: tenhou doesn't mark its kita based on when they were drawn, so we won't
-                        //if (e.moqie)
-                        //    kyoku.discards[e.seat].push("f" + TSUMOGIRI);
-                        //else
-                        kyoku.discards[e.seat].push("f44");
-
-                        return;
-                    }
-                /////////////////////////////////////////////////////
-                // round enders:
-                // "RecordNoTile" - ryuukyoku
-                // "RecordHule"   - agari - ron/tsumo
-                // "RecordLiuJu"  - abortion
-                //////////////////////////////////////////////////////
+                    handleBaBei(e, kyoku);
+                    return;
                 case "RecordLiuJu":
-                    {   //abortion
-                        const entry = dumpKyoku([]);
-
-                        if (1 == e.type)
-                            entry.push([RUNES.kyuushukyuuhai[NAMEPREF]]); //kyuushukyuhai
-                        else if (2 == e.type)
-                            entry.push([RUNES.suufonrenda[NAMEPREF]]); //suufon renda
-                        else if (4 == kyoku.nriichi) //TODO: actually get the type code
-                            entry.push([RUNES.suuchariichi[NAMEPREF]]); //4 riichi
-                        else if (4 <= kyoku.nkan) //TODO: actually get type code
-                            entry.push([RUNES.suukaikan[NAMEPREF]]); //4 kan, potentially false positive on 3 ron with 4 kans
-                        else
-                            entry.push([RUNES.sanchahou[NAMEPREF]]); //3 ron - can't actually get this in mjs
-
-                        log.push(entry);
-
-                        return;
-                    }
+                    log.push(handleLiuJu(e, kyoku));
+                    return;
                 case "RecordNoTile":
-                    {   //ryuukyoku
-                        const entry = dumpKyoku([]);
-                        const delta = new Array(4).fill(0.);
-
-                        //NOTE: mjs wll not give delta_scores if everyone is (no)ten - TODO: minimize the autism
-                        if (e.scores && e.scores[0] && e.scores[0].delta_scores && e.scores[0].delta_scores.length)
-                            e.scores.forEach((f: any) => f.delta_scores.forEach((g: number, i: number) => delta[i] += g)); //for the rare case of multiple nagashi, we sum the arrays
-
-                        if (e.liujumanguan) //nagashi mangan
-                            entry.push([RUNES.nagashimangan[NAMEPREF], delta])
-                        else    //normal ryuukyoku
-                            entry.push([RUNES.ryuukyoku[NAMEPREF], delta]);
-                        log.push(entry);
-
-                        return;
-                    }
+                    log.push(handleNoTile(e, kyoku));
+                    return;
                 case "RecordHule":
-                    {   //agari
+                    {
                         const agari: any[] = [];
                         let ura: number[] = [];
                         e.hules.forEach((f: any) => {
-                            if (ura.length < (f.li_doras ? f.li_doras.length : 0)) //take the longest ura list - double ron with riichi + dama
+                            if (ura.length < (f.li_doras ? f.li_doras.length : 0))
                                 ura = f.li_doras.map((g: string) => tm2t(g));
                             agari.push(parsehule(f, kyoku));
                         });
-                        const entry = dumpKyoku(ura);
-
-                        entry.push([RUNES.agari[JPNAME]].concat(agari.flat())); //needs the japanese agari
+                        const entry = dumpKyoku(kyoku, []);
+                        entry.push([RUNES.agari[JPNAME]].concat(agari.flat()));
                         log.push(entry);
-
                         return;
                     }
                 default:
-                    console.log(
-                        "didn't know what to do with " + e.constructor.name + "(" + leafidx + ")"
-                    );
-
+                    console.log("didn't know what to do with " + e.constructor.name + "(" + leafidx + ")");
                     return;
             }
         });
