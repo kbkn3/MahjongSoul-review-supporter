@@ -39,6 +39,26 @@ describe("soul2naga - 実データ変換", () => {
     });
 });
 
+describe("sanitizePlayerNames", () => {
+    test("ASCII特殊文字を全角に変換する", () => {
+        const input = ['Player!1', 'Name#2', '<Tag>', 'A"B', 'C%D', 'E&F', 'G$H', 'I*J'];
+        const result = sanitizePlayerNames(input);
+        expect(result).toEqual([
+            'Player！1', 'Name＃2', '＜Tag＞', 'A＂B', 'C％D', 'E＆F', 'G＄H', 'I＊J',
+        ]);
+    });
+
+    test("特殊文字を含まない名前はそのまま返す", () => {
+        const input = ['たろう', 'Player1', '花子'];
+        const result = sanitizePlayerNames(input);
+        expect(result).toEqual(['たろう', 'Player1', '花子']);
+    });
+
+    test("空配列を返す", () => {
+        expect(sanitizePlayerNames([])).toEqual([]);
+    });
+});
+
 describe("toNagaLog - 実データ変換の冪等性", () => {
     // 1.4.0は変換済みデータ。toNagaLogが変換済みlogに対して冪等であることを検証する
     const testCases = [
