@@ -15,13 +15,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
+import { parseKyokuResult, getDrawsForSeat, getDiscardsForSeat, getScoreAndBonus } from "@/lib/naga";
+import type { TenhouMessage, KyokuResultAgari } from "@/lib/naga";
 import { useDisplayLang } from "@/composables/useDisplayLang";
 
 const TableText = ref("牌譜を読み込めていません");
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-chrome.runtime.onMessage.addListener((request: any) => {
+const onMessageListener = (request: any) => {
   for (let s = 0; s < request.message.name.length; s++) {
     request.message.name[s] = request.message.name[s].replace(
       /[#<>"%]/gi,
@@ -29,9 +31,18 @@ chrome.runtime.onMessage.addListener((request: any) => {
     );
   }
   processData(request.message, request.message.ref);
+};
+
+onMounted(() => {
+  chrome.runtime.onMessage.addListener(onMessageListener);
 });
 
-const processData = (message: any, ref_id: string) => {
+onUnmounted(() => {
+  chrome.runtime.onMessage.removeListener(onMessageListener);
+});
+
+const processData = (message: TenhouMessage, ref_id: string) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const TableData: any[][] = [
     [
       "ゲームID",
@@ -57,9 +68,10 @@ const processData = (message: any, ref_id: string) => {
   for (let j = 0; j < message.name.length; j++) {
     TableData[j + 1][0] = ref_id;
     TableData[j + 1][1] = message.name[j];
-    TableData[j + 1][2] = message.sc[2 * j];
+    const { score: rawScore, bonus } = getScoreAndBonus(message.sc, j);
+    TableData[j + 1][2] = rawScore;
     TableData[j + 1][10] = message.log.length;
-    score.push(message.sc[2 * j+1]);
+    score.push(bonus);
   }
   const sorted = score.slice().sort((a, b) => b - a);
   const ranks = score.slice().map((x) => sorted.indexOf(x) + 1);
@@ -68,15 +80,15 @@ const processData = (message: any, ref_id: string) => {
   }
 
   for (let i = 0; i < message.log.length; i++) {
-    if (message.log[i][16][0] === "和了") {
-      for (let t = 1; t < ~~(message.log[i][16].length / 2) + 1; t++) {
-        if (message.log[i][16][2 * t][0] === message.log[i][16][2 * t][1]) {
-          TableData[message.log[i][16][2 * t][0] + 1][4]++;
-          TableData[message.log[i][16][2 * t][0] + 1][8]++;
+    const parsed = parseKyokuResult(message.log[i][16]);
+    if (parsed.type === "和了") {
+      for (const agari of (parsed as KyokuResultAgari).agaris) {
+        TableData[agari.winnerSeat + 1][4]++;
+        if (agari.isTsumo) {
+          TableData[agari.winnerSeat + 1][8]++;
         } else {
-          TableData[message.log[i][16][2 * t][0] + 1][4]++;
-          TableData[message.log[i][16][2 * t][0] + 1][9]++;
-          TableData[message.log[i][16][2 * t][1] + 1][5]++;
+          TableData[agari.winnerSeat + 1][9]++;
+          TableData[agari.loserSeat + 1][5]++;
         }
       }
     } else {
@@ -86,12 +98,12 @@ const processData = (message: any, ref_id: string) => {
     }
     for (let s = 0; s < 4; s++) {
       if (
-        message.log[i][3 * s + 5].filter(RegExp.prototype.test, /[.*(c|p).*]/).length
+        getDrawsForSeat(message.log[i], s).filter(RegExp.prototype.test, /[.*(c|p).*]/).length
       ) {
         TableData[s + 1][7]++;
       }
       if (
-        message.log[i][3 * s + 6].filter(RegExp.prototype.test, /[.*r.*]/).length
+        getDiscardsForSeat(message.log[i], s).filter(RegExp.prototype.test, /[.*r.*]/).length
       ) {
         TableData[s + 1][6]++;
       }

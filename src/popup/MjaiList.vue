@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { onMounted, onUnmounted, reactive, ref } from 'vue';
 import { useDisplayLang } from "@/composables/useDisplayLang";
 
 // 先頭のダミー要素でインデックスを1-basedにする（mjai側のselect optionインデックスと合わせるため）
@@ -35,9 +35,17 @@ const url_head = [
   'https://game.maj-soul.net/1/?paipu='
 ];
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-chrome.runtime.onMessage.addListener((request: any) => {
+const onMessageListener = (request: any) => {
   MjaiURLstring = url_head[MSLang.value] + request.message.ref;
   seki.push(...request.message.name);
+};
+
+onMounted(() => {
+  chrome.runtime.onMessage.addListener(onMessageListener);
+});
+
+onUnmounted(() => {
+  chrome.runtime.onMessage.removeListener(onMessageListener);
 });
 console.log(DisplayLang.value)
 const submitMjai = (no: number) => {

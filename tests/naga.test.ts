@@ -1,4 +1,5 @@
-import { extractTable, toSoulTable, toNagaHand, toNagaLog, checkRonTileIsReachTile, fixScoreRonTileWasReachTile } from "../src/lib/naga";
+import { extractTable, toSoulTable, toNagaHand, toNagaLog, parseKyokuResult, checkRonTileIsReachTile, fixScoreRonTileWasReachTile, getDrawsForSeat, getDiscardsForSeat, getScoreAndBonus } from "../src/lib/naga";
+import type { KyokuResultAgari, KyokuResultDraw } from "../src/lib/naga";
 
 describe("extractTable", () => {
     test("bronze room", () => {
@@ -159,6 +160,56 @@ describe("fixScoreRonTileWasReachTile - edge cases", () => {
     });
 });
 
+describe("parseKyokuResult", () => {
+    test("parses single tsumo agari", () => {
+        const entry = ["和了", [8000, -4000, -2000, -2000], [0, 0, 0]];
+        const result = parseKyokuResult(entry) as KyokuResultAgari;
+        expect(result.type).toBe("和了");
+        expect(result.agaris).toHaveLength(1);
+        expect(result.agaris[0].isTsumo).toBe(true);
+        expect(result.agaris[0].winnerSeat).toBe(0);
+        expect(result.agaris[0].loserSeat).toBe(0);
+        expect(result.agaris[0].deltas).toEqual([8000, -4000, -2000, -2000]);
+    });
+
+    test("parses single ron agari", () => {
+        const entry = ["和了", [8000, -8000, 0, 0], [0, 1, 0]];
+        const result = parseKyokuResult(entry) as KyokuResultAgari;
+        expect(result.agaris).toHaveLength(1);
+        expect(result.agaris[0].isTsumo).toBe(false);
+        expect(result.agaris[0].winnerSeat).toBe(0);
+        expect(result.agaris[0].loserSeat).toBe(1);
+    });
+
+    test("parses double ron", () => {
+        const entry = [
+            "和了",
+            [8000, -8000, 0, 0], [0, 1, 0],
+            [0, 0, 3000, -3000], [2, 3, 2],
+        ];
+        const result = parseKyokuResult(entry) as KyokuResultAgari;
+        expect(result.agaris).toHaveLength(2);
+        expect(result.agaris[0].winnerSeat).toBe(0);
+        expect(result.agaris[0].loserSeat).toBe(1);
+        expect(result.agaris[1].winnerSeat).toBe(2);
+        expect(result.agaris[1].loserSeat).toBe(3);
+    });
+
+    test("parses ryuukyoku with deltas", () => {
+        const entry = ["流局", [3000, -1000, -1000, -1000]];
+        const result = parseKyokuResult(entry) as KyokuResultDraw;
+        expect(result.type).toBe("流局");
+        expect(result.deltas).toEqual([3000, -1000, -1000, -1000]);
+    });
+
+    test("parses ryuukyoku without deltas", () => {
+        const entry = ["九種九牌"];
+        const result = parseKyokuResult(entry) as KyokuResultDraw;
+        expect(result.type).toBe("九種九牌");
+        expect(result.deltas).toBeNull();
+    });
+});
+
 describe("toNagaLog - immutability", () => {
     test("does not mutate the input log", () => {
         const log = buildMinimalLog();
@@ -171,6 +222,44 @@ describe("toNagaLog - immutability", () => {
         const before = JSON.parse(JSON.stringify(log));
         toNagaLog(log);
         expect(log).toEqual(before);
+    });
+});
+
+describe("getDrawsForSeat", () => {
+    test("returns draws array for each seat", () => {
+        const log = buildMinimalLog();
+        log[5] = [11, 12, 13];
+        log[8] = [21, 22];
+        log[11] = [31];
+        log[14] = [41, 42, 43, 44];
+        expect(getDrawsForSeat(log, 0)).toEqual([11, 12, 13]);
+        expect(getDrawsForSeat(log, 1)).toEqual([21, 22]);
+        expect(getDrawsForSeat(log, 2)).toEqual([31]);
+        expect(getDrawsForSeat(log, 3)).toEqual([41, 42, 43, 44]);
+    });
+});
+
+describe("getDiscardsForSeat", () => {
+    test("returns discards array for each seat", () => {
+        const log = buildMinimalLog();
+        log[6] = [11, "r12"];
+        log[9] = [21];
+        log[12] = [31, 32, 33];
+        log[15] = [41, 42];
+        expect(getDiscardsForSeat(log, 0)).toEqual([11, "r12"]);
+        expect(getDiscardsForSeat(log, 1)).toEqual([21]);
+        expect(getDiscardsForSeat(log, 2)).toEqual([31, 32, 33]);
+        expect(getDiscardsForSeat(log, 3)).toEqual([41, 42]);
+    });
+});
+
+describe("getScoreAndBonus", () => {
+    test("returns score and bonus for each seat", () => {
+        const sc = [25000, 15.0, 30000, 45.0, 20000, -15.0, 25000, -45.0];
+        expect(getScoreAndBonus(sc, 0)).toEqual({ score: 25000, bonus: 15.0 });
+        expect(getScoreAndBonus(sc, 1)).toEqual({ score: 30000, bonus: 45.0 });
+        expect(getScoreAndBonus(sc, 2)).toEqual({ score: 20000, bonus: -15.0 });
+        expect(getScoreAndBonus(sc, 3)).toEqual({ score: 25000, bonus: -45.0 });
     });
 });
 

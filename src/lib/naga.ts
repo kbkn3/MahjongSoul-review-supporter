@@ -36,6 +36,46 @@ function toNagaHand(hand: string, prevalent: string, seat: string): string {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type TenhouLog = any[];
 
+interface AgariInfo {
+    isTsumo: boolean;
+    winnerSeat: number;
+    loserSeat: number;
+    deltas: number[];
+}
+
+interface KyokuResultAgari {
+    type: "和了";
+    agaris: AgariInfo[];
+}
+
+interface KyokuResultDraw {
+    type: string;
+    deltas: number[] | null;
+}
+
+type KyokuResult = KyokuResultAgari | KyokuResultDraw;
+
+/**
+ * tenhouログの局結果配列 (log[i][16]) を構造化する
+ * 和了・流局共通のアクセスパターンを抽象化し、マジックインデックスを隠蔽する
+ */
+function parseKyokuResult(resultEntry: TenhouLog): KyokuResult {
+    if (resultEntry[0] === "和了") {
+        const agaris: AgariInfo[] = [];
+        for (let t = 1; t < ~~(resultEntry.length / 2) + 1; t++) {
+            const seats = resultEntry[2 * t];
+            agaris.push({
+                isTsumo: seats[0] === seats[1],
+                winnerSeat: seats[0],
+                loserSeat: seats[1],
+                deltas: resultEntry[2 * t - 1],
+            });
+        }
+        return { type: "和了", agaris };
+    }
+    return { type: resultEntry[0], deltas: resultEntry[1] ?? null };
+}
+
 /**
  * logをNAGAが解析可能な形式に変換する
  */
@@ -62,6 +102,21 @@ function toNagaLog(soulLog: TenhouLog): TenhouLog {
     return nagaLog;
 }
 
+interface TenhouMessage {
+    ver: string;
+    ref: string;
+    log: TenhouLog[];
+    ratingc: string;
+    rule: { disp: string; aka53: number; aka52: number; aka51: number };
+    lobby: number;
+    dan: string[];
+    rate: number[];
+    sx: string[];
+    name: string[];
+    sc: number[];
+    title: [string, string];
+}
+
 interface GameMessage {
     log: TenhouLog[];
 }
@@ -70,8 +125,10 @@ interface GameMessage {
  * リーチ宣言牌がロンの場合を判定
  */
 function checkRonTileIsReachTile(message: GameMessage, i: number, t: number): boolean {
-    const targetArray = message.log[i][message.log[i][16][2 * t][1] * 3 + 6];
-    const targetPointEven = message.log[i][16][2 * t - 1][message.log[i][16][2 * t][1]] === message.log[i][16][2 * t - 1][message.log[i][16][2 * t][0]];
+    const result = parseKyokuResult(message.log[i][16]) as KyokuResultAgari;
+    const agari = result.agaris[t - 1];
+    const targetArray = getDiscardsForSeat(message.log[i], agari.loserSeat);
+    const targetPointEven = agari.deltas[agari.loserSeat] === agari.deltas[agari.winnerSeat];
     if (targetArray && !targetPointEven) {
         const lastElement = targetArray[targetArray.length - 1];
         return typeof lastElement === 'string' && lastElement.startsWith('r');
@@ -84,16 +141,31 @@ function checkRonTileIsReachTile(message: GameMessage, i: number, t: number): bo
  */
 function fixScoreRonTileWasReachTile(message: GameMessage): void {
     for (let i = 0; i < message.log.length; i++) {
-        if (message.log[i][16][0] === "和了") {
-            for (let t = 1; t < ~~(message.log[i][16].length / 2) + 1; t++) {
-                if (message.log[i][16][2 * t][0] !== message.log[i][16][2 * t][1]) {
-                    if (checkRonTileIsReachTile(message, i, t)) {
-                        message.log[i][16][2 * t - 1][message.log[i][16][2 * t][0]] -= 1000;
-                    }
+        const result = parseKyokuResult(message.log[i][16]);
+        if (result.type !== "和了") continue;
+        const { agaris } = result as KyokuResultAgari;
+        for (let t = 0; t < agaris.length; t++) {
+            const agari = agaris[t];
+            if (!agari.isTsumo) {
+                if (checkRonTileIsReachTile(message, i, t + 1)) {
+                    agari.deltas[agari.winnerSeat] -= 1000;
                 }
             }
         }
     }
+}
+
+// tenhouログのレイアウト: seat毎に [haipai, draws, discards] が3要素ずつ index 4 から並ぶ
+function getDrawsForSeat(logEntry: TenhouLog, seat: number): TenhouLog {
+    return logEntry[3 * seat + 5];
+}
+
+function getDiscardsForSeat(logEntry: TenhouLog, seat: number): TenhouLog {
+    return logEntry[3 * seat + 6];
+}
+
+function getScoreAndBonus(sc: number[], seat: number): { score: number; bonus: number } {
+    return { score: sc[2 * seat], bonus: sc[2 * seat + 1] };
 }
 
 export {
@@ -101,7 +173,11 @@ export {
     toSoulTable,
     toNagaHand,
     toNagaLog,
+    parseKyokuResult,
     checkRonTileIsReachTile,
     fixScoreRonTileWasReachTile,
+    getDrawsForSeat,
+    getDiscardsForSeat,
+    getScoreAndBonus,
 };
-export type { TenhouLog, GameMessage };
+export type { TenhouLog, TenhouMessage, GameMessage, AgariInfo, KyokuResult, KyokuResultAgari, KyokuResultDraw };

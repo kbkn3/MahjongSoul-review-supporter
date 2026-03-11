@@ -12,47 +12,16 @@
 
         <!-- Ron pattern -->
         <div v-if="result[0][0] === 'ロン和'">
-            <div v-if="result.length == 1" class="flex flex-row items-end">
-                <div class="text-left text-base w-1/4 hudetext text-pink-500">{{ Win_str[Language][0] }}</div>
-                <div class="text-center text-base text-gray-300 w-1/2 ">{{ result[0][1] }}</div>
-                <div class="text-right text-base text-gray-300 w-1/4">+{{ result[0][3] }}</div>
-            </div>
-            <div v-if="result.length == 2">
-                <div class="flex flex-row items-end">
-                    <div class="text-left text-base w-1/4 hudetext text-pink-500">{{ Win_str[Language][0] }}</div>
-                    <div class="text-center text-base text-gray-300 w-1/2 ">{{ result[0][1] }}</div>
-                    <div class="text-right text-base text-gray-300 w-1/4">+{{ result[0][3] }}</div>
-                </div>
-                <div class="flex flex-row items-end">
-                    <div class="text-left text-base w-1/4 hudetext text-pink-500"></div>
-                    <div class="text-center text-base text-gray-300 w-1/2 ">{{ result[1][1] }}</div>
-                    <div class="text-right text-base text-gray-300 w-1/4">+{{ result[1][3] }}</div>
-                </div>
-            </div>
-            <div v-if="result.length == 3">
-                <div class="flex flex-row items-end">
-                    <div class="text-left text-base w-1/4 hudetext text-pink-500">{{ Win_str[Language][0] }}</div>
-                    <div class="text-center text-base text-gray-300 w-1/2 ">{{ result[0][1] }}</div>
-                    <div class="text-right text-base text-gray-300 w-1/4">+{{ result[0][3] }}</div>
-                </div>
-                <div class="flex flex-row items-end">
-                    <div class="text-left text-base w-1/4 hudetext text-pink-500"></div>
-                    <div class="text-center text-base text-gray-300 w-1/2 ">{{ result[1][1] }}</div>
-                    <div class="text-right text-base text-gray-300 w-1/4">+{{ result[1][3] }}</div>
-                </div>
-                <div class="flex flex-row items-end">
-                    <div class="text-left text-base w-1/4 hudetext text-pink-500"></div>
-                    <div class="text-center text-base text-gray-300 w-1/2 ">{{ result[2][1] }}</div>
-                    <div class="text-right text-base text-gray-300 w-1/4">+{{ result[2][3] }}</div>
-                </div>
+            <div v-for="(r, idx) in result" :key="idx" class="flex flex-row items-end">
+                <div class="text-left text-base w-1/4 hudetext text-pink-500">{{ idx === 0 ? Win_str[Language][0] : '' }}</div>
+                <div class="text-center text-base text-gray-300 w-1/2 ">{{ r[1] }}</div>
+                <div class="text-right text-base text-gray-300 w-1/4">+{{ r[3] }}</div>
             </div>
             <hr />
             <div class="flex flex-row items-end">
                 <div class="text-left text-base w-1/4 hudetext text-purple-500">{{ Deal_str[Language] }}</div>
                 <div class="text-center text-base text-gray-300 w-1/2">{{ result[0][2] }}</div>
-                <div v-if="result.length == 1" class="text-right text-base text-gray-300 w-1/4">{{ result[0][4] }}</div>
-                <div v-if="result.length == 2" class="text-right text-base text-gray-300 w-1/4">{{ result[0][4]+result[1][4] }}</div>
-                <div v-if="result.length == 3" class="text-right text-base text-gray-300 w-1/4">{{ result[0][4]+result[1][4]+result[2][4] }}</div>
+                <div class="text-right text-base text-gray-300 w-1/4">{{ result.reduce((sum, r) => sum + r[4], 0) }}</div>
             </div>
         </div>
 

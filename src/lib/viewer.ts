@@ -1,9 +1,7 @@
 import { extractTable, toSoulTable, toNagaLog } from "./naga";
+import type { TenhouMessage, TenhouLog } from "./naga";
 import { POINTS, getPtEV } from "./points";
 import type { Wind, RankedRoom } from "./points";
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type PaifuData = any;
 
 const EDITOR_URL_PREFIX = "https://tenhou.net/6/#json=";
 
@@ -18,9 +16,10 @@ function sanitizePlayerNames(names: string[]): string[] {
 }
 
 function createViewerUrls(soulJson: string, ruleMode: string): string[] {
-    const soulPaifu: PaifuData = JSON.parse(soulJson);
+    const soulPaifu: TenhouMessage = JSON.parse(soulJson);
 
-    let ptEV: PaifuData;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let ptEV: any;
     const wind: Wind = soulPaifu.rule.disp.includes('南') ? "south" : "east";
     const table = extractTable(soulPaifu.rule.disp);
     if (table === 'others') {
@@ -40,7 +39,7 @@ function createViewerUrls(soulJson: string, ruleMode: string): string[] {
     const rule = JSON.parse(JSON.stringify(soulPaifu.rule));
     rule.disp = toSoulTable(rule.disp);
 
-    return soulPaifu.log.map((v: PaifuData) => (
+    return soulPaifu.log.map((v: TenhouLog) => (
         EDITOR_URL_PREFIX +
         JSON.stringify({
             title: [title, JSON.stringify(ptEV).slice(1, -1)],
@@ -51,7 +50,7 @@ function createViewerUrls(soulJson: string, ruleMode: string): string[] {
     ));
 }
 
-function soul2naga(results: PaifuData, ruleMode: string): string[] {
+function soul2naga(results: TenhouMessage, ruleMode: string): string[] {
     const INDENT = " ".repeat(4);
     const soulJson = JSON.stringify(results, null, INDENT)
         .replace(new RegExp(`\n${INDENT}+`, 'g'), " ")

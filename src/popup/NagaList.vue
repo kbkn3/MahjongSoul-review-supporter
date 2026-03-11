@@ -39,9 +39,10 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref, computed } from "vue";
+import { onMounted, onUnmounted, reactive, ref, computed } from "vue";
 import Kyoku from "@/popup/Kyoku.vue";
-import { fixScoreRonTileWasReachTile } from "@/lib/naga";
+import { fixScoreRonTileWasReachTile, parseKyokuResult } from "@/lib/naga";
+import type { TenhouMessage, KyokuResultAgari } from "@/lib/naga";
 import { sanitizePlayerNames, soul2naga } from "@/lib/viewer";
 import { useDisplayLang } from "@/composables/useDisplayLang";
 
@@ -115,7 +116,7 @@ const btn_msg = computed(() => {
   return (useKyokus.length * 10) + msg
 });
 
-chrome.runtime.onMessage.addListener((request: any, _sender: any, sendResponse: (response: string) => void) => {
+const onMessageListener = (request: any, _sender: any, sendResponse: (response: string) => void) => {
   const title = "疎通";
   console.log('4.listner');
   fixScoreRonTileWasReachTile(request.message)
@@ -124,9 +125,17 @@ chrome.runtime.onMessage.addListener((request: any, _sender: any, sendResponse: 
   toNagaData = soul2naga(request.message, Rule.value);
   console.log(toNagaData)
   sendResponse(title);
+};
+
+onMounted(() => {
+  chrome.runtime.onMessage.addListener(onMessageListener);
 });
 
-const processData = (message: any) => {
+onUnmounted(() => {
+  chrome.runtime.onMessage.removeListener(onMessageListener);
+});
+
+const processData = (message: TenhouMessage) => {
   for (let i = 0; i < message.log.length; i++) {
     const kyoku: KyokuInfo = {
       id: i,
@@ -136,33 +145,31 @@ const processData = (message: any) => {
       result: [],
       isSelect: false,
     };
-    if (message.log[i][16][0] === "和了") {
-      let t = 0;
-      for (t = 1; t < ~~(message.log[i][16].length / 2) + 1; t++) {
-        let one: any[];
-        if (message.log[i][16][2 * t][0] === message.log[i][16][2 * t][1]) {
-          one = [
+    const parsed = parseKyokuResult(message.log[i][16]);
+    if (parsed.type === "和了") {
+      for (const agari of (parsed as KyokuResultAgari).agaris) {
+        if (agari.isTsumo) {
+          kyoku.result.push([
             "ツモ和",
-            message.name[message.log[i][16][2 * t][0]],
+            message.name[agari.winnerSeat],
             "",
-            message.log[i][16][t][message.log[i][16][2 * t][0]],
+            agari.deltas[agari.winnerSeat],
             ""
-          ];
+          ]);
         } else {
-          one = [
+          kyoku.result.push([
             "ロン和",
-            message.name[message.log[i][16][2 * t][0]],
-            message.name[message.log[i][16][2 * t][1]],
-            message.log[i][16][2 * t - 1][message.log[i][16][2 * t][0]],
-            message.log[i][16][2 * t - 1][message.log[i][16][2 * t][1]]
-          ];
+            message.name[agari.winnerSeat],
+            message.name[agari.loserSeat],
+            agari.deltas[agari.winnerSeat],
+            agari.deltas[agari.loserSeat]
+          ]);
         }
-        kyoku.result.push(one);
       }
     } else {
-      const ryukyoku: any[] = [message.log[i][16][0]];
-      if (message.log[i][16][1]) {
-        message.log[i][16][1].forEach((score: number, index: number) => {
+      const ryukyoku: any[] = [parsed.type];
+      if ((parsed as { deltas: number[] | null }).deltas) {
+        (parsed as { deltas: number[] }).deltas.forEach((score: number, index: number) => {
           if (score > 0) {
             ryukyoku.push(message.name[index])
           }
