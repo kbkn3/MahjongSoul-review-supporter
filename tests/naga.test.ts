@@ -1,5 +1,5 @@
 import { extractTable, toSoulTable, toNagaHand, toNagaLog, parseKyokuResult, checkRonTileIsReachTile, fixScoreRonTileWasReachTile, getDrawsForSeat, getDiscardsForSeat, getScoreAndBonus } from "../src/lib/naga";
-import type { KyokuResultAgari, KyokuResultDraw } from "../src/lib/naga";
+import type { KyokuResultAgari, KyokuResultDraw, AgariInfo } from "../src/lib/naga";
 
 describe("extractTable", () => {
     test("bronze room", () => {
@@ -92,24 +92,21 @@ describe("toNagaLog", () => {
 
 describe("checkRonTileIsReachTile", () => {
     test("returns true when last discard starts with r", () => {
-        const message = {
-            log: [buildRonLog({ lastDiscard: "r15", winnerDelta: 8000, loserDelta: -8000 })]
-        };
-        expect(checkRonTileIsReachTile(message, 0, 1)).toBe(true);
+        const log = buildRonLog({ lastDiscard: "r15", winnerDelta: 8000, loserDelta: -8000 });
+        const agari = (parseKyokuResult(log[16]) as KyokuResultAgari).agaris[0];
+        expect(checkRonTileIsReachTile(log, agari)).toBe(true);
     });
 
     test("returns false when last discard is not riichi", () => {
-        const message = {
-            log: [buildRonLog({ lastDiscard: 15, winnerDelta: 8000, loserDelta: -8000 })]
-        };
-        expect(checkRonTileIsReachTile(message, 0, 1)).toBe(false);
+        const log = buildRonLog({ lastDiscard: 15, winnerDelta: 8000, loserDelta: -8000 });
+        const agari = (parseKyokuResult(log[16]) as KyokuResultAgari).agaris[0];
+        expect(checkRonTileIsReachTile(log, agari)).toBe(false);
     });
 
     test("returns false when point difference is even (double ron)", () => {
-        const message = {
-            log: [buildRonLog({ lastDiscard: "r15", winnerDelta: 8000, loserDelta: 8000 })]
-        };
-        expect(checkRonTileIsReachTile(message, 0, 1)).toBe(false);
+        const log = buildRonLog({ lastDiscard: "r15", winnerDelta: 8000, loserDelta: 8000 });
+        const agari = (parseKyokuResult(log[16]) as KyokuResultAgari).agaris[0];
+        expect(checkRonTileIsReachTile(log, agari)).toBe(false);
     });
 });
 

@@ -110,7 +110,7 @@ interface TenhouMessage {
     rule: { disp: string; aka53: number; aka52: number; aka51: number };
     lobby: number;
     dan: string[];
-    rate: number[];
+    rate: string[];
     sx: string[];
     name: string[];
     sc: number[];
@@ -124,10 +124,8 @@ interface GameMessage {
 /**
  * リーチ宣言牌がロンの場合を判定
  */
-function checkRonTileIsReachTile(message: GameMessage, i: number, t: number): boolean {
-    const result = parseKyokuResult(message.log[i][16]) as KyokuResultAgari;
-    const agari = result.agaris[t - 1];
-    const targetArray = getDiscardsForSeat(message.log[i], agari.loserSeat);
+function checkRonTileIsReachTile(logEntry: TenhouLog, agari: AgariInfo): boolean {
+    const targetArray = getDiscardsForSeat(logEntry, agari.loserSeat);
     const targetPointEven = agari.deltas[agari.loserSeat] === agari.deltas[agari.winnerSeat];
     if (targetArray && !targetPointEven) {
         const lastElement = targetArray[targetArray.length - 1];
@@ -147,7 +145,7 @@ function fixScoreRonTileWasReachTile(message: GameMessage): void {
         for (let t = 0; t < agaris.length; t++) {
             const agari = agaris[t];
             if (!agari.isTsumo) {
-                if (checkRonTileIsReachTile(message, i, t + 1)) {
+                if (checkRonTileIsReachTile(message.log[i], agari)) {
                     agari.deltas[agari.winnerSeat] -= 1000;
                 }
             }
