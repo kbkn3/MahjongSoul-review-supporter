@@ -42,7 +42,7 @@
 import { onMounted, onUnmounted, reactive, ref, computed } from "vue";
 import Kyoku from "@/popup/Kyoku.vue";
 import { fixScoreRonTileWasReachTile, parseKyokuResult } from "@/lib/naga";
-import type { TenhouMessage, KyokuResultAgari } from "@/lib/naga";
+import type { TenhouMessage, KyokuResultAgari, KyokuResultDraw } from "@/lib/naga";
 import { sanitizePlayerNames, soul2naga } from "@/lib/viewer";
 import { useDisplayLang } from "@/composables/useDisplayLang";
 
@@ -168,8 +168,9 @@ const processData = (message: TenhouMessage) => {
       }
     } else {
       const ryukyoku: any[] = [parsed.type];
-      if ((parsed as { deltas: number[] | null }).deltas) {
-        (parsed as { deltas: number[] }).deltas.forEach((score: number, index: number) => {
+      const draw = parsed as KyokuResultDraw;
+      if (draw.deltas) {
+        draw.deltas.forEach((score: number, index: number) => {
           if (score > 0) {
             ryukyoku.push(message.name[index])
           }

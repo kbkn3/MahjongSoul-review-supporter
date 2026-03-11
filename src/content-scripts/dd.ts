@@ -90,7 +90,7 @@
                 //should treat tsumo loss as ron, luckily all yakuman values round safely for north bisection
                 delta[liableseat] -= 2 * hb + liablefor * 2 * YSCORE[OYA][KO] + tlround(TSUMO_LOSS_BISECTION * liablefor * YSCORE[OYA][KO]);
                 delta.forEach((_e, i) => {
-                    if (liableseat != i && h.seat != i && k.nplayers >= i)
+                    if (liableseat != i && h.seat != i)
                         delta[i] += hb + liablefor * YSCORE[OYA][KO] + tlround(TSUMO_LOSS_BISECTION * liablefor * (YSCORE[OYA][KO]));
                 });
                 if (3 == k.nplayers)
@@ -99,7 +99,7 @@
             else {
                 delta[liableseat] -= (k.nplayers - 2) * hb + liablefor * (YSCORE[KO][OYA] + YSCORE[KO][KO]) + tlround(TSUMO_LOSS_BISECTION * liablefor * YSCORE[KO][KO]);
                 delta.forEach((_e, i) => {
-                    if (liableseat != i && h.seat != i && k.nplayers >= i) {
+                    if (liableseat != i && h.seat != i) {
                         if (k.dealerseat == i)
                             delta[i] += hb + liablefor * YSCORE[KO][OYA] + tlround(TSUMO_LOSS_BISECTION * liablefor * YSCORE[KO][KO]);
                         else
@@ -115,23 +115,23 @@
     }
 
     function formatScoreLabel(h: any, points: string | number): string {
-        points += RUNES.points[JPNAME] + ((h.zimo && h.qinjia) ? RUNES.all[NAMEPREF] : "");
+        const label = points + RUNES.points[JPNAME] + ((h.zimo && h.qinjia) ? RUNES.all[NAMEPREF] : "");
         const fuhan = h.fu + RUNES.fu[JPNAME] + h.count + RUNES.han[JPNAME];
         if (h.yiman)
-            return (SHOWFU ? fuhan : "") + RUNES.yakuman[JPNAME] + points;
+            return (SHOWFU ? fuhan : "") + RUNES.yakuman[JPNAME] + label;
         if (13 <= h.count)
-            return (SHOWFU ? fuhan : "") + RUNES.kazoeyakuman[JPNAME] + points;
+            return (SHOWFU ? fuhan : "") + RUNES.kazoeyakuman[JPNAME] + label;
         if (11 <= h.count)
-            return (SHOWFU ? fuhan : "") + RUNES.sanbaiman[JPNAME] + points;
+            return (SHOWFU ? fuhan : "") + RUNES.sanbaiman[JPNAME] + label;
         if (8 <= h.count)
-            return (SHOWFU ? fuhan : "") + RUNES.baiman[JPNAME] + points;
+            return (SHOWFU ? fuhan : "") + RUNES.baiman[JPNAME] + label;
         if (6 <= h.count)
-            return (SHOWFU ? fuhan : "") + RUNES.haneman[JPNAME] + points;
+            return (SHOWFU ? fuhan : "") + RUNES.haneman[JPNAME] + label;
         if (5 <= h.count || (4 <= h.count && 40 <= h.fu) || (3 <= h.count && 70 <= h.fu))
-            return (SHOWFU ? fuhan : "") + RUNES.mangan[JPNAME] + points;
+            return (SHOWFU ? fuhan : "") + RUNES.mangan[JPNAME] + label;
         if (ALLOW_KIRIAGE && ((4 == h.count && 30 == h.fu) || (3 == h.count && 60 == h.fu)))
-            return (SHOWFU ? fuhan : "") + RUNES.kiriagemangan[JPNAME] + points;
-        return fuhan + points;
+            return (SHOWFU ? fuhan : "") + RUNES.kiriagemangan[JPNAME] + label;
+        return fuhan + label;
     }
 
     //parse mjs hule into tenhou agari list
@@ -322,7 +322,7 @@
             name: players.name,
             sc,
             title: [
-                ruledisp + lobby,
+                rule.disp + lobby,
                 (new Date(record.head.end_time * 1000)).toLocaleString()
             ],
         };
