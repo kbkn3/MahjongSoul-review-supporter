@@ -210,7 +210,6 @@ const handleRuleChange = (event: Event) => {
   const value = (event.target as HTMLSelectElement).value;
   Rule.value = value;
   chrome.storage.local.set({ rule: value });
-  location.reload();
 };
 /* eslint-enable @typescript-eslint/no-explicit-any */
 </script>
