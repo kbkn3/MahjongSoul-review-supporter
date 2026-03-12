@@ -62,13 +62,14 @@ type KyokuResult = KyokuResultAgari | KyokuResultDraw;
 function parseKyokuResult(resultEntry: TenhouLog): KyokuResult {
     if (resultEntry[0] === "和了") {
         const agaris: AgariInfo[] = [];
-        for (let t = 1; t < ~~(resultEntry.length / 2) + 1; t++) {
-            const seats = resultEntry[2 * t];
+        for (let t = 1; t + 1 < resultEntry.length; t += 2) {
+            const seats = resultEntry[t + 1];
             agaris.push({
                 isTsumo: seats[0] === seats[1],
                 winnerSeat: seats[0],
                 loserSeat: seats[1],
-                deltas: resultEntry[2 * t - 1],
+                // 元配列への参照を保持する。fixScoreRonTileWasReachTile がこの参照経由で message.log を書き換える
+                deltas: resultEntry[t],
             });
         }
         return { type: "和了", agaris };
