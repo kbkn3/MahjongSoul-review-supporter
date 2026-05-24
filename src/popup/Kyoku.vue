@@ -1,5 +1,5 @@
 <template>
-    <div class="mx-1 my-2 block max-w-sm rounded-lg border-2  bg-mjsoul-grad-dark-blue p-2 shadow-md hover:bg-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700"
+    <div class="mx-1 my-2 block max-w-sm rounded-lg border-2  bg-mjsoul-grad-dark-blue p-2 shadow-md hover:bg-gray-800"
         :class="{ 'border-gray-200': !isSelect, 'border-red-600': isSelect }">
         <div class="text-lg  text-mjsoul-text-lightblue hudetext" v-if="Language !== 1">
             {{ Ba_str[Language][Ba] }}
