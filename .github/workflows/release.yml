@@ -1,0 +1,51 @@
+name: Release
+
+# GitHub で Release を publish すると Chrome / Edge ストアへ自動申請する。
+# workflow_dispatch から dry_run=true で起動すれば、申請せず認証情報の確認だけ行える。
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "認証情報の確認のみ行い、アップロード・申請はしない"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.14.0"
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm test
+
+      - run: npm run zip
+
+      - name: Submit to Chrome Web Store and Edge Add-ons
+        run: |
+          FLAGS=""
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            FLAGS="--dry-run"
+          fi
+          npx wxt submit $FLAGS \
+            --chrome-zip .output/*-chrome.zip \
+            --edge-zip .output/*-chrome.zip
+        env:
+          CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+          CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          EDGE_PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
+          EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
+          EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
