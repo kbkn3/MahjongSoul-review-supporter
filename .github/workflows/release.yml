@@ -11,6 +11,14 @@ on:
         description: "認証情報の確認のみ行い、アップロード・申請はしない"
         type: boolean
         default: true
+      targets:
+        description: "申請先ストア"
+        type: choice
+        default: both
+        options:
+          - both
+          - chrome
+          - edge
 
 permissions:
   contents: read
@@ -34,13 +42,24 @@ jobs:
 
       - name: Submit to Chrome Web Store and Edge Add-ons
         run: |
-          FLAGS=""
+          # release イベント時は inputs が空になるため both / 本番申請として扱う
+          TARGETS="${{ inputs.targets }}"
+          TARGETS="${TARGETS:-both}"
+          ZIP=$(ls .output/*-chrome.zip)
+
+          ARGS=()
           if [ "${{ inputs.dry_run }}" = "true" ]; then
-            FLAGS="--dry-run"
+            ARGS+=(--dry-run)
           fi
-          npx wxt submit $FLAGS \
-            --chrome-zip .output/*-chrome.zip \
-            --edge-zip .output/*-chrome.zip
+          if [ "$TARGETS" = "both" ] || [ "$TARGETS" = "chrome" ]; then
+            ARGS+=(--chrome-zip "$ZIP")
+          fi
+          if [ "$TARGETS" = "both" ] || [ "$TARGETS" = "edge" ]; then
+            ARGS+=(--edge-zip "$ZIP")
+          fi
+
+          echo "submit targets=$TARGETS zip=$ZIP"
+          npx wxt submit "${ARGS[@]}"
         env:
           CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
           CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
