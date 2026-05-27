@@ -16,6 +16,9 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# Scripts intermediate output (not for distribution)
+scripts/.cache/
+
 # Editor directories and files
 .idea
 .vscode
