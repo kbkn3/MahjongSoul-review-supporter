@@ -1,5 +1,7 @@
     import { tm2t, padRight as pad_right, tlround as tlroundPure } from "../lib/tile";
     import { JPNAME, RUNES, DAISANGEN, DAISUUSHI } from "../lib/constants";
+    import { cfgTables, type CfgTables } from "../lib/cfg";
+    import type { DecodedRecord } from "../lib/record-decode";
     import {
         KyokuState,
         initKyoku as initKyokuPure,
@@ -135,7 +137,7 @@
     }
 
     //parse mjs hule into tenhou agari list
-    function parsehule(h: any, k: KyokuState) {   //tenhou log viewer requires 点, 飜) or 役満) to end strings, rest of scoring string is entirely optional
+    function parsehule(h: any, k: KyokuState, cfg: CfgTables) {   //tenhou log viewer requires 点, 飜) or 役満) to end strings, rest of scoring string is entirely optional
         const res: any[] = [h.seat, h.zimo ? h.seat : k.ldseat, h.seat];
         const rp = (-1 != k.nriichi) ? RIICHI_STICK_POINTS * (k.nriichi + k.round[2]) : 0;
         const hb = HONBA_PAYMENT_UNIT * k.round[1];
@@ -151,7 +153,7 @@
         res.push(formatScoreLabel(h, points));
 
         h.fans.forEach((e: any) => res.push(
-            (JPNAME == NAMEPREF ? cfg.fan.fan.map_[e.id].name_jp : cfg.fan.fan.map_[e.id].name_en)
+            (JPNAME == NAMEPREF ? cfg.fan[String(e.id)].name_jp : cfg.fan[String(e.id)].name_en)
             + "(" + (h.yiman ? (RUNES.yakuman[JPNAME]) : (e.val + RUNES.han[JPNAME])) + ")"
         ));
 
@@ -159,10 +161,11 @@
     }
 
     //convert mjs records to tenhou log
-    function generatelog(mjslog: any[]): any[] {
+    function generatelog(actions: { name: string; data: any }[], cfg: CfgTables): any[] {
         const log: any[] = [];
-        mjslog.forEach((e, leafidx) => {
-            switch (e.constructor.name) {
+        actions.forEach((action, leafidx) => {
+            const e = action.data;
+            switch (action.name) {
                 case "RecordNewRound":
                     kyoku = initKyokuPure(e);
                     return;
@@ -178,7 +181,7 @@
                         case 1: handlePon(e, kyoku); return;
                         case 2: handleDaiminkan(e, kyoku); return;
                         default:
-                            console.log("didn't know what to do with " + e.constructor.name + "(" + leafidx + ")");
+                            console.log("didn't know what to do with " + action.name + "(" + leafidx + ")");
                             return;
                     }
                 case "RecordAnGangAddGang":
@@ -186,7 +189,7 @@
                         case 3: handleAnkan(e, kyoku); return;
                         case 2: handleShouminkan(e, kyoku); return;
                         default:
-                            console.log("didn't know what to do with " + e.constructor.name + " type: " + e.type);
+                            console.log("didn't know what to do with " + action.name + " type: " + e.type);
                             return;
                     }
                 case "RecordBaBei":
@@ -205,7 +208,7 @@
                         e.hules.forEach((f: any) => {
                             if (ura.length < (f.li_doras ? f.li_doras.length : 0))
                                 ura = f.li_doras.map((g: string) => tm2t(g));
-                            agari.push(parsehule(f, kyoku));
+                            agari.push(parsehule(f, kyoku, cfg));
                         });
                         const entry = dumpKyoku(kyoku, []);
                         entry.push([RUNES.agari[JPNAME]].concat(agari.flat()));
@@ -213,7 +216,7 @@
                         return;
                     }
                 default:
-                    console.log("didn't know what to do with " + e.constructor.name + "(" + leafidx + ")");
+                    console.log("didn't know what to do with " + action.name + "(" + leafidx + ")");
                     return;
             }
         });
@@ -225,7 +228,7 @@
         [key: string]: any;
     }
 
-    function buildRuleDisplay(record: any, nplayers: number): { ruledisp: string; lobby: string; nakas: number } {
+    function buildRuleDisplay(record: any, nplayers: number, cfg: CfgTables): { ruledisp: string; lobby: string; nakas: number } {
         let ruledisp = "";
         let lobby = "";
         let nakas = nplayers - 1;
@@ -234,8 +237,8 @@
             ruledisp += RUNES.sanma[JPNAME];
         if (record.head.config.meta.mode_id)
             ruledisp += (JPNAME == NAMEPREF) ?
-                cfg.desktop.matchmode.map_[record.head.config.meta.mode_id].room_name_jp
-                : cfg.desktop.matchmode.map_[record.head.config.meta.mode_id].room_name_en;
+                cfg.matchmode[String(record.head.config.meta.mode_id)].room_name_jp
+                : cfg.matchmode[String(record.head.config.meta.mode_id)].room_name_en;
         else if (record.head.config.meta.room_id) {
             lobby = ": " + record.head.config.meta.room_id;
             ruledisp += RUNES.friendly[NAMEPREF];
@@ -267,7 +270,7 @@
         return { "disp": ruledisp, "aka53": 1, "aka52": (4 == nakas ? 2 : 1), "aka51": (4 == nplayers ? 1 : 0) };
     }
 
-    function buildPlayerData(record: any, nplayers: number): { dan: string[]; rate: string[]; sx: string[]; name: string[] } {
+    function buildPlayerData(record: any, nplayers: number, cfg: CfgTables): { dan: string[]; rate: string[]; sx: string[]; name: string[] } {
         const dan = new Array(4).fill('');
         const rate = new Array(4).fill('');
         const sx = new Array(4).fill('C');
@@ -275,10 +278,10 @@
 
         record.head.accounts.forEach((e: any) => {
             dan[e.seat] = (JPNAME == NAMEPREF) ?
-                cfg.level_definition.level_definition.map_[e.level.id].full_name_jp
-                : cfg.level_definition.level_definition.map_[e.level.id].full_name_en;
+                cfg.level[String(e.level.id)].full_name_jp
+                : cfg.level[String(e.level.id)].full_name_en;
             rate[e.seat] = e.level.score;
-            const sexCode = cfg.item_definition.character.map_[e.character.charid].sex;
+            const sexCode = cfg.character[String(e.character.charid)].sex;
             sx[e.seat] = (1 == sexCode) ? "F" : (2 == sexCode ? "M" : "C");
             name[e.seat] = e.nickname;
         });
@@ -292,17 +295,13 @@
     }
 
     //this is the json struct that we write to file
-    function parse(record: any): TenhouResult {
+    function parse(record: DecodedRecord, cfg: CfgTables = cfgTables()): TenhouResult {
         TSUMOLOSSOFF = false;
         const nplayers = record.head.result.players.length;
 
-        const mjslog: any[] = [];
-        const mjsact = net.MessageWrapper.decodeMessage(record.data).actions;
-        mjsact.forEach((e: any) => { if (e.result.length !== 0) mjslog.push(net.MessageWrapper.decodeMessage(e.result)) });
-
-        const { ruledisp, lobby, nakas } = buildRuleDisplay(record, nplayers);
+        const { ruledisp, lobby, nakas } = buildRuleDisplay(record, nplayers, cfg);
         const rule = buildRuleConfig(ruledisp, record, nakas, nplayers);
-        const players = buildPlayerData(record, nplayers);
+        const players = buildPlayerData(record, nplayers, cfg);
 
         const scores = record.head.result.players
             .map((e: any) => [e.seat, e.part_point_1, e.total_point / 1000]);
@@ -312,7 +311,7 @@
         const res: TenhouResult = {
             ver: "2.3",
             ref: record.head.uuid,
-            log: generatelog(mjslog),
+            log: generatelog(record.actions, cfg),
             ratingc: "PF" + nplayers,
             rule,
             lobby: 0,
@@ -329,8 +328,8 @@
 
         if (VERBOSELOG) {
             res["mjshead"] = record.head;
-            res["mjslog"] = mjslog;
-            res["mjsrecordtypes"] = mjslog.map(e => e.constructor.name);
+            res["mjslog"] = record.actions.map(action => action.data);
+            res["mjsrecordtypes"] = record.actions.map(action => action.name);
         }
 
         return res;
