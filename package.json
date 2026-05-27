@@ -18,6 +18,7 @@
     "@wxt-dev/module-vue": "^1.0.3",
     "postcss": "^8.5.8",
     "postcss-prefix-selector": "^1.7.2",
+    "protobufjs-cli": "^2.4.0",
     "tailwindcss": "^4.2.1",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18",
