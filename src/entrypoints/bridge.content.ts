@@ -1,5 +1,6 @@
-// src/entrypoints/bridge.content.ts
 import { RSR, type ReviewMode } from "@/lib/messages";
+import { decodeGameRecord } from "@/lib/record-decode";
+import { parse } from "@/content-scripts/dd";
 
 export default defineContentScript({
   matches: [
@@ -22,17 +23,20 @@ export default defineContentScript({
       return false;
     });
 
-    // MAIN worldが返した生バイトを background へ転送しデコードを依頼
+    // MAIN worldが返した生バイトを、この content script(ISOLATED world) でデコード・parseする。
+    // protobufjs は new Function(eval相当) を使うため eval を禁じる MV3 の service worker(background)では動かない。
+    // content script の isolated world はその CSP 制約を受けないのでここで処理する。
+    // 結果は旧実装と同形の {message: tenhou} でブロードキャストし、popup の既存リスナ(Naga/Mjai/Recipe)が受け取る。
     window.addEventListener("message", (event) => {
       if (event.source !== window || event.origin !== location.origin) return;
       if (!event.data || event.data.direction !== RSR.RECORD) return;
-      const { bytes, mode } = event.data as { bytes: ArrayBuffer; mode: ReviewMode };
-      chrome.runtime.sendMessage(
-        { type: RSR.DECODE_RECORD, bytes: Array.from(new Uint8Array(bytes)), mode },
-        (response) => {
-          console.log("5." + (response?.ok ? "decoded" : "failed"));
-        }
-      );
+      const { bytes } = event.data as { bytes: ArrayBuffer; mode: ReviewMode };
+      try {
+        const tenhou = parse(decodeGameRecord(new Uint8Array(bytes)));
+        chrome.runtime.sendMessage({ message: tenhou });
+      } catch (error) {
+        console.error("decode/parse failed", error);
+      }
     });
   },
 });
