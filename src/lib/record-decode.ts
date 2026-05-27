@@ -20,6 +20,13 @@ export function decodeGameRecord(raw: Uint8Array): DecodedRecord {
   // 外側 Wrapper は name が空で data に ResGameRecord をエンコードして持つため、型を明示してデコードする。
   const outer = unwrapWrapper(payload);
   const response = namespace.ResGameRecord.decode(outer.data);
+  if (!response.head) {
+    throw new Error("not a fetchGameRecord response (head missing)");
+  }
+  if (!response.data || response.data.length === 0) {
+    // 大規模牌譜は data ではなく data_url(HTTP取得)で返ることがある。未対応。
+    throw new Error("game record provided via data_url is not supported yet");
+  }
   const head = response.head;
   // ResGameRecord.data は ".lq.GameDetailRecords" 名の Wrapper。中身を取り出してからデコードする。
   const detailWrapper = unwrapWrapper(response.data);
