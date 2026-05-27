@@ -9,6 +9,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "protobufjs": "^8.4.0",
     "vue": "^3.2.37"
   },
   "devDependencies": {
