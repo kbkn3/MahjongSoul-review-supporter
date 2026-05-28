@@ -45,15 +45,23 @@ pbjs --keep-case --no-comments \
      src/assets/majsoul/liqi.json
 ```
 
-**安全性根拠:** `src/` 全域を grep した結果、本番コードでメッセージクラスの `encode/create/verify/fromObject/toObject` を呼ぶ箇所は存在しない(`record-decode.ts` と `liqi-frame.ts` はいずれも `.decode()` のみ)。`background.ts:8` の `chrome.tabs.create` は別物。
+**安全性根拠:** 本番コードで利用している protobuf static-module API は `Wrapper.decode` / `ResGameRecord.decode` / `GameDetailRecords.decode` および `messageType(...).decode` のみ。`src/` 全域で、メッセージクラスの `.encode(`, `.create(`, `.verify(`, `.fromObject(`, `.toObject(`, `.decodeDelimited(`, `.encodeDelimited(` の呼び出しは存在しない(`record-decode.ts` / `liqi-frame.ts` はいずれも `.decode()` のみ)。`background.ts:8` の `chrome.tabs.create` および liqi RPC の `Lobby.prototype.create*` メソッド名(static-module 内 RPC スタブ)は pbjs のメッセージ `create` API とは別物のため、grep 確認時には除外して読む必要がある。
 
 ### 変更2: 生成スクリプトへの pbjs ステップ統合
 
 `scripts/gen-majsoul-assets.mjs` の末尾に Node 子プロセスで pbjs を呼ぶステップを追加する。`protobufjs-cli` は devDependencies に既に存在。
 
+**キャッシュ挙動の明文化:** 既存スクリプトは `scripts/.cache/lqc.lqbin` が存在する場合、`liqi.json` と `lqc.lqbin` の CDN 取得を**両方**スキップする(17MB の再取得を避けるため)。したがって本 pbjs ステップは「**作業ツリー上の `src/assets/majsoul/liqi.json` を入力に `liqi-proto.js` を再生成する**」処理として定義される。最新 CDN から `liqi.json` も更新したい場合は `scripts/.cache/lqc.lqbin` を削除してから再実行する運用とする。force オプションの追加は本作業のスコープ外で、フラグ固定を優先する。
+
+**pbjs バイナリの解決方針:** `npx` 経由は環境/PATH 依存で再現性が落ちるため、devDependencies の `protobufjs-cli` を `createRequire` で直接解決し、`process.execPath` から spawn する。
+
 ```javascript
 // scripts/gen-majsoul-assets.mjs に追記
 import { spawnSync } from "node:child_process";
+import { createRequire } from "node:module";
+
+const require = createRequire(import.meta.url);
+const pbjsPath = require.resolve("protobufjs-cli/bin/pbjs");
 
 const pbjsArgs = [
   "--keep-case", "--no-comments",
@@ -62,9 +70,9 @@ const pbjsArgs = [
   "-o", "src/assets/majsoul/liqi-proto.js",
   "src/assets/majsoul/liqi.json",
 ];
-const result = spawnSync("npx", ["pbjs", ...pbjsArgs], { stdio: "inherit" });
+const result = spawnSync(process.execPath, [pbjsPath, ...pbjsArgs], { stdio: "inherit" });
 if (result.status !== 0) {
-  throw new Error(`pbjs failed with status ${result.status}`);
+  throw new Error(`pbjs failed with status ${result.status ?? result.signal}`);
 }
 ```
 
@@ -128,13 +136,15 @@ it("Wrapper{name,data}を name(先頭 \".\" 除去)と data に分解する", ()
 
 ## 検証計画
 
-- 単体: `npx vitest run` 133/133 pass(`liqi-frame.test.ts` 修正後)。
+- 単体: `npx vitest run` 133/133 pass(`liqi-frame.test.ts` 修正後)。特に `tests/record-decode.test.ts` の実牌譜 fixture が `RecordNewRound` / `RecordDiscardTile` / `RecordDealTile` を含む 1211 actions を従来通り decode できることを個別確認する(本変更で壊れた場合の最初の検出点になるため)。
+- 生成物確認: `wc -c src/assets/majsoul/liqi-proto.js` でサイズ低下を記録。`rg '= function (encode|verify|fromObject|toObject|decodeDelimited|encodeDelimited)' src/assets/majsoul/liqi-proto.js` を実行し、不要 API が生成物に残っていないことを確認する(ヒット時は liqi RPC の `Lobby.prototype.create*` / `verify*` メソッド名は除外して読む)。
+- API 存在確認: `lq.Wrapper.decode` / `lq.ResGameRecord.decode` / `lq.GameDetailRecords.decode` / 入れ子型例 `lq.RecordTake.TingPai.decode` の各メソッドが生成物に含まれることを `rg` で確認(`record-decode.ts` の `messageType()` が依存する namespace 構造の維持を実体で保証する)。
 - ビルド: `npm run build` 成功、`.output/chrome-mv3/content-scripts/bridge.js` サイズ低下を記録。
 - E2E: 雀魂で既知の牌譜を1件開き、NAGA/mjai 転送が PR #31 同等に動くことを手動確認(`data_url` 非対応牌譜以外)。
 
 ## リスク
 
-- **pbjs 出力の互換性**: decode 専用フラグでも `lq.<MessageName>` 名前空間と `.decode()` シグネチャは保たれる(protobufjs ドキュメントおよび実測)。`record-decode.ts` の `messageType()` がドット分割で名前空間を辿る方式も変わらず動作する見込み。万一動かない場合は `--no-create` だけ外して再評価(create は通常 decode と独立だが一部の内部参照で利用される版があれば検出される)。
+- **pbjs 出力の互換性**: decode 専用フラグ後も `export const lq` / `lq.Wrapper.decode` / `lq.ResGameRecord.decode` / `lq.GameDetailRecords.decode` / 入れ子型例 `lq.RecordTake.TingPai.decode` が生成物に存在することを「検証計画」の API 存在確認で実体保証する。`record-decode.ts` の `messageType()` は `lq.` を除いた名前をドット分割してプロパティ参照するだけなので、static-module の namespace 構造が維持されれば互換性がある。万一いずれかが欠落していた場合は `--no-create` だけ外して再評価する(create は通常 decode と独立だが一部の内部参照で利用される版があれば検出される)。
 - **テスト fixture の reflection 化**: vitest が `protobuf.Root.fromJSON` をロードする際に `liqi.json`(284 KB)を読むだけ。実行時間影響は無視できる。
 - **`data_url` 経路の継続未対応**: 大規模牌譜を開いたユーザーには現状のエラーが表示される。本設計のスコープ外。
 
