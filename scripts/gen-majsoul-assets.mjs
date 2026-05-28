@@ -3,6 +3,8 @@
 // 出所: 雀魂(Cat Food Studio/Yo-star)の配布物。デコード結果のみ同梱する。
 // 手法参照(コードはコピーしない): tensoul(MIT) のCDNバージョン解決。
 import { writeFile, mkdir, readFile, access } from "node:fs/promises";
+import { spawnSync } from "node:child_process";
+import { createRequire } from "node:module";
 import protobuf from "protobufjs";
 
 const BASE = "https://game.maj-soul.com/1";
@@ -200,3 +202,46 @@ for (const [fileName, data] of Object.entries(cfgFiles)) {
   await writeFile(`${CFG_DIR}/${fileName}`, `${JSON.stringify(data)}\n`);
   console.log(`${fileName}: ${Object.keys(data).length} 件`);
 }
+
+// ----------------------------------------------------------------------------
+// pbjs static-module で src/assets/majsoul/liqi-proto.js を生成する。
+//
+// フラグは decode 専用に固定する: 本番コード(record-decode.ts/liqi-frame.ts)は
+// .decode() しか呼ばないため encode/verify/convert/create/delimited は不要。
+// このフラグ固定が「--keep-case 付け忘れによる camelCase 化事故」を構造的に防ぐ。
+//
+// pbjs バイナリは devDependencies の protobufjs-cli を createRequire で直接解決する。
+// npx 経由は PATH/環境に依存して再現性が落ちるため使用しない。
+
+const require = createRequire(import.meta.url);
+const pbjsPath = require.resolve("protobufjs-cli/bin/pbjs");
+
+const LIQI_PROTO_OUTPUT = "src/assets/majsoul/liqi-proto.js";
+const pbjsArgs = [
+  "--keep-case",
+  "--no-comments",
+  "--no-encode",
+  "--no-verify",
+  "--no-convert",
+  "--no-create",
+  "--no-delimited",
+  "-t", "static-module",
+  "-w", "es6",
+  "-o", LIQI_PROTO_OUTPUT,
+  "src/assets/majsoul/liqi.json",
+];
+const pbjsResult = spawnSync(process.execPath, [pbjsPath, ...pbjsArgs], {
+  stdio: "inherit",
+});
+if (pbjsResult.status !== 0) {
+  throw new Error(`pbjs failed with status ${pbjsResult.status ?? pbjsResult.signal}`);
+}
+
+// pbjs --no-comments は出所/再生成手順を含まないため、日本語ヘッダコメントを先頭に付与する。
+// 編集者が個別フラグを手で叩いて再生成し --keep-case を落とす事故を防ぐため、再生成手順は
+// npm run gen:assets だけを記載する(個別 pbjs コマンドは書かない)。
+const HEADER_COMMENT = "// 自動生成物。出所: 雀魂 liqi.json (src/assets/majsoul/liqi.json)。再生成: npm run gen:assets。手動編集しない。\n";
+const generated = await readFile(LIQI_PROTO_OUTPUT, "utf8");
+await writeFile(LIQI_PROTO_OUTPUT, HEADER_COMMENT + generated);
+
+console.log(`liqi-proto.js 生成完了: ${LIQI_PROTO_OUTPUT}`);
