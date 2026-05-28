@@ -210,7 +210,7 @@
                                 ura = f.li_doras.map((g: string) => tm2t(g));
                             agari.push(parsehule(f, kyoku, cfg));
                         });
-                        const entry = dumpKyoku(kyoku, []);
+                        const entry = dumpKyoku(kyoku, ura);
                         entry.push([RUNES.agari[JPNAME]].concat(agari.flat()));
                         log.push(entry);
                         return;
