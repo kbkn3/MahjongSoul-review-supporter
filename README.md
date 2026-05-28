@@ -38,6 +38,10 @@ This project includes code and concepts from:
 * mjai-reviewer : [Github Equim-chan/mjai-reviewer](https://github.com/Equim-chan/mjai-reviewer)
   * Apache-2.0 Using `downloadlogs script`
   * The actual reference in this project is [dd.js](src/content-scripts/dd.js)
+* tensoul : [Github tomohxx/tensoul](https://github.com/tomohxx/tensoul)
+  * MIT - Referenced for the Mahjong Soul CDN version resolution method
+* MajsoulMax : [Github Avenshy/MajsoulMax](https://github.com/Avenshy/MajsoulMax)
+  * GPL-3.0 - Referenced for the liqi WebSocket frame structure (no code copied)
 
 ## License
 
