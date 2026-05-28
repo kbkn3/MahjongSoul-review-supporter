@@ -26,4 +26,18 @@ describe("parse (real fixture end-to-end)", () => {
     expect(result.dan.filter((d: string) => d.length > 0)).toHaveLength(4);
     expect(result.sx.every((s: string) => ["F", "M", "C"].includes(s))).toBe(true);
   });
+
+  it("立直×和了局で裏ドラ表示牌が出力される (regression: 7670c153)", () => {
+    const result = parse(decodeGameRecord(raw));
+    const uraIndicators = result.log.map((kyoku: any[]) => kyoku[3] as number[]);
+    const populated = uraIndicators
+      .map((u: number[], i: number) => ({ i, u }))
+      .filter(({ u }: { u: number[] }) => u.length > 0);
+
+    expect(populated.length).toBe(4);
+    expect(uraIndicators[1]).toEqual([18]);
+    expect(uraIndicators[5]).toEqual([44]);
+    expect(uraIndicators[6]).toEqual([44]);
+    expect(uraIndicators[9]).toEqual([36]);
+  });
 });
