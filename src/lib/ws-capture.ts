@@ -30,7 +30,10 @@ export class GameRecordCapturer {
   // 送信フレームを観測。fetchGameRecordリクエストならそのindexを覚える。
   observeSend(data: Uint8Array): void {
     if (data.length < 3 || data[0] !== FRAME_REQUEST) return;
-    if (containsAscii(data, "fetchGameRecord")) {
+    // Wrapper.name 直後に来る data field tag(0x12)まで含めて完全一致させる。
+    // 単に "fetchGameRecord" だけだと fetchGameRecordList / fetchGameRecordsDetail にも一致してしまい、
+    // それらの応答(head フィールドを持たない別型)を捕捉して record-decode 側で "head missing" に至っていた。
+    if (containsAscii(data, "fetchGameRecord\x12")) {
       this.pendingIndex = frameIndex(data);
     }
   }
