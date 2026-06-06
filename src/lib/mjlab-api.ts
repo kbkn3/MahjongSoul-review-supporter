@@ -97,9 +97,13 @@ export async function postIngest(
   const json = (await response.json().catch(() => ({}))) as Record<string, unknown>;
 
   if (response.ok) {
+    if (typeof json.shareToken !== "string") {
+      // 200 だが必須フィールド欠如。壊れた /review/undefined を開かないようエラー扱いにする。
+      return { ok: false, status: response.status, error: "invalid_response" };
+    }
     return {
       ok: true,
-      reviewUrl: buildReviewUrl(baseUrl, json.shareToken as string),
+      reviewUrl: buildReviewUrl(baseUrl, json.shareToken),
       reviewId: json.reviewId as number,
       merged: Boolean(json.merged),
     };
@@ -116,14 +120,19 @@ export async function postIngest(
     ok: false,
     status: response.status,
     error: (json.error as string) ?? "unknown",
-    detail: json.detail as string | undefined,
+    detail: typeof json.detail === "string" ? json.detail : undefined,
     candidates,
   };
 }
 
 export function describeIngestError(result: Extract<IngestResult, { ok: false }>): string {
+  // permission_denied / network / invalid_response はクライアント側または応答異常のエラーで、
+  // HTTP status ではなく error 文字列で判定する。
   if (result.error === "permission_denied") {
     return "mj-lab へのアクセスが許可されていません。オプションで mj-lab URL を保存し直してください。";
+  }
+  if (result.error === "invalid_response") {
+    return "mj-lab の応答が不正です（shareToken 欠如）。";
   }
   if (result.error === "network" || result.status === 0) {
     return "mj-lab に接続できませんでした。URL・接続状態、または拡張IDが MJLAB_ALLOWED_ORIGINS に未登録でないか確認してください。";

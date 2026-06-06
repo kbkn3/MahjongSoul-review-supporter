@@ -147,11 +147,17 @@ describe("postIngest", () => {
     const result = await postIngest("https://mj.example.com", "secret", okPayload);
     expect(result).toEqual({ ok: false, status: 0, error: "network" });
   });
+
+  it("treats a 200 without shareToken as an invalid response", async () => {
+    mockFetch(200, { reviewId: 7 });
+    const result = await postIngest("https://mj.example.com", "secret", okPayload);
+    expect(result).toEqual({ ok: false, status: 200, error: "invalid_response" });
+  });
 });
 
 describe("describeIngestError", () => {
   it("maps known statuses to Japanese messages", () => {
-    const r = (over: Partial<Extract<IngestResult, { ok: false }>>): IngestResult => ({
+    const r = (over: Partial<Extract<IngestResult, { ok: false }>>): Extract<IngestResult, { ok: false }> => ({
       ok: false,
       status: 0,
       error: "x",
@@ -163,5 +169,8 @@ describe("describeIngestError", () => {
     expect(describeIngestError(r({ status: 422, error: "unsupported_format", detail: "3-player" }))).toContain("3-player");
     expect(describeIngestError(r({ status: 0, error: "permission_denied" }))).toContain("許可");
     expect(describeIngestError(r({ status: 0, error: "network" }))).toContain("接続");
+    expect(describeIngestError(r({ status: 409, error: "ambiguous_match" }))).toContain("候補");
+    expect(describeIngestError(r({ status: 500, error: "boom" }))).toContain("500");
+    expect(describeIngestError(r({ status: 200, error: "invalid_response" }))).toContain("応答");
   });
 });
