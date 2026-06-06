@@ -54,6 +54,12 @@ describe("buildReviewUrl", () => {
       "https://mj.example.com/review/tok-123",
     );
   });
+
+  it("url-encodes the share token", () => {
+    expect(buildReviewUrl("https://mj.example.com", "a/b?x")).toBe(
+      "https://mj.example.com/review/a%2Fb%3Fx",
+    );
+  });
 });
 
 describe("buildIngestPayload", () => {
@@ -158,6 +164,26 @@ describe("postIngest", () => {
     mockFetch(200, { shareToken: "", reviewId: 7 });
     const result = await postIngest("https://mj.example.com", "secret", okPayload);
     expect(result).toEqual({ ok: false, status: 200, error: "invalid_response" });
+  });
+
+  it("filters out malformed 409 candidates", async () => {
+    mockFetch(409, {
+      error: "ambiguous_match",
+      candidates: [
+        { reviewId: 1, shareToken: "a", title: "東1局" },
+        { reviewId: 2, title: "no token" },
+        { reviewId: 3, shareToken: "", title: "empty token" },
+      ],
+    });
+    const result = await postIngest("https://mj.example.com", "secret", okPayload);
+    expect(result).toMatchObject({
+      ok: false,
+      status: 409,
+      candidates: [
+        { reviewId: 1, shareToken: "a", title: "東1局", url: "https://mj.example.com/review/a" },
+      ],
+    });
+    if (!result.ok) expect(result.candidates).toHaveLength(1);
   });
 });
 

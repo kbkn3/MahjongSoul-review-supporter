@@ -40,7 +40,7 @@ export function originPattern(baseUrl: string): string {
 }
 
 export function buildReviewUrl(baseUrl: string, shareToken: string): string {
-  return `${normalizeBaseUrl(baseUrl)}/review/${shareToken}`;
+  return `${normalizeBaseUrl(baseUrl)}/review/${encodeURIComponent(shareToken)}`;
 }
 
 // payload は message を参照で保持するため、呼び出し元は変更済みの TenhouMessage を渡すこと。
@@ -80,6 +80,10 @@ export async function postIngest(
   payload: IngestPayload,
 ): Promise<IngestResult> {
   const endpoint = `${normalizeBaseUrl(baseUrl)}/api/reviews/ingest`;
+  // サーバー無応答で busy が戻らないのを防ぐため 30 秒で abort する。abort 時は fetch が
+  // reject し、下の catch で network 扱いになる。
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30_000);
   let response: Response;
   try {
     response = await fetch(endpoint, {
@@ -89,9 +93,12 @@ export async function postIngest(
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(payload),
+      signal: controller.signal,
     });
   } catch {
     return { ok: false, status: 0, error: "network" };
+  } finally {
+    clearTimeout(timeoutId);
   }
 
   const json = (await response.json().catch(() => ({}))) as Record<string, unknown>;
@@ -109,12 +116,7 @@ export async function postIngest(
     };
   }
 
-  const candidates = Array.isArray(json.candidates)
-    ? (json.candidates as { reviewId: number; shareToken: string; title: string }[]).map((c) => ({
-        ...c,
-        url: buildReviewUrl(baseUrl, c.shareToken),
-      }))
-    : undefined;
+  const candidates = parseCandidates(baseUrl, json.candidates);
 
   return {
     ok: false,
@@ -123,6 +125,36 @@ export async function postIngest(
     detail: typeof json.detail === "string" ? json.detail : undefined,
     candidates,
   };
+}
+
+// 409 candidates はサーバー応答由来。shareToken/title が欠落・空・非文字列の要素を除外し、
+// 壊れた /review/ リンクや undefined キーを作らないようにする(200応答の shareToken ガードと対称)。
+function parseCandidates(baseUrl: string, value: unknown): IngestCandidate[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const candidates = value.flatMap((candidate) => {
+    if (
+      typeof candidate !== "object" ||
+      candidate === null ||
+      typeof (candidate as { shareToken?: unknown }).shareToken !== "string" ||
+      (candidate as { shareToken: string }).shareToken === "" ||
+      typeof (candidate as { title?: unknown }).title !== "string"
+    ) {
+      return [];
+    }
+    const shareToken = (candidate as { shareToken: string }).shareToken;
+    return [
+      {
+        reviewId:
+          typeof (candidate as { reviewId?: unknown }).reviewId === "number"
+            ? (candidate as { reviewId: number }).reviewId
+            : 0,
+        shareToken,
+        title: (candidate as { title: string }).title,
+        url: buildReviewUrl(baseUrl, shareToken),
+      },
+    ];
+  });
+  return candidates.length ? candidates : undefined;
 }
 
 export function describeIngestError(result: Extract<IngestResult, { ok: false }>): string {

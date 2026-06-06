@@ -50,7 +50,7 @@ const busy = ref(false);
 chrome.storage.local.get(["mjlabBaseUrl", "mjlabToken", "MSLang"], (result) => {
   if (typeof result.mjlabBaseUrl === "string") baseUrl.value = result.mjlabBaseUrl;
   if (typeof result.mjlabToken === "string") token.value = result.mjlabToken;
-  if (typeof result.MSLang !== "undefined") msLang.value = Number(result.MSLang);
+  if (typeof result.MSLang !== "undefined") msLang.value = Number(result.MSLang) || 0;
 });
 
 const configured = computed(() => Boolean(baseUrl.value && token.value));
