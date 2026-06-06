@@ -7,4 +7,8 @@ describe("RSR message constants", () => {
     expect(RSR.RECORD).toBe("rsr:record");
     expect(RSR.DECODE_RECORD).toBe("rsr:decode-record");
   });
+
+  it("defines the ingest message name", () => {
+    expect(RSR.INGEST).toBe("rsr:ingest");
+  });
 });
