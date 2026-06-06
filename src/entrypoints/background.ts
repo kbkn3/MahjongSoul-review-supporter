@@ -40,7 +40,11 @@ export default defineBackground(() => {
 
   chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     if (request?.type !== RSR.INGEST) return false;
-    handleIngest(request as IngestMessage).then(sendResponse);
+    handleIngest(request as IngestMessage)
+      .then(sendResponse)
+      .catch(() =>
+        sendResponse({ ok: false, status: 0, error: "network" } satisfies IngestResult),
+      );
     return true; // 非同期 sendResponse のためチャネルを開いたままにする
   });
 });
