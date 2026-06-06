@@ -97,7 +97,7 @@ export async function postIngest(
   const json = (await response.json().catch(() => ({}))) as Record<string, unknown>;
 
   if (response.ok) {
-    if (typeof json.shareToken !== "string") {
+    if (typeof json.shareToken !== "string" || json.shareToken === "") {
       // 200 だが必須フィールド欠如。壊れた /review/undefined を開かないようエラー扱いにする。
       return { ok: false, status: response.status, error: "invalid_response" };
     }

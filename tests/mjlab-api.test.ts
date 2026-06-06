@@ -153,6 +153,12 @@ describe("postIngest", () => {
     const result = await postIngest("https://mj.example.com", "secret", okPayload);
     expect(result).toEqual({ ok: false, status: 200, error: "invalid_response" });
   });
+
+  it("treats a 200 with an empty shareToken as an invalid response", async () => {
+    mockFetch(200, { shareToken: "", reviewId: 7 });
+    const result = await postIngest("https://mj.example.com", "secret", okPayload);
+    expect(result).toEqual({ ok: false, status: 200, error: "invalid_response" });
+  });
 });
 
 describe("describeIngestError", () => {
