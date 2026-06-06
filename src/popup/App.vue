@@ -16,6 +16,7 @@
             </div>
             <div class="w-2/5">
               <MjaiList></MjaiList>
+              <MjlabList></MjlabList>
               <RecipeList></RecipeList>
               <div class="template-box">
                 <div class="flex flex-col py-4">
@@ -42,6 +43,7 @@
 <script setup lang="ts">
 import NagaList from "@/popup/NagaList.vue";
 import MjaiList from "@/popup/MjaiList.vue";
+import MjlabList from "@/popup/MjlabList.vue";
 import RecipeList from "@/popup/RecipeList.vue";
 import iconTrash from "@/components/iconTrash.vue";
 import { useDisplayLang } from "@/composables/useDisplayLang";
