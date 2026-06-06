@@ -22,7 +22,7 @@
       </p>
       <ul v-if="candidates.length" class="mt-2">
         <li v-for="candidate in candidates" :key="candidate.shareToken" class="my-1">
-          <a class="underline text-mjsoul-text-lightblue" :href="candidate.url" target="_blank">
+          <a class="underline text-mjsoul-text-lightblue" :href="candidate.url" target="_blank" rel="noopener noreferrer">
             {{ candidate.title }}
           </a>
         </li>
@@ -57,6 +57,7 @@ const configured = computed(() => Boolean(baseUrl.value && token.value));
 const hasRef = computed(() => Boolean(message.value?.ref));
 const canSubmit = computed(() => configured.value && hasRef.value);
 
+// 牌譜取得のトリガ(tabNaga送信)は NagaList.onMounted が担うため、ここでは送らず broadcast を待つだけ。
 // NagaList などのリスナは受信した message を共有オブジェクトとしてインプレース変換する
 // (fixScoreRonTileWasReachTile が message.log の点棒デルタを書き換える等)。
 // setup 実行時に登録することで全 onMounted より先にこのリスナが走り、変換前の message を観測できる。

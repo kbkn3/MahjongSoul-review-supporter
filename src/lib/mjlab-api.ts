@@ -104,7 +104,7 @@ export async function postIngest(
     return {
       ok: true,
       reviewUrl: buildReviewUrl(baseUrl, json.shareToken),
-      reviewId: json.reviewId as number,
+      reviewId: typeof json.reviewId === "number" ? json.reviewId : 0,
       merged: Boolean(json.merged),
     };
   }
