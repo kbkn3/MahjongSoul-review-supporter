@@ -23,4 +23,3 @@ import LangList from "@/options/LangList.vue";
 import MjlabSettings from "@/options/MjlabSettings.vue";
 </script>
 
-

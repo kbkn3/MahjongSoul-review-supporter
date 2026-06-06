@@ -47,13 +47,17 @@ const save = async () => {
     message.value = "https のURLを入力してください。";
     return;
   }
-  const granted = await chrome.permissions.request({ origins: [originPattern(normalized)] });
-  if (!granted) {
-    message.value = "mj-lab ホストへのアクセス許可が必要です。";
-    return;
+  try {
+    const granted = await chrome.permissions.request({ origins: [originPattern(normalized)] });
+    if (!granted) {
+      message.value = "mj-lab ホストへのアクセス許可が必要です。";
+      return;
+    }
+    await chrome.storage.local.set({ mjlabBaseUrl: normalized, mjlabToken: token.value.trim() });
+    baseUrl.value = normalized;
+    message.value = "保存しました。";
+  } catch {
+    message.value = "設定の保存に失敗しました。";
   }
-  chrome.storage.local.set({ mjlabBaseUrl: normalized, mjlabToken: token.value.trim() });
-  baseUrl.value = normalized;
-  message.value = "保存しました。";
 };
 </script>
