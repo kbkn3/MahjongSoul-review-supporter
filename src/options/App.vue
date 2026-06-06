@@ -8,6 +8,11 @@
         >
           <LangList></LangList>
         </div>
+        <div
+          class="relative flex flex-col min-w-0 break-words bg-white w-full m-2 shadow-lg rounded-sm"
+        >
+          <MjlabSettings></MjlabSettings>
+        </div>
       </div>
     </div>
   </div>
@@ -15,6 +20,7 @@
 
 <script setup lang="ts">
 import LangList from "@/options/LangList.vue";
+import MjlabSettings from "@/options/MjlabSettings.vue";
 </script>
 
 
