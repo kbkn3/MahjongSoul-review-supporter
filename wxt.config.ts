@@ -25,5 +25,6 @@ export default defineConfig({
             "https://naga.dmv.nico/naga_report/order_form/",
             "https://mjai.ekyu.moe/",
         ],
+        optional_host_permissions: ["https://*/*"],
     },
 });
