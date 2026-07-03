@@ -80,8 +80,9 @@ function chankanRecord(): DecodedRecord {
       { name: "RecordDealTile", data: { seat: 0, tile: "4m" } },
       { name: "RecordDiscardTile", data: { seat: 0, tile: "4m", moqie: true, is_liqi: false } },
       { name: "RecordDealTile", data: { seat: 1, tile: "1z" } },
-      // 槍槓で流れる加槓はkan自体が不成立となり新ドラは公開されないため、
-      // このイベントにdorasは載らない(H1ではなくH2: RecordHule.dorasのみ)
+      // 実牌譜未確認の仮説に基づく形: 槍槓で流れる加槓では新ドラ非公開の可能性が高いため
+      // AnGangAddGangにはdorasを載せず、RecordHule.doras経由の反映パス(dd.tsの修正本体)を検証する。
+      // 計画Task 1(実牌譜検証)の完了後、実データ準拠のフィクスチャへ差し替えること。
       { name: "RecordAnGangAddGang", data: { seat: 1, type: 2, tiles: "1z" } },
       { name: "RecordHule", data: {
         doras: ["3m", "7p"],
