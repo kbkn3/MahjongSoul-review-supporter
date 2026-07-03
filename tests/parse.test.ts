@@ -47,69 +47,69 @@ describe("parse (real fixture end-to-end)", () => {
 // 加槓に槍槓ロンが掛かる合成レコード。局が「槓→和了」で終わるため
 // DealTile/DiscardTile経由のドラ更新が発生しない(issue #23の再現形)。
 function chankanRecord(): DecodedRecord {
-    const tiles = (n: number, t: string) => new Array(n).fill(t);
-    return {
-        head: {
-            uuid: "synthetic-chankan",
-            end_time: 0,
-            accounts: [],
-            result: {
-                players: [0, 1, 2, 3].map(seat => ({ seat, part_point_1: 25000, total_point: 0 })),
-            },
-            config: {
-                meta: { mode_id: 0, room_id: 1234, contest_uid: 0 },
-                mode: { mode: 1, detail_rule: { dora_count: 3, have_zimosun: false } },
-            },
-        },
-        actions: [
-            { name: "RecordNewRound", data: {
-                chang: 0, ju: 0, ben: 0, liqibang: 0, dora: "3m",
-                scores: [25000, 25000, 25000, 25000],
-                tiles0: [...tiles(13, "1m"), "1z"],
-                tiles1: [...tiles(11, "2m"), "1z", "1z"],
-                tiles2: tiles(13, "3s"),
-                tiles3: tiles(13, "7p"),
-            } },
-            { name: "RecordDiscardTile", data: { seat: 0, tile: "1z", moqie: true, is_liqi: false } },
-            { name: "RecordChiPengGang", data: { seat: 1, type: 1, tiles: ["1z", "1z", "1z"], froms: [1, 1, 0] } },
-            { name: "RecordDiscardTile", data: { seat: 1, tile: "2m", moqie: false, is_liqi: false } },
-            { name: "RecordDealTile", data: { seat: 2, tile: "9s" } },
-            { name: "RecordDiscardTile", data: { seat: 2, tile: "9s", moqie: true, is_liqi: false } },
-            { name: "RecordDealTile", data: { seat: 3, tile: "9p" } },
-            { name: "RecordDiscardTile", data: { seat: 3, tile: "9p", moqie: true, is_liqi: false } },
-            { name: "RecordDealTile", data: { seat: 0, tile: "4m" } },
-            { name: "RecordDiscardTile", data: { seat: 0, tile: "4m", moqie: true, is_liqi: false } },
-            { name: "RecordDealTile", data: { seat: 1, tile: "1z" } },
-            // 槍槓で流れる加槓はkan自体が不成立となり新ドラは公開されないため、
-            // このイベントにdorasは載らない(H1ではなくH2: RecordHule.dorasのみ)
-            { name: "RecordAnGangAddGang", data: { seat: 1, type: 2, tiles: "1z" } },
-            { name: "RecordHule", data: {
-                doras: ["3m", "7p"],
-                hules: [{
-                    seat: 2, zimo: false, qinjia: false, liqi: false, yiman: false,
-                    count: 1, fu: 40, point_rong: 1300,
-                    fans: [{ id: 3, val: 1 }],
-                    hand: [], ming: [], hu_tile: "1z",
-                    doras: ["3m", "7p"], li_doras: [],
-                }],
-            } },
-        ],
-    } as unknown as DecodedRecord;
+  const tiles = (n: number, t: string) => new Array(n).fill(t);
+  return {
+    head: {
+      uuid: "synthetic-chankan",
+      end_time: 0,
+      accounts: [],
+      result: {
+        players: [0, 1, 2, 3].map(seat => ({ seat, part_point_1: 25000, total_point: 0 })),
+      },
+      config: {
+        meta: { mode_id: 0, room_id: 1234, contest_uid: 0 },
+        mode: { mode: 1, detail_rule: { dora_count: 3, have_zimosun: false } },
+      },
+    },
+    actions: [
+      { name: "RecordNewRound", data: {
+        chang: 0, ju: 0, ben: 0, liqibang: 0, dora: "3m",
+        scores: [25000, 25000, 25000, 25000],
+        tiles0: [...tiles(13, "1m"), "1z"],
+        tiles1: [...tiles(11, "2m"), "1z", "1z"],
+        tiles2: tiles(13, "3s"),
+        tiles3: tiles(13, "7p"),
+      } },
+      { name: "RecordDiscardTile", data: { seat: 0, tile: "1z", moqie: true, is_liqi: false } },
+      { name: "RecordChiPengGang", data: { seat: 1, type: 1, tiles: ["1z", "1z", "1z"], froms: [1, 1, 0] } },
+      { name: "RecordDiscardTile", data: { seat: 1, tile: "2m", moqie: false, is_liqi: false } },
+      { name: "RecordDealTile", data: { seat: 2, tile: "9s" } },
+      { name: "RecordDiscardTile", data: { seat: 2, tile: "9s", moqie: true, is_liqi: false } },
+      { name: "RecordDealTile", data: { seat: 3, tile: "9p" } },
+      { name: "RecordDiscardTile", data: { seat: 3, tile: "9p", moqie: true, is_liqi: false } },
+      { name: "RecordDealTile", data: { seat: 0, tile: "4m" } },
+      { name: "RecordDiscardTile", data: { seat: 0, tile: "4m", moqie: true, is_liqi: false } },
+      { name: "RecordDealTile", data: { seat: 1, tile: "1z" } },
+      // 槍槓で流れる加槓はkan自体が不成立となり新ドラは公開されないため、
+      // このイベントにdorasは載らない(H1ではなくH2: RecordHule.dorasのみ)
+      { name: "RecordAnGangAddGang", data: { seat: 1, type: 2, tiles: "1z" } },
+      { name: "RecordHule", data: {
+        doras: ["3m", "7p"],
+        hules: [{
+          seat: 2, zimo: false, qinjia: false, liqi: false, yiman: false,
+          count: 1, fu: 40, point_rong: 1300,
+          fans: [{ id: 3, val: 1 }],
+          hand: [], ming: [], hu_tile: "1z",
+          doras: ["3m", "7p"], li_doras: [],
+        }],
+      } },
+    ],
+  } as unknown as DecodedRecord;
 }
 
 describe("parse (槍槓の合成レコード)", () => {
-    it("槓→和了で終わる局でも新ドラ表示牌がentry[2]に反映される (issue #23)", () => {
-        const result = parse(chankanRecord(), cfgTables());
-        const kyokuEntry = result.log[0];
-        expect(kyokuEntry[2]).toEqual([13, 27]); // 3m, 7p
-    });
+  it("槓→和了で終わる局でも新ドラ表示牌がentry[2]に反映される (issue #23)", () => {
+    const result = parse(chankanRecord(), cfgTables());
+    const kyokuEntry = result.log[0];
+    expect(kyokuEntry[2]).toEqual([13, 27]); // 3m, 7p
+  });
 
-    it("加槓がkとしてdiscardsに、槍槓ロンの放銃者が加槓者になる", () => {
-        const result = parse(chankanRecord(), cfgTables());
-        const kyokuEntry = result.log[0];
-        expect(kyokuEntry[4 + 3 * 1 + 2]).toContain("k41414141"); // seat1のdiscards
-        const agari = kyokuEntry[16][2]; // [和了者, 放銃者, 包]
-        expect(agari[0]).toBe(2);
-        expect(agari[1]).toBe(1);
-    });
+  it("加槓がkとしてdiscardsに、槍槓ロンの放銃者が加槓者になる", () => {
+    const result = parse(chankanRecord(), cfgTables());
+    const kyokuEntry = result.log[0];
+    expect(kyokuEntry[4 + 3 * 1 + 2]).toContain("k41414141"); // seat1のdiscards
+    const agari = kyokuEntry[16][2]; // [和了者, 放銃者, 包]
+    expect(agari[0]).toBe(2);
+    expect(agari[1]).toBe(1);
+  });
 });
