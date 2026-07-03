@@ -54,6 +54,12 @@ describe("handleBaBei", () => {
         expect(kyoku.discards[2]).toEqual([]);
         expect(kyoku.discards[3]).toEqual([]);
     });
+
+    test("event.dorasで新ドラ表示牌を反映する", () => {
+        const kyoku = createTestKyoku({ doras: [15] });
+        handleBaBei({ seat: 2, doras: ["5m", "1s"] }, kyoku);
+        expect(kyoku.doras).toEqual([15, 31]);
+    });
 });
 
 describe("updateDoras", () => {
@@ -206,6 +212,13 @@ describe("handleAnkan", () => {
         expect(kyoku.discards[0]).toEqual(["474747a47"]);
         expect(kyoku.nkan).toBe(1);
     });
+
+    test("event.dorasで新ドラ表示牌を反映する (issue #23)", () => {
+        const kyoku = createTestKyoku({ doras: [15] });
+        kyoku.haipais[2] = [22, 22, 22, 22];
+        handleAnkan({ seat: 2, tiles: "2p", doras: ["5m", "1s"] }, kyoku);
+        expect(kyoku.doras).toEqual([15, 31]);
+    });
 });
 
 describe("handleShouminkan", () => {
@@ -217,6 +230,14 @@ describe("handleShouminkan", () => {
         // finds pon naki containing "p45", replaces p with "k45"
         expect(kyoku.discards[0]).toEqual(["k45454545"]);
         expect(kyoku.nkan).toBe(1);
+    });
+
+    test("event.dorasで新ドラ表示牌を反映する (issue #23)", () => {
+        const kyoku = createTestKyoku({ doras: [15] });
+        kyoku.draws[1] = ["p414141"];
+        handleShouminkan({ seat: 1, tiles: "1z", doras: ["5m", "1s"] }, kyoku);
+        expect(kyoku.doras).toEqual([15, 31]);
+        expect(kyoku.discards[1]).toEqual(["k41414141"]);
     });
 });
 
