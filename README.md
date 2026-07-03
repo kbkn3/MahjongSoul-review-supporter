@@ -29,6 +29,18 @@ Edge Web Store link is [Here](https://microsoftedge.microsoft.com/addons/detail/
 [@kbkn_p](https://twitter.com/kbkn_p)  
 Collaborator [たまば](https://twitter.com/utm_tmb)
 
+## 既知の制限
+
+### 同巡に同一牌が複数回切られた場合のポンの再生ずれ (Issue #22)
+
+同一プレイヤーが同じ牌を（間に他家の鳴きを挟んで）連続して手出しし、その後の1枚が
+ポンされた対局では、天鳳/6形式（プレイヤー別カラム形式）の仕様上「どちらの打牌が
+鳴かれたか」を表現できません（上流 [tensoul#14](https://github.com/Equim-chan/tensoul/issues/14)
+で形式固有の制限として確認済み）。このため天鳳ビューアや NAGA では該当局の進行が
+実際と異なって再生されることがあります。変換された牌譜データ自体は正しく、
+[mjai-reviewer](https://github.com/Equim-chan/mjai-reviewer)（Mortal）はバックトラッキングで
+正しく解釈するため、レビュー結果には影響しません。
+
 ## Credits
 
 This project includes code and concepts from:
