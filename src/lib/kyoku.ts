@@ -85,13 +85,17 @@ export function dumpKyoku(kyoku: KyokuState, uras: number[]): any[] {
     return entry;
 }
 
+export function updateDoras(doras: string[] | undefined, kyoku: KyokuState): void {
+    if (doras && doras.length > kyoku.doras.length)
+        kyoku.doras = doras.map((f: string) => tm2t(f));
+}
+
 export function handleBaBei(event: { seat: number }, kyoku: KyokuState): void {
     kyoku.discards[event.seat].push("f44");
 }
 
 export function handleDealTile(event: { seat: number; tile: string; doras?: string[] }, kyoku: KyokuState): void {
-    if (event.doras && event.doras.length > kyoku.doras.length)
-        kyoku.doras = event.doras.map((f: string) => tm2t(f));
+    updateDoras(event.doras, kyoku);
     kyoku.draws[event.seat].push(tm2t(event.tile));
 }
 
@@ -109,8 +113,7 @@ export function handleDiscardTile(event: { seat: number; tile: string; moqie: bo
     kyoku.discards[event.seat].push(symbol);
     kyoku.ldseat = event.seat;
 
-    if (event.doras && event.doras.length > kyoku.doras.length)
-        kyoku.doras = event.doras.map((f: string) => tm2t(f));
+    updateDoras(event.doras, kyoku);
 }
 
 export function handleChii(event: { seat: number; tiles: string[] }, kyoku: KyokuState): void {

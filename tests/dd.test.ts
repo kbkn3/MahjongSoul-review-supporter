@@ -14,6 +14,7 @@ import {
     handleLiuJu,
     handleNoTile,
     countpao,
+    updateDoras,
 } from "../src/lib/kyoku";
 import { TSUMOGIRI } from "../src/lib/constants";
 
@@ -52,6 +53,26 @@ describe("handleBaBei", () => {
         expect(kyoku.discards[0]).toEqual([]);
         expect(kyoku.discards[2]).toEqual([]);
         expect(kyoku.discards[3]).toEqual([]);
+    });
+});
+
+describe("updateDoras", () => {
+    test("現在より長いdorasのみ置き換える", () => {
+        const kyoku = createTestKyoku({ doras: [15] });
+        updateDoras(["5m", "2p"], kyoku);
+        expect(kyoku.doras).toEqual([15, 22]);
+    });
+
+    test("同じ長さ以下は無視する", () => {
+        const kyoku = createTestKyoku({ doras: [15] });
+        updateDoras(["1m"], kyoku);
+        expect(kyoku.doras).toEqual([15]);
+    });
+
+    test("undefinedは無視する", () => {
+        const kyoku = createTestKyoku({ doras: [15] });
+        updateDoras(undefined, kyoku);
+        expect(kyoku.doras).toEqual([15]);
     });
 });
 
