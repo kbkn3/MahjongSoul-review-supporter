@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from "vue";
-import { parseKyokuResult, getDrawsForSeat, getDiscardsForSeat, getScoreAndBonus } from "@/lib/naga";
+import { parseKyokuResult, getScoreAndBonus, hasMeld, hasRiichi } from "@/lib/naga";
 import type { TenhouMessage, KyokuResultAgari } from "@/lib/naga";
 import { useDisplayLang } from "@/composables/useDisplayLang";
 
@@ -96,15 +96,12 @@ const processData = (message: TenhouMessage, ref_id: string) => {
         TableData[s + 1][11]++;
       }
     }
+    // 副露・立直はいずれも「その局で行ったか」を1と数える(和了/放銃と同じ局単位)
     for (let s = 0; s < 4; s++) {
-      if (
-        getDrawsForSeat(message.log[i], s).filter(RegExp.prototype.test, /[.*(c|p).*]/).length
-      ) {
+      if (hasMeld(message.log[i], s)) {
         TableData[s + 1][7]++;
       }
-      if (
-        getDiscardsForSeat(message.log[i], s).filter(RegExp.prototype.test, /[.*r.*]/).length
-      ) {
+      if (hasRiichi(message.log[i], s)) {
         TableData[s + 1][6]++;
       }
     }

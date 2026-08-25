@@ -167,6 +167,22 @@ function getScoreAndBonus(sc: number[], seat: number): { score: number; bonus: n
     return { score: sc[2 * seat], bonus: sc[2 * seat + 1] };
 }
 
+// 他家から鳴いた副露はdrawsに文字列で載る: チー"c" / ポン"p" / 大明槓"m"。
+// 暗槓("a")と加槓("k")はdiscards側に出るが対象外にする。暗槓は門前を崩さず、
+// 加槓は元のポンをdraws側で既に数えているため二重計上になる。
+function hasMeld(logEntry: TenhouLog, seat: number): boolean {
+    return getDrawsForSeat(logEntry, seat).some(
+        (entry: unknown) => typeof entry === "string" && /[cpm]/.test(entry)
+    );
+}
+
+// 立直宣言牌はdiscardsに "r"+牌 で載る。1局に高々1回なので局単位の判定で足りる。
+function hasRiichi(logEntry: TenhouLog, seat: number): boolean {
+    return getDiscardsForSeat(logEntry, seat).some(
+        (entry: unknown) => typeof entry === "string" && entry.startsWith("r")
+    );
+}
+
 export {
     extractTable,
     toSoulTable,
@@ -178,5 +194,7 @@ export {
     getDrawsForSeat,
     getDiscardsForSeat,
     getScoreAndBonus,
+    hasMeld,
+    hasRiichi,
 };
 export type { TenhouLog, TenhouMessage, GameMessage, AgariInfo, KyokuResult, KyokuResultAgari, KyokuResultDraw };

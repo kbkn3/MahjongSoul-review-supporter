@@ -1,4 +1,4 @@
-import { extractTable, toSoulTable, toNagaHand, toNagaLog, parseKyokuResult, checkRonTileIsReachTile, fixScoreRonTileWasReachTile, getDrawsForSeat, getDiscardsForSeat, getScoreAndBonus } from "../src/lib/naga";
+import { extractTable, toSoulTable, toNagaHand, toNagaLog, parseKyokuResult, checkRonTileIsReachTile, fixScoreRonTileWasReachTile, getDrawsForSeat, getDiscardsForSeat, getScoreAndBonus, hasMeld, hasRiichi } from "../src/lib/naga";
 import type { KyokuResultAgari, KyokuResultDraw, AgariInfo } from "../src/lib/naga";
 
 describe("extractTable", () => {
@@ -297,3 +297,64 @@ function buildRonLog({ lastDiscard, winnerDelta, loserDelta }: { lastDiscard: st
     ];
     return log;
 }
+
+describe("hasMeld", () => {
+    test("detects chii", () => {
+        const log = buildMinimalLog();
+        log[5] = [11, "c363453", 12];
+        expect(hasMeld(log, 0)).toBe(true);
+    });
+
+    test("detects pon", () => {
+        const log = buildMinimalLog();
+        log[8] = [21, "13p1313"];
+        expect(hasMeld(log, 1)).toBe(true);
+    });
+
+    // 旧実装の正規表現が c|p しか見ておらず大明槓を取りこぼしていた
+    test("detects daiminkan", () => {
+        const log = buildMinimalLog();
+        log[11] = [31, "151515m51"];
+        expect(hasMeld(log, 2)).toBe(true);
+    });
+
+    test("returns false without meld", () => {
+        const log = buildMinimalLog();
+        log[14] = [41, 42, 43];
+        expect(hasMeld(log, 3)).toBe(false);
+    });
+
+    // 暗槓は門前を崩さず、加槓は元のポンをdraws側で計上済みなので副露に数えない
+    test("ignores ankan and kakan in discards", () => {
+        const log = buildMinimalLog();
+        log[5] = [11, 12];
+        log[6] = [13, "1111a11", "42k424242"];
+        expect(hasMeld(log, 0)).toBe(false);
+    });
+
+    test("counts a kyoku with several melds as one", () => {
+        const log = buildMinimalLog();
+        log[11] = ["4747p47", "1111p11", "c131214"];
+        expect(hasMeld(log, 2)).toBe(true);
+    });
+});
+
+describe("hasRiichi", () => {
+    test("detects riichi declaration tile", () => {
+        const log = buildMinimalLog();
+        log[6] = [11, "r35", 60];
+        expect(hasRiichi(log, 0)).toBe(true);
+    });
+
+    test("returns false without riichi", () => {
+        const log = buildMinimalLog();
+        log[9] = [21, 60, 60];
+        expect(hasRiichi(log, 1)).toBe(false);
+    });
+
+    test("does not mistake kakan for riichi", () => {
+        const log = buildMinimalLog();
+        log[12] = [31, "42k424242"];
+        expect(hasRiichi(log, 2)).toBe(false);
+    });
+});
