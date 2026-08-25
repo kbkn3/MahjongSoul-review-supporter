@@ -107,11 +107,17 @@ const configTables = ConfigTables.toObject(ConfigTables.decode(lqcBuffer), {
   arrays: true,
 });
 
+// キャラ定義は通常枠(item_definition/character)とコラボ等の別枠(spot/character_spot)に
+// 分かれており、IDは重複しない。片方だけだと赤麟(20000121)等が引けず牌譜変換で落ちる。
+const CHARACTER_SHEETS = [
+  ["item_definition", "character"],
+  ["spot", "character_spot"],
+];
 const WANTED_SHEETS = [
   "fan/fan",
   "desktop/matchmode",
   "level_definition/level_definition",
-  "item_definition/character",
+  ...CHARACTER_SHEETS.map(([table, sheet]) => `${table}/${sheet}`),
 ];
 const presentSheets = new Set(
   configTables.datas.map((data) => `${data.table}/${data.sheet}`)
@@ -124,7 +130,7 @@ for (const key of WANTED_SHEETS) {
     throw new Error(`lqc.lqbin に必要シート ${key} が存在しない`);
   }
 }
-console.log(`対象4シートを確認: ${WANTED_SHEETS.join(", ")}`);
+console.log(`対象${WANTED_SHEETS.length}シートを確認: ${WANTED_SHEETS.join(", ")}`);
 
 // schemas の pb_type を protobufjs のスカラー型へ写像する。未知型は string 扱い。
 const PB_TYPE_TO_PROTO = {
@@ -185,9 +191,10 @@ const cfg = {
     decodeSheet("level_definition", "level_definition"),
     (row) => ({ full_name_jp: row.full_name_jp, full_name_en: row.full_name_en })
   ),
-  character: buildLookup(decodeSheet("item_definition", "character"), (row) => ({
-    sex: row.sex,
-  })),
+  character: buildLookup(
+    CHARACTER_SHEETS.flatMap(([table, sheet]) => decodeSheet(table, sheet)),
+    (row) => ({ sex: row.sex })
+  ),
 };
 
 const CFG_DIR = "src/assets/majsoul/cfg";

@@ -43,6 +43,16 @@
         [16000, 8000, 32000]  //ko wins
     ];
 
+    // cfg各テーブルは雀魂配布物(lqc.lqbin)のスナップショットなので、
+    // キャラ追加や新役の実装で実データ側にだけ存在するIDが現れうる。
+    // 引けるのは段位名/性別/部屋名/役名といった表示用の値だけで牌譜本体には効かないため、
+    // 欠落しても変換全体を落とさず既定値で続行し、再生成が必要なことをwarnで残す。
+    function cfgEntry<T>(table: Record<string, T>, id: unknown, kind: string): T | undefined {
+        const entry = table[String(id)];
+        if (!entry) console.warn(`unknown majsoul cfg ${kind} id: ${String(id)} (npm run gen:assets で再生成が必要な可能性)`);
+        return entry;
+    }
+
     function detectPaoLiability(h: any, k: KyokuState): { pao: boolean; liableseat: number; liablefor: number } {
         let pao = false;
         let liableseat = -1;
@@ -152,10 +162,12 @@
 
         res.push(formatScoreLabel(h, points));
 
-        h.fans.forEach((e: any) => res.push(
-            (JPNAME == NAMEPREF ? cfg.fan[String(e.id)].name_jp : cfg.fan[String(e.id)].name_en)
-            + "(" + (h.yiman ? (RUNES.yakuman[JPNAME]) : (e.val + RUNES.han[JPNAME])) + ")"
-        ));
+        h.fans.forEach((e: any) => {
+            const entry = cfgEntry(cfg.fan, e.id, "fan");
+            // 未知の役はIDをそのまま出す。天鳳ビューアは飜数表記さえ揃っていれば読める。
+            const yakuname = entry ? (JPNAME == NAMEPREF ? entry.name_jp : entry.name_en) : `#${e.id}`;
+            res.push(yakuname + "(" + (h.yiman ? (RUNES.yakuman[JPNAME]) : (e.val + RUNES.han[JPNAME])) + ")");
+        });
 
         return [pad_right(delta, 4, 0.), res];
     }
@@ -235,10 +247,11 @@
 
         if (3 == nplayers && JPNAME == NAMEPREF)
             ruledisp += RUNES.sanma[JPNAME];
-        if (record.head.config.meta.mode_id)
-            ruledisp += (JPNAME == NAMEPREF) ?
-                cfg.matchmode[String(record.head.config.meta.mode_id)].room_name_jp
-                : cfg.matchmode[String(record.head.config.meta.mode_id)].room_name_en;
+        if (record.head.config.meta.mode_id) {
+            const entry = cfgEntry(cfg.matchmode, record.head.config.meta.mode_id, "matchmode");
+            if (entry)
+                ruledisp += (JPNAME == NAMEPREF) ? entry.room_name_jp : entry.room_name_en;
+        }
         else if (record.head.config.meta.room_id) {
             lobby = ": " + record.head.config.meta.room_id;
             ruledisp += RUNES.friendly[NAMEPREF];
@@ -277,11 +290,12 @@
         const name = new Array(4).fill('AI');
 
         record.head.accounts.forEach((e: any) => {
-            dan[e.seat] = (JPNAME == NAMEPREF) ?
-                cfg.level[String(e.level.id)].full_name_jp
-                : cfg.level[String(e.level.id)].full_name_en;
-            rate[e.seat] = e.level.score;
-            const sexCode = cfg.character[String(e.character.charid)].sex;
+            const levelEntry = cfgEntry(cfg.level, e.level?.id, "level");
+            if (levelEntry)
+                dan[e.seat] = (JPNAME == NAMEPREF) ? levelEntry.full_name_jp : levelEntry.full_name_en;
+            rate[e.seat] = e.level?.score;
+            // characterごと欠けた牌譜(AI代打ちなど)もありうるので参照自体を任意にする
+            const sexCode = cfgEntry(cfg.character, e.character?.charid, "character")?.sex;
             sx[e.seat] = (1 == sexCode) ? "F" : (2 == sexCode ? "M" : "C");
             name[e.seat] = e.nickname;
         });

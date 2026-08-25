@@ -40,4 +40,18 @@ describe("parse (real fixture end-to-end)", () => {
     expect(uraIndicators[6]).toEqual([44]);
     expect(uraIndicators[9]).toEqual([36]);
   });
+
+  // cfgはlqc.lqbinのスナップショットなので、キャラ追加後の牌譜では引けないIDが混ざる。
+  // 装飾情報の欠落で変換全体が落ちないことを保証する。
+  it("cfgに無いIDが混ざっても変換が完走する", () => {
+    const record = decodeGameRecord(raw);
+    record.head.accounts[0].character.charid = 99999999;
+    record.head.accounts[1].level.id = 99999999;
+
+    const result = parse(record);
+
+    expect(result.log.length).toBeGreaterThan(0);
+    expect(result.sx[record.head.accounts[0].seat]).toBe("C");
+    expect(result.dan[record.head.accounts[1].seat]).toBe("");
+  });
 });
