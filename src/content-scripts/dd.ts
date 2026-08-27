@@ -16,6 +16,7 @@
         handleShouminkan,
         handleLiuJu,
         handleNoTile,
+        updateDoras,
     } from "../lib/kyoku";
 
     const NAMEPREF = 0;     //2 for english, 1 for sane amount of weeb, 0 for japanese
@@ -215,9 +216,13 @@
                     return;
                 case "RecordHule":
                     {
+                        // 槓直後の和了(槍槓・嶺上)ではDealTile/DiscardTileが来ないため、
+                        // 和了イベント側のdorasを反映しないと新ドラ表示牌が欠落する
+                        updateDoras(e.doras, kyoku);
                         const agari: any[] = [];
                         let ura: number[] = [];
                         e.hules.forEach((f: any) => {
+                            updateDoras(f.doras, kyoku);
                             if (ura.length < (f.li_doras ? f.li_doras.length : 0))
                                 ura = f.li_doras.map((g: string) => tm2t(g));
                             agari.push(parsehule(f, kyoku, cfg));
