@@ -29,10 +29,4 @@
   .template-title {
     @apply text-xl font-semibold text-mjsoul-text-lightblue pt-2;
   }
-
-  .table-head-th > tr > *,
-  .table-body-td > tr > *,
-  .table-out-div > * {
-    @apply px-5 py-1 text-left text-base;
-  }
 }

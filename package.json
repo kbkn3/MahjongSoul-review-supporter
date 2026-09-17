@@ -7,7 +7,9 @@
     "build": "wxt build",
     "zip": "wxt zip",
     "test": "vitest run",
-    "gen:assets": "node scripts/gen-majsoul-assets.mjs"
+    "gen:assets": "node scripts/gen-majsoul-assets.mjs",
+    "deadcode": "knip",
+    "deadcode:css": "node scripts/find-unused-css.mjs"
   },
   "dependencies": {
     "protobufjs": "^8.4.0",
@@ -17,6 +19,7 @@
     "@tailwindcss/postcss": "^4.2.1",
     "@types/chrome": "^0.1.37",
     "@wxt-dev/module-vue": "^1.0.3",
+    "knip": "^6.35.1",
     "postcss": "^8.5.8",
     "postcss-prefix-selector": "^1.7.2",
     "protobufjs-cli": "^2.4.0",

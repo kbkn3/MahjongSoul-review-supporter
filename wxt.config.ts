@@ -3,7 +3,7 @@ import { defineConfig } from "wxt";
 export default defineConfig({
     srcDir: "src",
     modules: ["@wxt-dev/module-vue"],
-    manifest: {
+    manifest: ({ mode }) => ({
         name: "__MSG_appName__",
         version: "1.5.2",
         description: "__MSG_appDesc__",
@@ -15,7 +15,12 @@ export default defineConfig({
         },
         permissions: ["storage"],
         content_security_policy: {
-            extension_pages: "script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com",
+            // 開発モードは Vite が CSS を <style> タグとして inline 注入するため
+            // style-src に 'unsafe-inline' が必要(本番ビルドは別ファイルに抽出されるため不要)
+            extension_pages:
+                mode === "development"
+                    ? "script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com"
+                    : "script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com",
         },
         host_permissions: [
             "https://game.mahjongsoul.com/*",
@@ -25,5 +30,5 @@ export default defineConfig({
             "https://naga.dmv.nico/naga_report/order_form/",
             "https://mjai.ekyu.moe/",
         ],
-    },
+    }),
 });

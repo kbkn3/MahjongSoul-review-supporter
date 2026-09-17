@@ -1,0 +1,8 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": ["src/entrypoints/**/*.{ts,html}"],
+  "ignore": [
+    "src/assets/majsoul/liqi-proto.js",
+    "src/assets/majsoul/liqi-proto.d.ts"
+  ]
+}

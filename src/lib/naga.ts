@@ -197,4 +197,4 @@ export {
     hasMeld,
     hasRiichi,
 };
-export type { TenhouLog, TenhouMessage, GameMessage, AgariInfo, KyokuResult, KyokuResultAgari, KyokuResultDraw };
+export type { TenhouLog, TenhouMessage, AgariInfo, KyokuResultAgari, KyokuResultDraw };
