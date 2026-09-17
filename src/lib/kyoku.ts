@@ -85,13 +85,18 @@ export function dumpKyoku(kyoku: KyokuState, uras: number[]): any[] {
     return entry;
 }
 
-export function handleBaBei(event: { seat: number }, kyoku: KyokuState): void {
+export function updateDoras(doras: string[] | undefined, kyoku: KyokuState): void {
+    if (doras && doras.length > kyoku.doras.length)
+        kyoku.doras = doras.map((f: string) => tm2t(f));
+}
+
+export function handleBaBei(event: { seat: number; doras?: string[] }, kyoku: KyokuState): void {
+    updateDoras(event.doras, kyoku);
     kyoku.discards[event.seat].push("f44");
 }
 
 export function handleDealTile(event: { seat: number; tile: string; doras?: string[] }, kyoku: KyokuState): void {
-    if (event.doras && event.doras.length > kyoku.doras.length)
-        kyoku.doras = event.doras.map((f: string) => tm2t(f));
+    updateDoras(event.doras, kyoku);
     kyoku.draws[event.seat].push(tm2t(event.tile));
 }
 
@@ -109,8 +114,7 @@ export function handleDiscardTile(event: { seat: number; tile: string; moqie: bo
     kyoku.discards[event.seat].push(symbol);
     kyoku.ldseat = event.seat;
 
-    if (event.doras && event.doras.length > kyoku.doras.length)
-        kyoku.doras = event.doras.map((f: string) => tm2t(f));
+    updateDoras(event.doras, kyoku);
 }
 
 export function handleChii(event: { seat: number; tiles: string[] }, kyoku: KyokuState): void {
@@ -140,7 +144,8 @@ export function handleDaiminkan(event: { seat: number; tiles: string[] }, kyoku:
     kyoku.nkan++;
 }
 
-export function handleAnkan(event: { seat: number; tiles: string }, kyoku: KyokuState): void {
+export function handleAnkan(event: { seat: number; tiles: string; doras?: string[] }, kyoku: KyokuState): void {
+    updateDoras(event.doras, kyoku);
     let til: number = tm2t(event.tiles);
     kyoku.ldseat = event.seat;
     countpao(til, event.seat, -1, kyoku);
@@ -151,7 +156,8 @@ export function handleAnkan(event: { seat: number; tiles: string }, kyoku: Kyoku
     kyoku.nkan++;
 }
 
-export function handleShouminkan(event: { seat: number; tiles: string }, kyoku: KyokuState): void {
+export function handleShouminkan(event: { seat: number; tiles: string; doras?: string[] }, kyoku: KyokuState): void {
+    updateDoras(event.doras, kyoku);
     const til: number = tm2t(event.tiles);
     kyoku.ldseat = event.seat;
     const nakis = kyoku.draws[event.seat].filter((w: any) => {
