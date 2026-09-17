@@ -126,16 +126,18 @@ export function handlePon(event: { seat: number; tiles: string[] }, kyoku: Kyoku
     const worktiles = event.tiles.map((f: string) => tm2t(f));
     const idx = relativeseating(event.seat, kyoku.ldseat);
     countpao(worktiles[0], event.seat, kyoku.ldseat, kyoku);
-    worktiles.splice(idx, 0, "p" + worktiles.pop());
-    kyoku.draws[event.seat].push(worktiles.join(""));
+    const naki: (number | string)[] = worktiles;
+    naki.splice(idx, 0, "p" + naki.pop());
+    kyoku.draws[event.seat].push(naki.join(""));
 }
 
 export function handleDaiminkan(event: { seat: number; tiles: string[] }, kyoku: KyokuState): void {
     const calltiles = event.tiles.map((f: string) => tm2t(f));
     const idx = relativeseating(event.seat, kyoku.ldseat);
     countpao(calltiles[0], event.seat, kyoku.ldseat, kyoku);
-    calltiles.splice(2 == idx ? 3 : idx, 0, "m" + calltiles.pop());
-    kyoku.draws[event.seat].push(calltiles.join(""));
+    const naki: (number | string)[] = calltiles;
+    naki.splice(2 == idx ? 3 : idx, 0, "m" + naki.pop());
+    kyoku.draws[event.seat].push(naki.join(""));
     kyoku.discards[event.seat].push(0);
     kyoku.nkan++;
 }
