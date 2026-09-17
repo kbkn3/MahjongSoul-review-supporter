@@ -4,7 +4,7 @@ import { unwrapWrapper } from "./liqi-frame";
 // name は liqi のメッセージ名(先頭 "lq." を除いたもの, 例 "RecordDiscardTile")。
 // pbjs 静的生成クラスはコンストラクタ名が型名にならない場合があるため、
 // 後続の parse() が型で分岐できるよう型名を明示的に保持する。
-export interface DecodedAction {
+interface DecodedAction {
   name: string;
   data: any;
 }

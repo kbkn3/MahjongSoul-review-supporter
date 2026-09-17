@@ -60,4 +60,4 @@ function soul2naga(results: TenhouMessage, ruleMode: string): string[] {
     return createViewerUrls(soulJson, ruleMode);
 }
 
-export { EDITOR_URL_PREFIX, sanitizePlayerNames, createViewerUrls, soul2naga };
+export { EDITOR_URL_PREFIX, sanitizePlayerNames, soul2naga };

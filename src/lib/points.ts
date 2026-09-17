@@ -138,4 +138,4 @@ function getPtEV(wind: Wind, dans: string[], table?: RankedRoom | null): (PointT
 }
 
 export { POINTS, DAN_TO_TABLE, getPtEV };
-export type { PointTuple, Wind, RankedRoom };
+export type { Wind, RankedRoom };
