@@ -1,5 +1,5 @@
     import { tm2t, padRight as pad_right, tlround as tlroundPure } from "../lib/tile";
-    import { JPNAME, RUNES, DAISANGEN, DAISUUSHI } from "../lib/constants";
+    import { RUNES, DAISANGEN, DAISUUSHI } from "../lib/constants";
     import { cfgTables, type CfgTables } from "../lib/cfg";
     import type { DecodedRecord } from "../lib/record-decode";
     import {
@@ -18,15 +18,11 @@
         handleNoTile,
     } from "../lib/kyoku";
 
-    const NAMEPREF = 0;     //2 for english, 1 for sane amount of weeb, 0 for japanese
-    const VERBOSELOG = false; //dump mjs records to output - will make the file too large for tenhou.net/5 viewer
-    const SHOWFU = false; //always show fu/han for scoring - even for limit hands
     const RIICHI_STICK_POINTS = 1000;
     const HONBA_PAYMENT_UNIT = 100;
     const TSUMO_LOSS_BISECTION = 1 / 2;
 
     //global variables - don't touch
-    let ALLOW_KIRIAGE = false; //potentially allow this to be true
     let TSUMOLOSSOFF = false; //sanma tsumo loss, is set true for sanma when tsumo loss off
 
     const tlround = (x: number) => tlroundPure(TSUMOLOSSOFF, x);
@@ -127,23 +123,20 @@
     }
 
     function formatScoreLabel(h: any, points: string | number): string {
-        const label = points + RUNES.points[JPNAME] + ((h.zimo && h.qinjia) ? RUNES.all[NAMEPREF] : "");
-        const fuhan = h.fu + RUNES.fu[JPNAME] + h.count + RUNES.han[JPNAME];
+        const label = points + RUNES.points + ((h.zimo && h.qinjia) ? RUNES.all : "");
         if (h.yiman)
-            return (SHOWFU ? fuhan : "") + RUNES.yakuman[JPNAME] + label;
+            return RUNES.yakuman + label;
         if (13 <= h.count)
-            return (SHOWFU ? fuhan : "") + RUNES.kazoeyakuman[JPNAME] + label;
+            return RUNES.kazoeyakuman + label;
         if (11 <= h.count)
-            return (SHOWFU ? fuhan : "") + RUNES.sanbaiman[JPNAME] + label;
+            return RUNES.sanbaiman + label;
         if (8 <= h.count)
-            return (SHOWFU ? fuhan : "") + RUNES.baiman[JPNAME] + label;
+            return RUNES.baiman + label;
         if (6 <= h.count)
-            return (SHOWFU ? fuhan : "") + RUNES.haneman[JPNAME] + label;
+            return RUNES.haneman + label;
         if (5 <= h.count || (4 <= h.count && 40 <= h.fu) || (3 <= h.count && 70 <= h.fu))
-            return (SHOWFU ? fuhan : "") + RUNES.mangan[JPNAME] + label;
-        if (ALLOW_KIRIAGE && ((4 == h.count && 30 == h.fu) || (3 == h.count && 60 == h.fu)))
-            return (SHOWFU ? fuhan : "") + RUNES.kiriagemangan[JPNAME] + label;
-        return fuhan + label;
+            return RUNES.mangan + label;
+        return h.fu + RUNES.fu + h.count + RUNES.han + label;
     }
 
     //parse mjs hule into tenhou agari list
@@ -165,8 +158,8 @@
         h.fans.forEach((e: any) => {
             const entry = cfgEntry(cfg.fan, e.id, "fan");
             // 未知の役はIDをそのまま出す。天鳳ビューアは飜数表記さえ揃っていれば読める。
-            const yakuname = entry ? (JPNAME == NAMEPREF ? entry.name_jp : entry.name_en) : `#${e.id}`;
-            res.push(yakuname + "(" + (h.yiman ? (RUNES.yakuman[JPNAME]) : (e.val + RUNES.han[JPNAME])) + ")");
+            const yakuname = entry ? entry.name_jp : `#${e.id}`;
+            res.push(yakuname + "(" + (h.yiman ? (RUNES.yakuman) : (e.val + RUNES.han)) + ")");
         });
 
         return [pad_right(delta, 4, 0.), res];
@@ -223,7 +216,7 @@
                             agari.push(parsehule(f, kyoku, cfg));
                         });
                         const entry = dumpKyoku(kyoku, ura);
-                        entry.push([RUNES.agari[JPNAME]].concat(agari.flat()));
+                        entry.push([RUNES.agari].concat(agari.flat()));
                         log.push(entry);
                         return;
                     }
@@ -245,41 +238,38 @@
         let lobby = "";
         let nakas = nplayers - 1;
 
-        if (3 == nplayers && JPNAME == NAMEPREF)
-            ruledisp += RUNES.sanma[JPNAME];
+        if (3 == nplayers)
+            ruledisp += RUNES.sanma;
         if (record.head.config.meta.mode_id) {
             const entry = cfgEntry(cfg.matchmode, record.head.config.meta.mode_id, "matchmode");
             if (entry)
-                ruledisp += (JPNAME == NAMEPREF) ? entry.room_name_jp : entry.room_name_en;
+                ruledisp += entry.room_name_jp;
         }
         else if (record.head.config.meta.room_id) {
             lobby = ": " + record.head.config.meta.room_id;
-            ruledisp += RUNES.friendly[NAMEPREF];
+            ruledisp += RUNES.friendly;
             nakas = record.head.config.mode.detail_rule.dora_count;
             TSUMOLOSSOFF = (3 == nplayers) ? !record.head.config.mode.detail_rule.have_zimosun : false;
         }
         else if (record.head.config.meta.contest_uid) {
             lobby = ": " + record.head.config.meta.contest_uid;
-            ruledisp += RUNES.tournament[NAMEPREF];
+            ruledisp += RUNES.tournament;
             nakas = record.head.config.mode.detail_rule.dora_count;
             TSUMOLOSSOFF = (3 == nplayers) ? !record.head.config.mode.detail_rule.have_zimosun : false;
         }
         if (1 == record.head.config.mode.mode)
-            ruledisp += RUNES.tonpuu[NAMEPREF];
+            ruledisp += RUNES.tonpuu;
         else if (2 == record.head.config.mode.mode)
-            ruledisp += RUNES.hanchan[NAMEPREF];
+            ruledisp += RUNES.hanchan;
 
         return { ruledisp, lobby, nakas };
     }
 
     function buildRuleConfig(ruledisp: string, record: any, nakas: number, nplayers: number): { disp: string; aka53: number; aka52: number; aka51: number } {
         if (!record.head.config.meta.mode_id && !record.head.config.mode.detail_rule.dora_count) {
-            if (JPNAME != NAMEPREF)
-                ruledisp += RUNES.nored[NAMEPREF];
             return { "disp": ruledisp, "aka53": 0, "aka52": 0, "aka51": 0 };
         }
-        if (JPNAME == NAMEPREF)
-            ruledisp += RUNES.red[JPNAME];
+        ruledisp += RUNES.red;
         return { "disp": ruledisp, "aka53": 1, "aka52": (4 == nakas ? 2 : 1), "aka51": (4 == nplayers ? 1 : 0) };
     }
 
@@ -292,7 +282,7 @@
         record.head.accounts.forEach((e: any) => {
             const levelEntry = cfgEntry(cfg.level, e.level?.id, "level");
             if (levelEntry)
-                dan[e.seat] = (JPNAME == NAMEPREF) ? levelEntry.full_name_jp : levelEntry.full_name_en;
+                dan[e.seat] = levelEntry.full_name_jp;
             rate[e.seat] = e.level?.score;
             // characterごと欠けた牌譜(AI代打ちなど)もありうるので参照自体を任意にする
             const sexCode = cfgEntry(cfg.character, e.character?.charid, "character")?.sex;
@@ -339,12 +329,6 @@
                 (new Date(record.head.end_time * 1000)).toLocaleString()
             ],
         };
-
-        if (VERBOSELOG) {
-            res["mjshead"] = record.head;
-            res["mjslog"] = record.actions.map(action => action.data);
-            res["mjsrecordtypes"] = record.actions.map(action => action.name);
-        }
 
         return res;
     }

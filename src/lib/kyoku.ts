@@ -1,5 +1,5 @@
 import { tm2t, deaka, makeaka, padRight, relativeseating } from "./tile";
-import { JPNAME, RUNES, TSUMOGIRI } from "./constants";
+import { RUNES, TSUMOGIRI } from "./constants";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface KyokuState {
@@ -72,17 +72,13 @@ export function countpao(tile: number, owner: number, feeder: number, kyoku: Kyo
 }
 
 export function dumpKyoku(kyoku: KyokuState, uras: number[]): any[] {
-    const entry: any[] = [];
-    entry.push(kyoku.round);
-    entry.push(kyoku.initscores);
-    entry.push(kyoku.doras);
-    entry.push(uras);
-    kyoku.haipais.forEach((f, i) => {
-        entry.push(f);
-        entry.push(kyoku.draws[i]);
-        entry.push(kyoku.discards[i]);
-    });
-    return entry;
+    return [
+        kyoku.round,
+        kyoku.initscores,
+        kyoku.doras,
+        uras,
+        ...kyoku.haipais.flatMap((haipai, i) => [haipai, kyoku.draws[i], kyoku.discards[i]]),
+    ];
 }
 
 export function handleBaBei(event: { seat: number }, kyoku: KyokuState): void {
@@ -169,15 +165,15 @@ export function handleShouminkan(event: { seat: number; tiles: string }, kyoku: 
 export function handleLiuJu(event: { type: number }, kyoku: KyokuState): any[] {
     const entry = dumpKyoku(kyoku, []);
     if (1 == event.type)
-        entry.push([RUNES.kyuushukyuuhai[JPNAME]]);
+        entry.push([RUNES.kyuushukyuuhai]);
     else if (2 == event.type)
-        entry.push([RUNES.suufonrenda[JPNAME]]);
+        entry.push([RUNES.suufonrenda]);
     else if (4 == kyoku.nriichi)
-        entry.push([RUNES.suuchariichi[JPNAME]]);
+        entry.push([RUNES.suuchariichi]);
     else if (4 <= kyoku.nkan)
-        entry.push([RUNES.suukaikan[JPNAME]]);
+        entry.push([RUNES.suukaikan]);
     else
-        entry.push([RUNES.sanchahou[JPNAME]]);
+        entry.push([RUNES.sanchahou]);
     return entry;
 }
 
@@ -189,9 +185,9 @@ export function handleNoTile(event: { scores: any[]; liujumanguan: boolean }, ky
         event.scores.forEach((f: any) => f.delta_scores.forEach((g: number, i: number) => delta[i] += g));
 
     if (event.liujumanguan)
-        entry.push([RUNES.nagashimangan[JPNAME], delta]);
+        entry.push([RUNES.nagashimangan, delta]);
     else
-        entry.push([RUNES.ryuukyoku[JPNAME], delta]);
+        entry.push([RUNES.ryuukyoku, delta]);
     return entry;
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
