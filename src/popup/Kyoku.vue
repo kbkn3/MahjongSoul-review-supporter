@@ -66,7 +66,6 @@ const Ba_str = [
     ["East", "South", "West", "North"],
     ["東", "南", "西", "北"],
 ];
-const Honba_str = ["本場", "Repeat Counter", "本場"];
 const Win_str = [
     ["ロン和", "ツモ和"],
     ["Ron", "Tsumo"],

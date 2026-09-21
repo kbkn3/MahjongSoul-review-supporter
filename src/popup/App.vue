@@ -4,7 +4,7 @@
       <div class="pl-4 pt-1 text-3xl text-mjsoul-text-gold hudetext">Review Supporter</div>
       <div class="text-base pl-4 pt-4 text-mjsoul-text-gold hudetext">v {{ version }}</div>
       <div class="absolute top-4 right-4">
-        <iconTrash class="cursor-pointer fill-gray-200" :width="20" :height="20" @click="openOption"></iconTrash>
+        <iconTrash class="cursor-pointer fill-gray-200" @click="openOption"></iconTrash>
       </div>
     </div>
     <div class="flex flex-wrap">

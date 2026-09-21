@@ -70,8 +70,6 @@ chrome.storage.local.get("DisplayLang", (result) => {
 
 const setLang = () => {
   messages.value = "";
-  console.log(`MS${MSLang.value}`);
-  console.log(`Dis${DisplayLang.value}`);
   chrome.storage.local.set({
     MSLang: MSLang.value,
     DisplayLang: DisplayLang.value
