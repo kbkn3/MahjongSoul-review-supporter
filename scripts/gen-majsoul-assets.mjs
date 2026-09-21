@@ -179,17 +179,13 @@ function buildLookup(rows, mapRow) {
 }
 
 const cfg = {
-  fan: buildLookup(decodeSheet("fan", "fan"), (row) => ({
-    name_jp: row.name_jp,
-    name_en: row.name_en,
-  })),
+  fan: buildLookup(decodeSheet("fan", "fan"), (row) => ({ name_jp: row.name_jp })),
   matchmode: buildLookup(decodeSheet("desktop", "matchmode"), (row) => ({
     room_name_jp: row.room_name_jp,
-    room_name_en: row.room_name_en,
   })),
   level: buildLookup(
     decodeSheet("level_definition", "level_definition"),
-    (row) => ({ full_name_jp: row.full_name_jp, full_name_en: row.full_name_en })
+    (row) => ({ full_name_jp: row.full_name_jp })
   ),
   character: buildLookup(
     CHARACTER_SHEETS.flatMap(([table, sheet]) => decodeSheet(table, sheet)),

@@ -2,11 +2,9 @@ import { describe, it, expect } from "vitest";
 import { cfgTables } from "../src/lib/cfg";
 
 describe("cfgTables", () => {
-  it("役名を日本語/英語で引ける", () => {
+  it("役名を引ける", () => {
     const tables = cfgTables();
-    const fan = tables.fan["1"];
-    expect(fan.name_jp).toBe("門前清自摸和");
-    expect(fan.name_en).toBe("Fully Concealed Hand");
+    expect(tables.fan["1"].name_jp).toBe("門前清自摸和");
   });
 
   it("段位・部屋・キャラも引ける", () => {
