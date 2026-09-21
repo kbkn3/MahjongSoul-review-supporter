@@ -1,4 +1,4 @@
-import { RSR, type ReviewMode } from "@/lib/messages";
+import { RSR } from "@/lib/messages";
 import { decodeGameRecord } from "@/lib/record-decode";
 import { parse } from "@/content-scripts/dd";
 
@@ -12,12 +12,8 @@ export default defineContentScript({
   main() {
     // popup起点のトリガを受け、MAIN worldへ最新record要求を投げる
     chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
-      const mode: ReviewMode | null =
-        request.message === "tabNaga" ? "naga"
-        : request.message === "tabMjai" ? "mjai"
-        : null;
-      if (mode) {
-        window.postMessage({ direction: RSR.GET_RECORD, mode }, window.location.origin);
+      if (request.message === "tabNaga") {
+        window.postMessage({ direction: RSR.GET_RECORD }, window.location.origin);
       }
       sendResponse(request.message);
       return false;
@@ -30,7 +26,7 @@ export default defineContentScript({
     window.addEventListener("message", (event) => {
       if (event.source !== window || event.origin !== location.origin) return;
       if (!event.data || event.data.direction !== RSR.RECORD) return;
-      const { bytes } = event.data as { bytes: ArrayBuffer; mode: ReviewMode };
+      const { bytes } = event.data as { bytes: ArrayBuffer };
       try {
         const tenhou = parse(decodeGameRecord(new Uint8Array(bytes)));
         chrome.runtime.sendMessage({ message: tenhou });

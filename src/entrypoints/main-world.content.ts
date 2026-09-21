@@ -1,5 +1,5 @@
 import { GameRecordCapturer } from "@/lib/ws-capture";
-import { RSR, type ReviewMode } from "@/lib/messages";
+import { RSR } from "@/lib/messages";
 
 export default defineContentScript({
   matches: [
@@ -37,10 +37,9 @@ export default defineContentScript({
     window.addEventListener("message", (event) => {
       if (event.source !== window || !event.data) return;
       if (event.data.direction !== RSR.GET_RECORD) return;
-      const mode = event.data.mode as ReviewMode;
       const bytes = capturer.latest();
       if (!bytes) return;
-      window.postMessage({ direction: RSR.RECORD, mode, bytes }, window.location.origin);
+      window.postMessage({ direction: RSR.RECORD, bytes }, window.location.origin);
     });
   },
 });

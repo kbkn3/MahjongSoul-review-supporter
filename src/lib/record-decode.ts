@@ -16,7 +16,8 @@ export interface DecodedRecord {
 
 export function decodeGameRecord(raw: Uint8Array): DecodedRecord {
   const namespace = lq as any;
-  const payload = stripFrameHeader(raw);
+  // フレームヘッダ: type(1バイト) + index(2バイト)。応答生バイト先頭3バイトを除去すると Wrapper 本体になる。
+  const payload = raw.subarray(3);
   // 外側 Wrapper は name が空で data に ResGameRecord をエンコードして持つため、型を明示してデコードする。
   const outer = unwrapWrapper(payload);
   const response = namespace.ResGameRecord.decode(outer.data);
@@ -32,29 +33,20 @@ export function decodeGameRecord(raw: Uint8Array): DecodedRecord {
   const detailWrapper = unwrapWrapper(response.data);
   const detail = namespace.GameDetailRecords.decode(detailWrapper.data);
 
-  const actions: DecodedAction[] = [];
-  const records: Uint8Array[] = detail.records && detail.records.length ? detail.records : [];
-  if (records.length) {
-    // 新クライアント: records[] の各要素が Wrapper でラップされた局イベント。
-    for (const record of records) {
-      const inner = unwrapWrapper(record);
-      actions.push({
-        name: inner.name.replace(/^lq\./, ""),
-        data: messageType(namespace, inner.name).decode(inner.data),
-      });
-    }
-  } else {
-    // 旧版: actions[].result に Wrapper が入る。
-    for (const action of detail.actions ?? []) {
-      if (action.result && action.result.length) {
-        const inner = unwrapWrapper(action.result);
-        actions.push({
-          name: inner.name.replace(/^lq\./, ""),
-          data: messageType(namespace, inner.name).decode(inner.data),
-        });
-      }
-    }
-  }
+  // 新クライアントは records[] の各要素が、旧版は actions[].result が Wrapper でラップされた局イベント。
+  const wrapped: Uint8Array[] = detail.records && detail.records.length
+    ? detail.records
+    : (detail.actions ?? [])
+      .map((action: { result?: Uint8Array }) => action.result)
+      .filter((result: Uint8Array | undefined): result is Uint8Array => !!result && result.length > 0);
+
+  const actions: DecodedAction[] = wrapped.map((record) => {
+    const inner = unwrapWrapper(record);
+    return {
+      name: inner.name.replace(/^lq\./, ""),
+      data: messageType(namespace, inner.name).decode(inner.data),
+    };
+  });
   return { head, actions };
 }
 
@@ -68,9 +60,4 @@ function messageType(namespace: any, qualifiedName: string): any {
     if (!current) throw new Error(`unknown liqi message type: ${qualifiedName}`);
   }
   return current;
-}
-
-// フレームヘッダ: type(1バイト) + index(2バイト)。応答生バイト先頭3バイトを除去すると Wrapper 本体になる。
-function stripFrameHeader(raw: Uint8Array): Uint8Array {
-  return raw.subarray(3);
 }
