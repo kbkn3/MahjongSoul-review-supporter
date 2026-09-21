@@ -109,10 +109,7 @@ const KONTEN_PTEV: Record<Wind, { all: PointTuple; individual: PointTuple }> = {
 };
 
 function resolveTable(dan: string): RankedRoom | null {
-    for (const [prefix, table] of Object.entries(DAN_TO_TABLE)) {
-        if (dan.startsWith(prefix)) return table;
-    }
-    return null;
+    return Object.entries(DAN_TO_TABLE).find(([prefix]) => dan.startsWith(prefix))?.[1] ?? null;
 }
 
 /** 段位ポイント期待値を算出する。tableが未指定の場合は段位名から適正卓を推定する */
@@ -127,7 +124,7 @@ function getPtEV(wind: Wind, dans: string[], table?: RankedRoom | null): (PointT
             return KONTEN_PTEV[wind].individual;
         }
         const resolvedTable = table || resolveTable(dan);
-        const room = resolvedTable ? POINTS[wind]?.[resolvedTable] : undefined;
+        const room = resolvedTable ? POINTS[wind][resolvedTable] : undefined;
         if (!room || !(dan in room)) {
             return POINTS.others.tenho;
         }
