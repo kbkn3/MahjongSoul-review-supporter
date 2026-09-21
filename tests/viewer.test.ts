@@ -39,6 +39,23 @@ describe("soul2naga - 実データ変換", () => {
     });
 });
 
+describe("soul2naga - 名前に配列区切りらしき文字列が含まれる場合", () => {
+    // 以前はJSON整形の正規表現が文字列中の "], [" にも改行を差し込み、URL化したJSONが壊れていた
+    test("'], [' を含む名前でもURLのJSONが壊れない", () => {
+        const { input } = loadTestCase("1.3.1", "riichi_sengen_ron");
+        input.name = sanitizePlayerNames(["名前], [テスト", "B", "C", "D"]);
+        applyPreprocessing(input);
+
+        const urls = soul2naga(input, "dani");
+
+        expect(urls.length).toBeGreaterThan(0);
+        urls.forEach((url: string) => {
+            const decoded = JSON.parse(url.slice(EDITOR_URL_PREFIX.length));
+            expect(decoded.name[0]).toBe("名前], [テスト");
+        });
+    });
+});
+
 describe("sanitizePlayerNames", () => {
     test("ASCII特殊文字を全角に変換する", () => {
         const input = ['Player!1', 'Name#2', '<Tag>', 'A"B', 'C%D', 'E&F', 'G$H', 'I*J'];
