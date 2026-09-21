@@ -47,7 +47,6 @@ onMounted(() => {
 onUnmounted(() => {
   chrome.runtime.onMessage.removeListener(onMessageListener);
 });
-console.log(DisplayLang.value)
 const submitMjai = (no: number) => {
   chrome.storage.local.set({ "toMjaiData": MjaiURLstring });
   chrome.storage.local.set({ "toMjaiData_no": no });
@@ -61,7 +60,6 @@ const submitMjai = (no: number) => {
   } else {
     urlLang = 'https://mjai.ekyu.moe/'
   }
-  console.log(urlLang)
   chrome.tabs.create({
     url: urlLang
   });

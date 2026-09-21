@@ -118,12 +118,10 @@ const btn_msg = computed(() => {
 
 const onMessageListener = (request: any, _sender: any, sendResponse: (response: string) => void) => {
   const title = "疎通";
-  console.log('4.listner');
   fixScoreRonTileWasReachTile(request.message)
   request.message.name = sanitizePlayerNames(request.message.name);
   processData(request.message);
   toNagaData = soul2naga(request.message, Rule.value);
-  console.log(toNagaData)
   sendResponse(title);
 };
 
