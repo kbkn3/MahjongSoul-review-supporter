@@ -15,9 +15,7 @@ function sanitizePlayerNames(names: string[]): string[] {
     );
 }
 
-function createViewerUrls(soulJson: string, ruleMode: string): string[] {
-    const soulPaifu: TenhouMessage = JSON.parse(soulJson);
-
+function createViewerUrls(soulPaifu: TenhouMessage, ruleMode: string): string[] {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let ptEV: any;
     const wind: Wind = soulPaifu.rule.disp.includes('南') ? "south" : "east";
@@ -33,10 +31,11 @@ function createViewerUrls(soulJson: string, ruleMode: string): string[] {
         ptEV = getPtEV(wind, soulPaifu.dan, table as RankedRoom);
     }
 
-    const title = JSON.parse(JSON.stringify(soulPaifu.title));
+    // 入力の牌譜は他のリストも参照するため、書き換える前に複製する(中身は文字列のみなので浅い複製で足りる)
+    const title: TenhouMessage["title"] = [...soulPaifu.title];
     title[0] = toSoulTable(title[0]);
 
-    const rule = JSON.parse(JSON.stringify(soulPaifu.rule));
+    const rule: TenhouMessage["rule"] = { ...soulPaifu.rule };
     rule.disp = toSoulTable(rule.disp);
 
     return soulPaifu.log.map((v: TenhouLog) => (
@@ -51,13 +50,7 @@ function createViewerUrls(soulJson: string, ruleMode: string): string[] {
 }
 
 function soul2naga(results: TenhouMessage, ruleMode: string): string[] {
-    const INDENT = " ".repeat(4);
-    const soulJson = JSON.stringify(results, null, INDENT)
-        .replace(new RegExp(`\n${INDENT}+`, 'g'), " ")
-        .replace(/], \[/g, "],\n        [")
-        .replace(/\n\s+]/g, " ]")
-        .replace(/\n\s+},\n/g, " },\n");
-    return createViewerUrls(soulJson, ruleMode);
+    return createViewerUrls(results, ruleMode);
 }
 
 export { EDITOR_URL_PREFIX, sanitizePlayerNames, soul2naga };
