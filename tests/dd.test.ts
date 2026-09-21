@@ -1,7 +1,6 @@
 import { describe, test, expect } from "vitest";
 import {
     KyokuState,
-    createKyokuState,
     initKyoku,
     handleBaBei,
     handleDealTile,
@@ -18,7 +17,7 @@ import {
 import { TSUMOGIRI } from "../src/lib/constants";
 
 function createTestKyoku(overrides?: Partial<KyokuState>): KyokuState {
-    return createKyokuState({
+    return {
         nplayers: 4,
         round: [0, 0, 0],
         initscores: [25000, 25000, 25000, 25000],
@@ -36,7 +35,7 @@ function createTestKyoku(overrides?: Partial<KyokuState>): KyokuState {
         paowind: -1,
         paodrag: -1,
         ...overrides,
-    });
+    };
 }
 
 describe("handleBaBei", () => {

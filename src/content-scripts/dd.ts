@@ -299,13 +299,13 @@
     }
 
     //this is the json struct that we write to file
-    function parse(record: DecodedRecord, cfg: CfgTables = cfgTables()): TenhouResult {
+    function parse(record: DecodedRecord): TenhouResult {
         TSUMOLOSSOFF = false;
         const nplayers = record.head.result.players.length;
 
-        const { ruledisp, lobby, nakas } = buildRuleDisplay(record, nplayers, cfg);
+        const { ruledisp, lobby, nakas } = buildRuleDisplay(record, nplayers, cfgTables);
         const rule = buildRuleConfig(ruledisp, record, nakas, nplayers);
-        const players = buildPlayerData(record, nplayers, cfg);
+        const players = buildPlayerData(record, nplayers, cfgTables);
 
         const scores = record.head.result.players
             .map((e: any) => [e.seat, e.part_point_1, e.total_point / 1000]);
@@ -315,7 +315,7 @@
         const res: TenhouResult = {
             ver: "2.3",
             ref: record.head.uuid,
-            log: generatelog(record.actions, cfg),
+            log: generatelog(record.actions, cfgTables),
             ratingc: "PF" + nplayers,
             rule,
             lobby: 0,
