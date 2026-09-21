@@ -15,7 +15,14 @@ const raw = Uint8Array.from(
 
 describe("decode→parse の出力全体", () => {
     it("実牌譜がtenhou形式に変換される", async () => {
-        await expect(JSON.stringify(parse(decodeGameRecord(raw)), null, 2))
+        const result = parse(decodeGameRecord(raw));
+
+        // title[1] は end_time を toLocaleString した値で、実行環境のTZ/ロケールで変わる。
+        // 固定値に置き換えて比較対象から外し、生成されていることだけを確認する。
+        expect(result.title[1]).toMatch(/\d/);
+        result.title[1] = "<終了時刻(実行環境依存)>";
+
+        await expect(JSON.stringify(result, null, 2))
             .toMatchFileSnapshot("./snapshots/parse.txt");
     });
 });
