@@ -84,7 +84,7 @@ function toNagaLog(soulLog: TenhouLog): TenhouLog {
     if (soulLog[16].length < 3) {
         return soulLog;
     }
-    const nagaLog = JSON.parse(JSON.stringify(soulLog));
+    const nagaLog = structuredClone(soulLog);
 
     const prevalent = ["東", "南", "西", "北"][Math.floor(nagaLog[0][0] / 4)];
 
