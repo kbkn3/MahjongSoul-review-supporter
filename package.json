@@ -22,7 +22,6 @@
     "@wxt-dev/module-vue": "^1.0.3",
     "knip": "^6.35.1",
     "postcss": "^8.5.28",
-    "postcss-prefix-selector": "^1.7.2",
     "protobufjs-cli": "^2.7.0",
     "tailwindcss": "^4.2.1",
     "typescript": "^5.9.3",
