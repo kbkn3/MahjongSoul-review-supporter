@@ -1,5 +1,7 @@
-import { lq } from "./liqi-schema";
-import { unwrapWrapper } from "./liqi-frame";
+// pbjs static-module (eval 不使用) で生成した lq 名前空間を使う。
+// reflection (Root.fromJSON + lookupType().decode) は protobufjs が new Function でデコード関数を
+// 動的生成するため MV3 の CSP(unsafe-eval 不可)に抵触する。静的生成クラスの .decode() は eval を含まない。
+import { lq } from "../assets/majsoul/liqi-proto";
 
 // name は liqi のメッセージ名(先頭 "lq." を除いたもの, 例 "RecordDiscardTile")。
 // pbjs 静的生成クラスはコンストラクタ名が型名にならない場合があるため、
@@ -48,6 +50,16 @@ export function decodeGameRecord(raw: Uint8Array): DecodedRecord {
     };
   });
   return { head, actions };
+}
+
+// Wrapper{ name, data } をデコードする。name は ".lq.ResGameRecord" のような完全修飾名で、
+// 後続のクラス参照に渡すため先頭の "." を除く。
+function unwrapWrapper(bytes: Uint8Array): { name: string; data: Uint8Array } {
+  const decoded = (lq as any).Wrapper.decode(bytes) as { name: string; data: Uint8Array };
+  return {
+    name: decoded.name.startsWith(".") ? decoded.name.slice(1) : decoded.name,
+    data: decoded.data,
+  };
 }
 
 // 完全修飾名("lq.RecordDiscardTile" や入れ子の "lq.Foo.Bar")からクラスをドット分割で辿る。
