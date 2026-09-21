@@ -4,9 +4,9 @@ import level from "../assets/majsoul/cfg/level.json";
 import character from "../assets/majsoul/cfg/character.json";
 
 export interface CfgTables {
-  fan: Record<string, { name_jp: string; name_en: string }>;
-  matchmode: Record<string, { room_name_jp: string; room_name_en: string }>;
-  level: Record<string, { full_name_jp: string; full_name_en: string }>;
+  fan: Record<string, { name_jp: string }>;
+  matchmode: Record<string, { room_name_jp: string }>;
+  level: Record<string, { full_name_jp: string }>;
   character: Record<string, { sex: number }>;
 }
 
