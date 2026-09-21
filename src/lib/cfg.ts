@@ -10,11 +10,9 @@ export interface CfgTables {
   character: Record<string, { sex: number }>;
 }
 
-export function cfgTables(): CfgTables {
-  return {
-    fan: fan as CfgTables["fan"],
-    matchmode: matchmode as CfgTables["matchmode"],
-    level: level as CfgTables["level"],
-    character: character as CfgTables["character"],
-  };
-}
+export const cfgTables: CfgTables = {
+  fan: fan as CfgTables["fan"],
+  matchmode: matchmode as CfgTables["matchmode"],
+  level: level as CfgTables["level"],
+  character: character as CfgTables["character"],
+};

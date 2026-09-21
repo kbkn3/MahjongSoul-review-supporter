@@ -21,10 +21,6 @@ export interface KyokuState {
     paodrag: number;
 }
 
-export function createKyokuState(init: KyokuState): KyokuState {
-    return { ...init };
-}
-
 export function initKyoku(leaf: any): KyokuState {
     const nplayers = leaf.scores.length;
     const initscores = leaf.scores;
