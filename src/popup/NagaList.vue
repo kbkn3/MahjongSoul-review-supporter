@@ -44,7 +44,7 @@ import Kyoku from "@/popup/Kyoku.vue";
 import { fixScoreRonTileWasReachTile, parseKyokuResult } from "@/lib/naga";
 import type { TenhouMessage, KyokuResultAgari, KyokuResultDraw } from "@/lib/naga";
 import { sanitizePlayerNames, soul2naga } from "@/lib/viewer";
-import { useDisplayLang } from "@/composables/useDisplayLang";
+import { useStoredLang } from "@/composables/useStoredLang";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 interface KyokuInfo {
@@ -66,16 +66,11 @@ const select = (num: number) => {
 const isChecked = ref(false);
 
 const submitNaga = () => {
-  const useKyokus: number[] = [];
-  for (let i = 0; i < Kyoku_info.length; i++) {
-    if (Kyoku_info[i].isSelect === true) {
-      useKyokus.push(Kyoku_info[i].id);
-    }
-  }
-  let URLstring = "";
-  for (const useKyoku of useKyokus) {
-    URLstring = `${URLstring + (toNagaData[useKyoku])}\n`;
-  }
+  // NAGAの入力欄は1行1局。最後の局の後ろにも改行を付ける
+  let URLstring = Kyoku_info
+    .filter(kyoku => kyoku.isSelect)
+    .map(kyoku => `${toNagaData[kyoku.id]}\n`)
+    .join("");
   if (isChecked.value === true) {
     const regexp = /"name":\[.+\],"rule"/g;
     URLstring = URLstring.replace(regexp, '"name":["Aさん","Bさん","Cさん","Dさん"],"rule"');
@@ -88,33 +83,13 @@ const submitNaga = () => {
 };
 
 const selectAll = () => {
-  let count = 0;
-  for (let j = 0; j < Kyoku_info.length; j++) {
-    if (Kyoku_info[j].isSelect === true) {
-      count = count + 1;
-    }
-  }
-  if (count === Kyoku_info.length) {
-    for (let j = 0; j < Kyoku_info.length; j++) {
-      Kyoku_info[j].isSelect = false;
-    }
-  } else {
-    for (let j = 0; j < Kyoku_info.length; j++) {
-      Kyoku_info[j].isSelect = true;
-    }
-  }
+  const allSelected = Kyoku_info.every(kyoku => kyoku.isSelect);
+  Kyoku_info.forEach(kyoku => { kyoku.isSelect = !allSelected; });
 };
 
-const btn_msg = computed(() => {
-  const msg = "NP";
-  const useKyokus: number[] = [];
-  for (let i = 0; i < Kyoku_info.length; i++) {
-    if (Kyoku_info[i].isSelect === true) {
-      useKyokus.push(Kyoku_info[i].id);
-    }
-  }
-  return (useKyokus.length * 10) + msg
-});
+const btn_msg = computed(() =>
+  `${Kyoku_info.filter(kyoku => kyoku.isSelect).length * 10}NP`
+);
 
 const onMessageListener = (request: any, _sender: any, sendResponse: (response: string) => void) => {
   const title = "疎通";
@@ -180,7 +155,7 @@ const processData = (message: TenhouMessage) => {
   }
 };
 
-const DisplayLang = useDisplayLang();
+const DisplayLang = useStoredLang("DisplayLang");
 
 // onMessageリスナーより先にRule値を確定させるため、setup()直下で取得を開始する
 chrome.storage.local.get("rule", (result) => {

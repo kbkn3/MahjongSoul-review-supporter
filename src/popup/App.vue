@@ -44,9 +44,9 @@ import NagaList from "@/popup/NagaList.vue";
 import MjaiList from "@/popup/MjaiList.vue";
 import RecipeList from "@/popup/RecipeList.vue";
 import iconTrash from "@/components/iconTrash.vue";
-import { useDisplayLang } from "@/composables/useDisplayLang";
+import { useStoredLang } from "@/composables/useStoredLang";
 
-const DisplayLang = useDisplayLang();
+const DisplayLang = useStoredLang("DisplayLang");
 // manifest.json から取得して package.json/wxt.config.ts のバンプを唯一の参照源にする(ハードコード時のドリフト防止)
 const version = chrome.runtime.getManifest().version;
 const supportDevelopText = ["開発を支援する", "Sponsor development", "支持开发"];

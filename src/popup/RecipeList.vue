@@ -18,7 +18,7 @@
 import { onMounted, onUnmounted, ref } from "vue";
 import { parseKyokuResult, getScoreAndBonus, hasMeld, hasRiichi } from "@/lib/naga";
 import type { TenhouMessage, KyokuResultAgari } from "@/lib/naga";
-import { useDisplayLang } from "@/composables/useDisplayLang";
+import { useStoredLang } from "@/composables/useStoredLang";
 
 const TableText = ref("牌譜を読み込めていません");
 
@@ -115,7 +115,7 @@ const processData = (message: TenhouMessage, ref_id: string) => {
 };
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
-const DisplayLang = useDisplayLang();
+const DisplayLang = useStoredLang("DisplayLang");
 const description = ["Excelやスプレッドシートにコピペできる戦績です。", "The results can be copied and pasted into Excel or spreadsheets.", "结果可以被复制并粘贴到Excel或电子表格中。"];
 const descriptionColumn = ["ゲームID,名前,素点,順位,和了,放銃,立直,副露,ツモ,ロン,局数,流局数",
   "gameID,name,Table Points,rank,num of Win,num of Deal-in,num of riichi,num of meld,num of Tsumo,num of Ron,num of game,num of exhaustive",
