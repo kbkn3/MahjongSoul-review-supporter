@@ -41,6 +41,15 @@ Collaborator [たまば](https://twitter.com/utm_tmb)
 [mjai-reviewer](https://github.com/Equim-chan/mjai-reviewer)（Mortal）はtenhou/6形式を経由せず
 雀魂から直接牌譜を取得するため、レビュー結果には影響しません。
 
+### 槓が連続した後の槍槓で NAGA の解析が失敗する (Issue #23)
+
+加槓の嶺上ツモ後に打牌せず続けて加槓し、それが槍槓された局は、NAGA で「解析失敗」と
+なります。変換された牌譜のドラ表示牌の枚数は雀魂の表示と一致しており、単独の加槓への
+槍槓は NAGA でも解析できるため、NAGA 側がこの進行に対応していないと考えられます。
+NAGA の入力チェックはこの進行で2回目の加槓時に1回目の新ドラが公開される前提
+（ドラ表示牌2枚）を要求し、1枚では「ドラの数が正しくありません」で受け付けられません。
+2枚では受け付けられた後に解析が失敗し、点数を天鳳ルールで再計算しても変わりませんでした。
+
 ## Credits
 
 This project includes code and concepts from:
