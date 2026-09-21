@@ -14,20 +14,15 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, reactive, ref } from 'vue';
-import { useDisplayLang } from "@/composables/useDisplayLang";
+import { onMounted, onUnmounted, reactive } from 'vue';
+import { useStoredLang } from "@/composables/useStoredLang";
 
 // 先頭のダミー要素でインデックスを1-basedにする（mjai側のselect optionインデックスと合わせるため）
 const seki = reactive([""]);
 let MjaiURLstring = "";
 
-const MSLang = ref(0);
-chrome.storage.local.get("MSLang", (result) => {
-  if (typeof result.MSLang !== "undefined") {
-    MSLang.value = result.MSLang as number;
-  }
-});
-const DisplayLang = useDisplayLang();
+const MSLang = useStoredLang("MSLang");
+const DisplayLang = useStoredLang("DisplayLang");
 
 const url_head = [
   'https://game.mahjongsoul.com/?paipu=',
@@ -47,21 +42,17 @@ onMounted(() => {
 onUnmounted(() => {
   chrome.runtime.onMessage.removeListener(onMessageListener);
 });
+// DisplayLang(0:日本語 1:英語 2:中国語)に対応するmjaiのページ。想定外の値では英語版に落とす
+const MJAI_URL_BY_LANG = [
+  'https://mjai.ekyu.moe/ja.html',
+  'https://mjai.ekyu.moe/',
+  'https://mjai.ekyu.moe/zh-cn.html'
+];
+
 const submitMjai = (no: number) => {
-  chrome.storage.local.set({ "toMjaiData": MjaiURLstring });
-  chrome.storage.local.set({ "toMjaiData_no": no });
-  let urlLang: string;
-  if (DisplayLang.value === 0) {
-    urlLang = 'https://mjai.ekyu.moe/ja.html'
-  } else if (DisplayLang.value === 1) {
-    urlLang = 'https://mjai.ekyu.moe/'
-  } else if (DisplayLang.value === 2) {
-    urlLang = 'https://mjai.ekyu.moe/zh-cn.html'
-  } else {
-    urlLang = 'https://mjai.ekyu.moe/'
-  }
+  chrome.storage.local.set({ "toMjaiData": MjaiURLstring, "toMjaiData_no": no });
   chrome.tabs.create({
-    url: urlLang
+    url: MJAI_URL_BY_LANG[DisplayLang.value] ?? MJAI_URL_BY_LANG[1]
   });
 };
 </script>

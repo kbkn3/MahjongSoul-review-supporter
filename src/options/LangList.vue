@@ -31,6 +31,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import InputSelect from "@/options/InputSelect.vue";
+import { useStoredLang } from "@/composables/useStoredLang";
 
 const langList: Record<string, string> = {
   2: "Chinese",
@@ -53,20 +54,8 @@ const options_server = Object.entries(ServerList).map(([key, value]) => ({
 }));
 
 const messages = ref("");
-const MSLang = ref(0);
-const DisplayLang = ref(0);
-
-// get storage.local lang
-chrome.storage.local.get("MSLang", (result) => {
-  if (typeof result.MSLang !== "undefined") {
-    MSLang.value = result.MSLang as number;
-  }
-});
-chrome.storage.local.get("DisplayLang", (result) => {
-  if (typeof result.DisplayLang !== "undefined") {
-    DisplayLang.value = result.DisplayLang as number;
-  }
-});
+const MSLang = useStoredLang("MSLang");
+const DisplayLang = useStoredLang("DisplayLang");
 
 const setLang = () => {
   messages.value = "";
