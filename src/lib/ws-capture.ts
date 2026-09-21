@@ -4,18 +4,14 @@
 const FRAME_REQUEST = 0x02;
 const FRAME_RESPONSE = 0x03;
 
+// latin1 は1バイトを1文字へそのまま写すため、バイト列を文字列として検索できる。
+// needle は ASCII に限るので、0x80以上のバイトが ASCII 文字に化けて誤一致することはない。
+const frameText = new TextDecoder("latin1");
+
 // haystack中にneedle(ASCII)が現れるか。リクエストのWrapper.name(".lq.Lobby.fetchGameRecord")判定用。
 export function containsAscii(haystack: Uint8Array, needle: string): boolean {
-  const n = needle.length;
-  if (n === 0 || haystack.length < n) return false;
-  for (let i = 0; i + n <= haystack.length; i++) {
-    let matched = true;
-    for (let j = 0; j < n; j++) {
-      if (haystack[i + j] !== needle.charCodeAt(j)) { matched = false; break; }
-    }
-    if (matched) return true;
-  }
-  return false;
+  if (needle.length === 0) return false;
+  return frameText.decode(haystack).includes(needle);
 }
 
 // フレーム先頭の type 直後2バイト(LE)の index。
