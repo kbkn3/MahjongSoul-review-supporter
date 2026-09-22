@@ -37,6 +37,8 @@
 
         <!-- Ryukyoku pattern -->
         <div v-if="result[0][0] === '流局'">
+            <!-- 全員ノーテン・全員テンパイでは点数が動かずテンパイ者を列挙できない -->
+            <div v-if="result[0].length === 1" class="text-left text-base hudetext text-gray-300">{{ Exhaustive_draw_str[Language] }}</div>
             <div v-for="n in ((result[0].length) - 1)" :key="n" class="flex flex-row items-end">
                 <div class="text-left text-base w-1/4 hudetext text-gray-300"> {{ result[0][0] }}</div>
                 <div class="text-center text-base text-gray-300 w-1/2">{{ result[0][n] }}</div>
@@ -75,5 +77,6 @@ const Win_str = [
     ["榮和", "自摸"],
 ];
 const Deal_str = ["放銃", "Deal-in", "放銃"];
+const Exhaustive_draw_str = ["荒牌", "Exhaustive draw", "荒牌"];
 const Unsupported_str = ["NAGA非対応（連続槓後の槍槓）", "Not supported by NAGA (chankan after consecutive kans)", "NAGA不支持（连续杠后的抢杠）"];
 </script>
