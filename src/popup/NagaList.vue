@@ -41,7 +41,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, reactive, ref, computed } from "vue";
 import Kyoku from "@/popup/Kyoku.vue";
-import { fixScoreRonTileWasReachTile, parseKyokuResult } from "@/lib/naga";
+import { fixScoreRonTileWasReachTile, isChankanAfterConsecutiveKan, parseKyokuResult } from "@/lib/naga";
 import type { TenhouMessage, KyokuResultAgari, KyokuResultDraw } from "@/lib/naga";
 import { sanitizePlayerNames, soul2naga } from "@/lib/viewer";
 import { useStoredLang } from "@/composables/useStoredLang";
@@ -54,12 +54,14 @@ interface KyokuInfo {
   Honba: number;
   result: any[][];
   isSelect: boolean;
+  isUnsupported: boolean;
 }
 
 const Kyoku_info = reactive<KyokuInfo[]>([]);
 let toNagaData: string[] = [];
 
 const select = (num: number) => {
+  if (Kyoku_info[num].isUnsupported) return;
   Kyoku_info[num].isSelect = !Kyoku_info[num].isSelect;
 };
 
@@ -83,8 +85,9 @@ const submitNaga = () => {
 };
 
 const selectAll = () => {
-  const allSelected = Kyoku_info.every(kyoku => kyoku.isSelect);
-  Kyoku_info.forEach(kyoku => { kyoku.isSelect = !allSelected; });
+  const selectable = Kyoku_info.filter(kyoku => !kyoku.isUnsupported);
+  const allSelected = selectable.every(kyoku => kyoku.isSelect);
+  selectable.forEach(kyoku => { kyoku.isSelect = !allSelected; });
 };
 
 const btn_msg = computed(() =>
@@ -117,6 +120,7 @@ const processData = (message: TenhouMessage) => {
       Honba: message.log[i][0][1],
       result: [],
       isSelect: false,
+      isUnsupported: isChankanAfterConsecutiveKan(message.log[i]),
     };
     const parsed = parseKyokuResult(message.log[i][16]);
     if (parsed.type === "和了") {

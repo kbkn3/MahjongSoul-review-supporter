@@ -1,4 +1,4 @@
-import { extractTable, toSoulTable, toNagaHand, toNagaLog, parseKyokuResult, checkRonTileIsReachTile, fixScoreRonTileWasReachTile, getDrawsForSeat, getDiscardsForSeat, getScoreAndBonus, hasMeld, hasRiichi } from "../src/lib/naga";
+import { extractTable, toSoulTable, toNagaHand, toNagaLog, parseKyokuResult, checkRonTileIsReachTile, fixScoreRonTileWasReachTile, getDrawsForSeat, getDiscardsForSeat, getScoreAndBonus, hasMeld, hasRiichi, isChankanAfterConsecutiveKan } from "../src/lib/naga";
 import type { KyokuResultAgari, KyokuResultDraw, AgariInfo } from "../src/lib/naga";
 
 describe("extractTable", () => {
@@ -356,5 +356,45 @@ describe("hasRiichi", () => {
         const log = buildMinimalLog();
         log[12] = [31, "42k424242"];
         expect(hasRiichi(log, 2)).toBe(false);
+    });
+});
+
+describe("isChankanAfterConsecutiveKan", () => {
+    const chankanLog = (loserDiscards: unknown[]) => {
+        const log = buildMinimalLog();
+        log[12] = loserDiscards;
+        log[16] = ["和了", [8700, 0, -7700, 0], [0, 2, 0, "40符3飜7700点"]];
+        return log;
+    };
+
+    // Issue #23の再現形: 加槓→嶺上ツモ→加槓が槍槓された
+    test("加槓→加槓への槍槓を検出する", () => {
+        expect(isChankanAfterConsecutiveKan(chankanLog([12, "46k464646", "2222k2222"]))).toBe(true);
+    });
+
+    test("大明槓→加槓への槍槓を検出する", () => {
+        expect(isChankanAfterConsecutiveKan(chankanLog([12, 0, "2222k2222"]))).toBe(true);
+    });
+
+    // NAGAで解析できることを天鳳のサンプル牌譜で確認済み
+    test("単独の加槓への槍槓は対象外", () => {
+        expect(isChankanAfterConsecutiveKan(chankanLog([12, 60, "2222k2222"]))).toBe(false);
+    });
+
+    // 暗槓は宣言時にドラが公開されるため、NAGAの入力チェックで食い違いが起きない
+    test("暗槓→加槓への槍槓は対象外", () => {
+        expect(isChankanAfterConsecutiveKan(chankanLog([12, "464646a46", "2222k2222"]))).toBe(false);
+    });
+
+    test("ツモ和了は対象外", () => {
+        const log = chankanLog([12, "46k464646", "2222k2222"]);
+        log[16] = ["和了", [-2000, -4000, 9000, -2000], [2, 2, 2, "満貫2000-4000点"]];
+        expect(isChankanAfterConsecutiveKan(log)).toBe(false);
+    });
+
+    test("流局は対象外", () => {
+        const log = chankanLog([12, "46k464646", "2222k2222"]);
+        log[16] = ["流局", [0, 0, 0, 0]];
+        expect(isChankanAfterConsecutiveKan(log)).toBe(false);
     });
 });

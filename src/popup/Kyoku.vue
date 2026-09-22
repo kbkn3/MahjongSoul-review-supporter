@@ -1,6 +1,7 @@
 <template>
     <div class="mx-1 my-2 block max-w-sm rounded-lg border-2  bg-mjsoul-grad-dark-blue p-2 shadow-md hover:bg-gray-800"
-        :class="{ 'border-gray-200': !isSelect, 'border-red-600': isSelect }">
+        :class="{ 'border-gray-200': !isSelect, 'border-red-600': isSelect, 'opacity-50 cursor-not-allowed': isUnsupported }">
+        <div class="text-sm text-gray-300" v-if="isUnsupported">{{ Unsupported_str[Language] }}</div>
         <div class="text-lg  text-mjsoul-text-lightblue hudetext" v-if="Language !== 1">
             {{ Ba_str[Language][Ba] }}
             {{ Kyoku_num }} 局 {{ Honba }} 本場
@@ -57,8 +58,10 @@ withDefaults(defineProps<{
     Honba: number;
     result: any[][]; // eslint-disable-line @typescript-eslint/no-explicit-any
     isSelect?: boolean;
+    isUnsupported?: boolean;
 }>(), {
     isSelect: false,
+    isUnsupported: false,
 });
 
 const Ba_str = [
@@ -72,4 +75,5 @@ const Win_str = [
     ["榮和", "自摸"],
 ];
 const Deal_str = ["放銃", "Deal-in", "放銃"];
+const Unsupported_str = ["NAGA非対応（連続槓後の槍槓）", "Not supported by NAGA (chankan after consecutive kans)", "NAGA不支持（连续杠后的抢杠）"];
 </script>
