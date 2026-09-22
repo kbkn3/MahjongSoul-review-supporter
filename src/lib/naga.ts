@@ -183,6 +183,21 @@ function hasRiichi(logEntry: TenhouLog, seat: number): boolean {
     );
 }
 
+// 明槓(大明槓・加槓)の嶺上ツモ後に続けた加槓が槍槓された局。NAGAの入力チェックは
+// 1回目の明槓の新ドラ公開を要求するが、それを満たした牌譜は解析で失敗する(Issue #23)。
+// 大明槓が先行する形は入力チェック上同じ扱いだが、NAGAでの解析失敗は未確認
+function isChankanAfterConsecutiveKan(logEntry: TenhouLog): boolean {
+    const result = parseKyokuResult(logEntry[16]);
+    if (result.type !== "和了") return false;
+    return (result as KyokuResultAgari).agaris.some(agari => {
+        if (agari.isTsumo) return false;
+        const discards = getDiscardsForSeat(logEntry, agari.loserSeat);
+        const [previous, last] = discards.slice(-2);
+        const isKakan = (entry: unknown) => typeof entry === "string" && entry.includes("k");
+        return discards.length >= 2 && isKakan(last) && (isKakan(previous) || previous === 0);
+    });
+}
+
 export {
     extractTable,
     toSoulTable,
@@ -196,5 +211,6 @@ export {
     getScoreAndBonus,
     hasMeld,
     hasRiichi,
+    isChankanAfterConsecutiveKan,
 };
 export type { TenhouLog, TenhouMessage, AgariInfo, KyokuResultAgari, KyokuResultDraw };
