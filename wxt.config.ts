@@ -5,7 +5,7 @@ export default defineConfig({
     modules: ["@wxt-dev/module-vue"],
     manifest: ({ mode }) => ({
         name: "__MSG_appName__",
-        version: "1.5.2",
+        version: "1.6.0",
         description: "__MSG_appDesc__",
         author: "kbkn",
         default_locale: "en",
