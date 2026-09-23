@@ -47,7 +47,7 @@ import iconTrash from "@/components/iconTrash.vue";
 import { useStoredLang } from "@/composables/useStoredLang";
 
 const DisplayLang = useStoredLang("DisplayLang");
-// manifest.json から取得して package.json/wxt.config.ts のバンプを唯一の参照源にする(ハードコード時のドリフト防止)
+// manifest.version は WXT が package.json から生成するため、package.json のバンプだけで追従する(ハードコード時のドリフト防止)
 const version = chrome.runtime.getManifest().version;
 const supportDevelopText = ["開発を支援する", "Sponsor development", "支持开发"];
 const bugReportText = ["バグ報告", "Bug report", "错误报告"];
